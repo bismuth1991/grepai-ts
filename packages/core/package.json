@@ -1,7 +1,6 @@
 {
   "name": "@grepai/core",
   "exports": {
-    "./config": "./src/config.ts",
     "./vercel-ai": "./src/internal/services/vercel-ai.ts"
   },
   "scripts": {

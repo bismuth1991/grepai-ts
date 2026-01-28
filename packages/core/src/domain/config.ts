@@ -79,4 +79,4 @@ export const GrepAiConfig = Schema.Struct({
     ),
   }),
 })
-export type GrepAiConfig = typeof GrepAiConfig.Encoded
+export type GrepAiConfig = typeof GrepAiConfig.Type

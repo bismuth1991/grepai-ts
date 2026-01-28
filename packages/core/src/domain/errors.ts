@@ -6,3 +6,14 @@ export class VercelAiError extends Schema.TaggedError<VercelAiError>()(
     cause: Schema.Defect,
   },
 ) {}
+
+export class MissingEnv extends Schema.TaggedError<MissingEnv>()('MissingEnv', {
+  env: Schema.String,
+}) {}
+
+export class ConfigLoaderError extends Schema.TaggedError<ConfigLoaderError>()(
+  'ConfigLoaderError',
+  {
+    cause: Schema.Defect,
+  },
+) {}
