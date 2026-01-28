@@ -1,10 +1,11 @@
+import { FileSystem } from '@effect/platform'
 import * as Effect from 'effect/Effect'
 import * as Layer from 'effect/Layer'
 import * as Schema from 'effect/Schema'
-import { ConfigLoaderError, MissingEnv } from '../../domain/errors'
-import { ConfigLoader } from '../../domain/config-loader'
-import { FileSystem } from '@effect/platform'
+
 import { GrepAiConfig } from '../../domain/config'
+import { ConfigLoader } from '../../domain/config-loader'
+import { ConfigLoaderError, MissingEnv } from '../../domain/errors'
 
 export const ConfigLoaderJson = Layer.effect(
   ConfigLoader,

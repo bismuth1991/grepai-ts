@@ -2,7 +2,26 @@
   "$schema": "./node_modules/oxfmt/configuration_schema.json",
   "printWidth": 80,
   "semi": false,
-  "quoteProps":"consistent",
+  "quoteProps": "consistent",
   "singleQuote": true,
+  "experimentalSortImports": {
+    "newlinesBetween": true,
+    "groups": [
+      ["side-effect"],
+      [
+        "type-external",
+        "type-internal",
+        "type-parent",
+        "type-sibling",
+        "type-index"
+      ],
+      ["builtin"],
+      ["external"],
+      ["internal"],
+      ["parent"],
+      ["sibling"],
+      ["index"]
+    ]
+  },
   "ignorePatterns": []
 }

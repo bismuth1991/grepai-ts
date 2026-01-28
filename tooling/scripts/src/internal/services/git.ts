@@ -1,6 +1,6 @@
+import { Command, CommandExecutor } from '@effect/platform'
 import * as Effect from 'effect/Effect'
 import * as String from 'effect/String'
-import { Command, CommandExecutor } from '@effect/platform'
 
 export class Git extends Effect.Service<Git>()(
   '@pm-with-friends/cli/service/git/Git',

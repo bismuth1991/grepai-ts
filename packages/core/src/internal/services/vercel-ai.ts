@@ -1,9 +1,10 @@
+import { createGoogleGenerativeAI } from '@ai-sdk/google'
+import { generateText, jsonSchema } from 'ai'
 import * as Config from 'effect/Config'
 import * as Effect from 'effect/Effect'
 import * as Redacted from 'effect/Redacted'
-import { generateText, jsonSchema } from 'ai'
+
 import { VercelAiError } from '../../domain/errors'
-import { createGoogleGenerativeAI } from '@ai-sdk/google'
 
 export class VercelAi extends Effect.Service<VercelAi>()(
   '@grepai/core/internal/services/vercel-ai/VercelAi',

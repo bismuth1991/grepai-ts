@@ -1,7 +1,8 @@
 import * as Context from 'effect/Context'
 import * as Effect from 'effect/Effect'
-import { ConfigLoaderError, MissingEnv } from './errors'
+
 import { GrepAiConfig } from './config'
+import { ConfigLoaderError, MissingEnv } from './errors'
 
 export class ConfigLoader extends Context.Tag(
   '@grepai/core/domain/config-loader/ConfigLoader',
