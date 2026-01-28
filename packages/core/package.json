@@ -1,15 +1,21 @@
 {
   "name": "@grepai/core",
+  "exports": {
+    "./config": "./src/config.ts",
+    "./vercel-ai": "./src/internal/services/vercel-ai.ts"
+  },
   "scripts": {
     "clean": "git clean -xdf .cache .turbo node_modules",
     "lint": "oxlint",
     "typecheck": "tsc --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
+    "@ai-sdk/google": "catalog:ai",
     "@effect/platform": "catalog:effect",
     "@effect/platform-bun": "catalog:effect",
     "@effect/sql": "catalog:effect",
     "@effect/sql-libsql": "catalog:effect",
+    "ai": "catalog:ai",
     "effect": "catalog:effect"
   },
   "devDependencies": {
