@@ -18,3 +18,7 @@ node_modules/
 
 # IDE settings
 .zed
+
+# Opencode
+.opencode
+.sisyphus

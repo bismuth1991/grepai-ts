@@ -3,6 +3,11 @@
   "categories": {
     "correctness": "error"
   },
-  "plugins": ["eslint", "unicorn", "oxc"],
+  "rules": {
+    "sort-imports": "error",
+    "import/consistent-type-specifier-style": "error",
+    "typescript/consistent-type-imports": "error"
+  },
+  "plugins": ["import"],
   "ignorePatterns": ["node_modules", ".turbo", ".cache"]
 }
