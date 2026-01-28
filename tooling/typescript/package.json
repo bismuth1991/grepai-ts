@@ -1,0 +1,7 @@
+{
+  "name": "@grepai/tsconfig",
+  "private": true,
+  "files": [
+    "*.json"
+  ]
+}

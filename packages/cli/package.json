@@ -1,0 +1,33 @@
+{
+  "name": "@grepai/cli",
+  "version": "0.0.1",
+  "description": "CLI for semantic code search. It uses vector embeddings to understand code meaning, enabling natural language queries that find relevant code—even when naming conventions vary.",
+  "homepage": "https://github.com/bismuth1991/grepai-ts#readme",
+  "bugs": {
+    "url": "https://github.com/bismuth1991/grepai-ts/issues"
+  },
+  "license": "MIT",
+  "author": "bismuth1991",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bismuth1991/grepai-ts.git",
+    "directory": "packages/cli"
+  },
+  "scripts": {
+    "clean": "git clean -xdf .cache .turbo node_modules",
+    "lint": "oxlint",
+    "typecheck": "tsc --noEmit --emitDeclarationOnly false"
+  },
+  "dependencies": {
+    "@effect/cli": "catalog:effect",
+    "@effect/platform": "catalog:effect",
+    "@effect/platform-bun": "catalog:effect",
+    "@effect/sql": "catalog:effect",
+    "@effect/sql-libsql": "catalog:effect",
+    "effect": "catalog:effect"
+  },
+  "devDependencies": {
+    "@grepai/tsconfig": "workspace:*",
+    "typescript": "catalog:"
+  }
+}

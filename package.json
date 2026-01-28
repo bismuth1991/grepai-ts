@@ -1,0 +1,48 @@
+{
+  "private": true,
+  "workspaces": {
+    "packages": [
+      "packages/*",
+      "tooling/*"
+    ],
+    "catalog": {
+      "@types/bun": "1.3.7",
+      "@dotenvx/dotenvx": "1.51.4",
+      "typescript": "5.9.3"
+    },
+    "catalogs": {
+      "ai": {
+        "@ai-sdk/google": "3.0.7",
+        "ai": "6.0.33"
+      },
+      "effect": {
+        "@effect/cli": "0.73.1",
+        "@effect/language-service": "0.72.0",
+        "@effect/platform": "0.94.2",
+        "@effect/platform-bun": "0.87.1",
+        "@effect/sql": "0.49.0",
+        "@effect/sql-libsql": "0.39.0",
+        "effect": "3.19.15"
+      }
+    }
+  },
+  "type": "module",
+  "scripts": {
+    "clean": "git clean -xdf .turbo node_modules",
+    "clean:workspaces": "turbo run clean && bun clean",
+    "lint": "turbo lint --continue",
+    "lint:fix": "turbo run lint --continue -- --fix",
+    "typecheck": "turbo run typecheck"
+  },
+  "devDependencies": {
+    "@effect/language-service": "catalog:effect",
+    "@types/bun": "catalog:",
+    "oxfmt": "0.27.0",
+    "oxlint": "1.42.0",
+    "turbo": "2.7.6"
+  },
+  "peerDependencies": {
+    "typescript": "catalog:"
+  },
+  "packageManager": "bun@1.3.7"
+}

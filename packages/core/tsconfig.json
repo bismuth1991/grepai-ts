@@ -1,0 +1,5 @@
+{
+  "extends": "@grepai/tsconfig/base.json",
+  "include": ["src"],
+  "exclude": ["node_modules", ".turbo", ".cache"]
+}

@@ -1,0 +1,20 @@
+# Caches
+.cache
+.turbo
+
+# Dependency directories
+node_modules/
+
+# dotenv environment variable files
+!.env.example
+.env
+.env.*
+
+# Finder (MacOS) folder config
+.DS_Store
+
+# TypeScript
+*.tsbuildinfo
+
+# IDE settings
+.zed

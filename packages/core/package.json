@@ -1,0 +1,19 @@
+{
+  "name": "@grepai/core",
+  "scripts": {
+    "clean": "git clean -xdf .cache .turbo node_modules",
+    "lint": "oxlint",
+    "typecheck": "tsc --noEmit --emitDeclarationOnly false"
+  },
+  "dependencies": {
+    "@effect/platform": "catalog:effect",
+    "@effect/platform-bun": "catalog:effect",
+    "@effect/sql": "catalog:effect",
+    "@effect/sql-libsql": "catalog:effect",
+    "effect": "catalog:effect"
+  },
+  "devDependencies": {
+    "@grepai/tsconfig": "workspace:*",
+    "typescript": "catalog:"
+  }
+}
