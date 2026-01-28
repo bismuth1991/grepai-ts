@@ -1,0 +1,23 @@
+{
+  "name": "@grepai/scripts",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "clean": "git clean -xdf .cache .turbo node_modules",
+    "lint": "eslint",
+    "typecheck": "tsc --noEmit --emitDeclarationOnly false"
+  },
+  "dependencies": {
+    "@dotenvx/dotenvx": "catalog:",
+    "@effect/cli": "catalog:effect",
+    "@effect/platform": "catalog:effect",
+    "@effect/platform-bun": "catalog:effect",
+    "@grepai/core": "workspace:*",
+    "effect": "catalog:effect"
+  },
+  "devDependencies": {
+    "@grepai/tsconfig": "workspace:*",
+    "typescript": "catalog:"
+  }
+}
