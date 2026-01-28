@@ -7,7 +7,7 @@ import * as String from 'effect/String'
 
 import { ConfigLoader } from '../../domain/config-loader'
 
-export const SqlClientLive = Layer.unwrapEffect(
+export const LibsqlClientLive = Layer.unwrapEffect(
   Effect.gen(function* () {
     const configLoader = yield* ConfigLoader
     const config = yield* configLoader.load()
