@@ -31,3 +31,10 @@ export class SchemaValidationFailed extends Schema.TaggedError<SchemaValidationF
     ),
   },
 ) {}
+
+export class DocumentNotFound extends Schema.TaggedError<DocumentNotFound>()(
+  'DocumentNotFound',
+  {
+    filePath: Schema.String,
+  },
+) {}

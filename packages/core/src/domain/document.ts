@@ -8,3 +8,7 @@ export const Document = Schema.Struct({
   updatedAt: Schema.Date,
 })
 export type Document = typeof Document.Type
+export type DocumentInsertInput = Omit<
+  Document,
+  'id' | 'createdAt' | 'updatedAt'
+>
