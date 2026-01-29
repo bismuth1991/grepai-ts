@@ -1,8 +1,8 @@
 import * as Schema from 'effect/Schema'
 
 export const Document = Schema.Struct({
+  id: Schema.Number,
   filePath: Schema.String,
-  projectId: Schema.String,
   hash: Schema.String,
   createdAt: Schema.Date,
   updatedAt: Schema.Date,

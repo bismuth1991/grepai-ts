@@ -30,23 +30,18 @@ export const MigratorLive = LibsqlMigrator.layer({
         orElse: () =>
           sql`
             CREATE TABLE IF NOT EXISTS documents (
-              file_path  TEXT NOT NULL,
-              project_id TEXT NOT NULL,
-              hash       TEXT NOT NULL,
-              created_at TEXT NOT NULL,
-              updated_at TEXT NOT NULL,
-
-              PRIMARY KEY (project_id, file_path)
+              id         INTEGER PRIMARY KEY
+              , file_path  TEXT NOT NULL
+              , hash       TEXT NOT NULL
+              , created_at TEXT NOT NULL
+              , updated_at TEXT NOT NULL
             );
           `,
       })
       yield* sql.onDialectOrElse({
         orElse: () =>
           sql`
-            CREATE INDEX IF NOT EXISTS idx_documents_project_id
-              ON documents (project_id);
-
-            CREATE INDEX IF NOT EXISTS idx_documents_file_path
+            CREATE UNIQUE INDEX IF NOT EXISTS uniq_documents_file_path
               ON documents (file_path);
 
             CREATE INDEX IF NOT EXISTS idx_documents_hash
@@ -63,40 +58,47 @@ export const MigratorLive = LibsqlMigrator.layer({
       yield* sql.onDialectOrElse({
         orElse: () =>
           sql`
-          CREATE TABLE IF NOT EXISTS chunks (
-            id         TEXT NOT NULL,
-            project_id TEXT NOT NULL,
-            file_path  TEXT NOT NULL,
-            start_line INTEGER NOT NULL,
-            end_line   INTEGER NOT NULL,
-            content    TEXT NOT NULL,
-            vector     F32_BLOB(3072) NOT NULL,
-            hash       TEXT NOT NULL,
-            created_at TEXT NOT NULL,
-            updated_at TEXT NOT NULL,
-
-            PRIMARY KEY (id, project_id)
-          );
-        `,
+            CREATE TABLE IF NOT EXISTS chunks (
+              id           INTEGER PRIMARY KEY
+              , chunk_id   TEXT NOT NULL
+              , file_path  TEXT NOT NULL
+              , start_line INTEGER NOT NULL
+              , end_line   INTEGER NOT NULL
+              , content    TEXT NOT NULL
+              , vector     F32_BLOB(3072) NOT NULL
+              , hash       TEXT NOT NULL
+              , created_at TEXT NOT NULL
+              , updated_at TEXT NOT NULL
+            );
+          `,
       })
       yield* sql.onDialectOrElse({
         orElse: () =>
           sql`
-          CREATE INDEX IF NOT EXISTS idx_chunks_project_id
-            ON chunks (project_id);
+            CREATE UNIQUE INDEX IF NOT EXISTS uniq_chunks_chunk_id
+              ON chunks (chunk_id);
 
-          CREATE INDEX IF NOT EXISTS idx_chunks_project_id_file_path
-            ON chunks (project_id, file_path);
+            CREATE INDEX IF NOT EXISTS idx_chunks_file_path
+              ON chunks (file_path);
 
-          CREATE INDEX IF NOT EXISTS idx_chunks_file_path
-            ON chunks (file_path);
+            CREATE INDEX IF NOT EXISTS idx_chunks_hash
+              ON chunks (hash);
 
-          CREATE INDEX IF NOT EXISTS idx_chunks_hash
-            ON chunks (hash);
+            CREATE INDEX IF NOT EXISTS idx_chunks_updated_at
+              ON chunks (updated_at);
 
-          CREATE INDEX IF NOT EXISTS idx_chunks_updated_at
-            ON chunks (updated_at);
-        `,
+            CREATE INDEX IF NOT EXISTS idx_chunks_vector
+              ON chunks(
+                libsql_vector_idx(
+                  vector
+                  , 'metric=cosine'
+                  , 'compress_neighbors=float32'
+                  , 'alpha=1.4'
+                  , 'search_l=400'
+                  , 'insert_l=150'
+                )
+              );
+          `,
       })
     }),
   }),
