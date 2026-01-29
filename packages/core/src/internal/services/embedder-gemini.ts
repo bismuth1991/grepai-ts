@@ -1,3 +1,5 @@
+import type { EmbedQueryType } from '../../domain/embedder'
+
 import * as Array from 'effect/Array'
 import * as Effect from 'effect/Effect'
 import * as Layer from 'effect/Layer'
@@ -43,8 +45,39 @@ export const EmbedderGemini = Layer.effect(
       }),
     )
 
+    const embedQuery = Effect.fnUntraced(
+      function* (query: string, type: EmbedQueryType = 'code-retrieval') {
+        const taskType =
+          type === 'code-retrieval' ? 'CODE_RETRIEVAL_QUERY' : 'RETRIEVAL_QUERY'
+
+        return yield* ai
+          .use(({ embedMany: embed, google }) =>
+            embed({
+              model: google.embedding(config.embedding.model),
+              values: [query],
+              providerOptions: {
+                google: {
+                  taskType,
+                },
+              },
+            }),
+          )
+          .pipe(
+            Effect.map(({ embeddings }) => embeddings),
+            Effect.flatMap(
+              Schema.decodeUnknown(Schema.NonEmptyArray(Embedding)),
+            ),
+            Effect.map(Array.headNonEmpty),
+          )
+      },
+      Effect.catchTags({
+        ParseError: (cause) => new SchemaValidationFailed({ cause }),
+      }),
+    )
+
     return Embedder.of({
       embedMany,
+      embedQuery,
     })
   }),
 )
