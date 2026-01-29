@@ -43,7 +43,7 @@ The header is a single line: `<type>(<scope>): <description>`
 ## Output Structure
 
 - Return **ONLY** the raw commit message string. Do not use JSON, code blocks, or markdown formatting around the output.
-- Do not include conversational filler ("Here is the commit message").
+- Do not include conversational filler ("Here is the commit message"). Be terse and concise.
 
 ---
 
