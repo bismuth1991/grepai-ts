@@ -65,7 +65,7 @@ export const MigratorLive = LibsqlMigrator.layer({
               , start_line INTEGER NOT NULL
               , end_line   INTEGER NOT NULL
               , content    TEXT NOT NULL
-              , vector     F32_BLOB(3072) NOT NULL
+              , embedding  F32_BLOB(3072) NOT NULL
               , hash       TEXT NOT NULL
               , created_at TEXT NOT NULL
               , updated_at TEXT NOT NULL
@@ -90,7 +90,7 @@ export const MigratorLive = LibsqlMigrator.layer({
             CREATE INDEX IF NOT EXISTS idx_chunks_vector
               ON chunks(
                 libsql_vector_idx(
-                  vector
+                  embedding
                   , 'metric=cosine'
                   , 'compress_neighbors=float32'
                   , 'alpha=1.4'

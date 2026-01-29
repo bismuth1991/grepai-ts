@@ -25,7 +25,7 @@ export const ChunkStorageSql = Layer.effect(
                 , start_line
                 , end_line
                 , content
-                , vector_extract(vector)
+                , vector_extract(embedding)
                 , hash
                 , created_at
                 , updated_at
@@ -54,7 +54,7 @@ export const ChunkStorageSql = Layer.effect(
                 , start_line
                 , end_line
                 , content
-                , vector_extract(vector)
+                , vector_extract(embedding)
                 , hash
                 , created_at
                 , updated_at
@@ -94,7 +94,7 @@ export const ChunkStorageSql = Layer.effect(
                 , start_line
                 , end_line
                 , content
-                , vector
+                , embedding
                 , hash
                 , created_at
                 , updated_at
@@ -105,7 +105,7 @@ export const ChunkStorageSql = Layer.effect(
                 , ${chunk.startLine}
                 , ${chunk.endLine}
                 , ${chunk.content}
-                , vector32(${chunk.vector})
+                , vector32(${chunk.embedding})
                 , ${chunk.hash}
                 , ${chunk.createdAt}
                 , ${chunk.updatedAt}

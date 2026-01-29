@@ -9,7 +9,7 @@ export const Chunk = Schema.Struct({
   startLine: Schema.Number,
   endLine: Schema.Number,
   content: Schema.String,
-  vector: Embedding,
+  embedding: Embedding,
   hash: Schema.String,
   createdAt: Schema.Date,
   updatedAt: Schema.Date,
