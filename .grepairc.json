@@ -1,0 +1,15 @@
+{
+  "$schema": "packages/core/src/grepai-config-schema.json",
+  "storage": {
+    "type": "turso",
+    "url": "${TURSO_DB_URL}",
+    "authToken": "${TURSO_DB_AUTH_TOKEN}"
+  },
+  "embedding": {
+    "provider": "google",
+    "model": "gemini-embedding-001",
+    "apiKey": "${GEMINI_API_KEY}"
+  },
+  "include": [],
+  "exclude": []
+}

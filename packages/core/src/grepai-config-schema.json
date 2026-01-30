@@ -1,0 +1,82 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "required": [
+    "embedding",
+    "storage"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "embedding": {
+      "type": "object",
+      "required": [
+        "provider",
+        "model",
+        "apiKey"
+      ],
+      "properties": {
+        "provider": {
+          "type": "string",
+          "enum": [
+            "google"
+          ]
+        },
+        "model": {
+          "type": "string",
+          "enum": [
+            "gemini-embedding-001",
+            "text-embedding-004"
+          ]
+        },
+        "apiKey": {
+          "type": "string"
+        },
+        "maxChunkSize": {
+          "type": "number"
+        },
+        "chunkOverlap": {
+          "type": "number"
+        }
+      },
+      "additionalProperties": false
+    },
+    "include": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "exclude": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "storage": {
+      "type": "object",
+      "required": [
+        "type",
+        "authToken",
+        "url"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "turso"
+          ]
+        },
+        "authToken": {
+          "type": "string"
+        },
+        "url": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

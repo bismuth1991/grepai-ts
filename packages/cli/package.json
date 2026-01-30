@@ -15,6 +15,7 @@
   },
   "scripts": {
     "clean": "git clean -xdf .cache .turbo node_modules",
+    "format": "oxfmt",
     "lint": "oxlint",
     "typecheck": "tsc --noEmit --emitDeclarationOnly false"
   },

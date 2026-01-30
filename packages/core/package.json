@@ -1,11 +1,12 @@
 {
   "name": "@grepai/core",
   "exports": {
-    "./vercel-ai": "./src/internal/services/vercel-ai.ts",
-    "./ast-parser": "./src/internal/services/ast-parser.ts"
+    "./vercel-ai": "./src/internal/services/vercel-ai.ts"
   },
   "scripts": {
+    "build": "bun --bun run src/internal/scripts/build.ts",
     "clean": "git clean -xdf .cache .turbo node_modules",
+    "format": "oxfmt",
     "lint": "oxlint",
     "test": "bun --bun run vitest",
     "typecheck": "tsc --noEmit --emitDeclarationOnly false"

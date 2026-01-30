@@ -1,19 +1,21 @@
 import { createGoogleGenerativeAI } from '@ai-sdk/google'
 import { embedMany, generateText } from 'ai'
-import * as Config from 'effect/Config'
 import * as Effect from 'effect/Effect'
-import * as Redacted from 'effect/Redacted'
 
+import { Config } from '../../domain/config'
 import { VercelAiError } from '../../domain/errors'
+
+import { ConfigJson } from './config-json'
 
 export class VercelAi extends Effect.Service<VercelAi>()(
   '@grepai/core/internal/services/vercel-ai/VercelAi',
   {
+    dependencies: [ConfigJson],
     effect: Effect.gen(function* () {
-      const apiKey = yield* Config.redacted('GEMINI_API_KEY')
+      const config = yield* Config
 
       const google = createGoogleGenerativeAI({
-        apiKey: Redacted.value(apiKey),
+        apiKey: config.embedding.apiKey,
       })
 
       const ai = {

@@ -2,7 +2,13 @@
   "$schema": "https://turborepo.com/schema.json",
   "ui": "stream",
   "tasks": {
+    "build": {
+      "outputs": ["src/grepai-config-schema.json"]
+    },
     "lint": {
+      "outputs": []
+    },
+    "format": {
       "outputs": []
     },
     "typecheck": {

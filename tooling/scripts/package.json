@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "clean": "git clean -xdf .cache .turbo node_modules",
-    "lint": "eslint",
+    "format": "oxfmt",
+    "lint": "oxlint",
     "typecheck": "tsc --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {

@@ -3,7 +3,7 @@ import * as Effect from 'effect/Effect'
 import * as String from 'effect/String'
 
 export class Git extends Effect.Service<Git>()(
-  '@pm-with-friends/cli/service/git/Git',
+  '@grepai/scripts/internal/services/git',
   {
     effect: Effect.gen(function* () {
       const executor = yield* CommandExecutor.CommandExecutor

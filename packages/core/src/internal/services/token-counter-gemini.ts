@@ -7,7 +7,7 @@ import * as Effect from 'effect/Effect'
 import * as Layer from 'effect/Layer'
 import * as Schema from 'effect/Schema'
 
-import { ConfigProvider } from '../../domain/config'
+import { Config } from '../../domain/config'
 import { TokenCounterError } from '../../domain/errors'
 import { TokenCounter } from '../../domain/token-counter'
 
@@ -15,7 +15,7 @@ export const TokenCounterGemini = Layer.effect(
   TokenCounter,
   Effect.gen(function* () {
     const httpClient = yield* HttpClient.HttpClient
-    const config = yield* ConfigProvider
+    const config = yield* Config
 
     const count = Effect.fnUntraced(
       function* (text: string) {

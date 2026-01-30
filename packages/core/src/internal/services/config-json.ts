@@ -3,11 +3,11 @@ import * as Effect from 'effect/Effect'
 import * as Layer from 'effect/Layer'
 import * as Schema from 'effect/Schema'
 
-import { ConfigProvider, GrepAiConfig } from '../../domain/config'
+import { Config, GrepAiConfig } from '../../domain/config'
 import { ConfigLoaderError, MissingEnv } from '../../domain/errors'
 
-export const ConfigProviderJson = Layer.effect(
-  ConfigProvider,
+export const ConfigJson = Layer.effect(
+  Config,
   Effect.gen(function* () {
     const fs = yield* FileSystem.FileSystem
 
