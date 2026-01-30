@@ -1,4 +1,9 @@
+import * as Context from 'effect/Context'
 import * as Schema from 'effect/Schema'
+
+export class ConfigProvider extends Context.Tag(
+  '@grepai/core/domain/config-provider/ConfigProvider',
+)<ConfigProvider, GrepAiConfig>() {}
 
 const StorageTurso = Schema.Struct({
   authToken: Schema.String,

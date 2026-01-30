@@ -5,12 +5,11 @@ import * as Layer from 'effect/Layer'
 import * as Redacted from 'effect/Redacted'
 import * as String from 'effect/String'
 
-import { ConfigLoader } from '../../domain/config-loader'
+import { ConfigProvider } from '../../domain/config'
 
 export const LibsqlClientLive = Layer.unwrapEffect(
   Effect.gen(function* () {
-    const configLoader = yield* ConfigLoader
-    const config = yield* configLoader.load()
+    const config = yield* ConfigProvider
 
     return LibsqlClient.layer({
       url: config.storage.url,

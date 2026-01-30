@@ -5,7 +5,7 @@ import * as Effect from 'effect/Effect'
 import * as Layer from 'effect/Layer'
 import * as Schema from 'effect/Schema'
 
-import { ConfigLoader } from '../../domain/config-loader'
+import { ConfigProvider } from '../../domain/config'
 import { Embedder } from '../../domain/embedder'
 import { Embedding } from '../../domain/embedding'
 import { SchemaValidationFailed } from '../../domain/errors'
@@ -16,8 +16,7 @@ export const EmbedderGemini = Layer.effect(
   Embedder,
   Effect.gen(function* () {
     const ai = yield* VercelAi
-    const configLoader = yield* ConfigLoader
-    const config = yield* configLoader.load()
+    const config = yield* ConfigProvider
 
     const embedMany = Effect.fnUntraced(
       function* (textChunks: Array.NonEmptyReadonlyArray<string>) {
