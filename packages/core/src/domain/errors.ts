@@ -38,3 +38,10 @@ export class DocumentNotFound extends Schema.TaggedError<DocumentNotFound>()(
     filePath: Schema.String,
   },
 ) {}
+
+export class TokenCounterError extends Schema.TaggedError<TokenCounterError>()(
+  'TokenCounterError',
+  {
+    cause: Schema.Defect,
+  },
+) {}
