@@ -1,11 +1,13 @@
 {
   "name": "@grepai/core",
   "exports": {
-    "./vercel-ai": "./src/internal/services/vercel-ai.ts"
+    "./vercel-ai": "./src/internal/services/vercel-ai.ts",
+    "./ast-parser": "./src/internal/services/ast-parser.ts"
   },
   "scripts": {
     "clean": "git clean -xdf .cache .turbo node_modules",
     "lint": "oxlint",
+    "test": "bun --bun run vitest",
     "typecheck": "tsc --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
@@ -15,7 +17,9 @@
     "@effect/sql": "catalog:effect",
     "@effect/sql-libsql": "catalog:effect",
     "ai": "catalog:ai",
-    "effect": "catalog:effect"
+    "effect": "catalog:effect",
+    "tree-sitter": "0.25.0",
+    "tree-sitter-typescript": "0.23.2"
   },
   "devDependencies": {
     "@grepai/tsconfig": "workspace:*",

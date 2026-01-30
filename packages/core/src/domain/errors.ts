@@ -45,3 +45,17 @@ export class TokenCounterError extends Schema.TaggedError<TokenCounterError>()(
     cause: Schema.Defect,
   },
 ) {}
+
+export class AstParserError extends Schema.TaggedError<AstParserError>()(
+  'AstParserError',
+  {
+    cause: Schema.Defect,
+  },
+) {}
+
+export class LanguageNotSupported extends Schema.TaggedError<LanguageNotSupported>()(
+  'LanguageNotSupported',
+  {
+    cause: Schema.Defect,
+  },
+) {}
