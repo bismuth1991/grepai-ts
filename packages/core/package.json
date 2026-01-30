@@ -1,7 +1,8 @@
 {
   "name": "@grepai/core",
   "exports": {
-    "./vercel-ai": "./src/internal/services/vercel-ai.ts"
+    "./vercel-ai": "./src/internal/services/vercel-ai.ts",
+    "./grepai-config-schema.json": "./src/grep-ai-config-schema.json"
   },
   "scripts": {
     "build": "bun --bun run src/internal/scripts/build.ts",
