@@ -37,7 +37,7 @@
     "lint:fix": "turbo run lint --continue -- --fix",
     "format": "turbo run format",
     "postinstall": "bun --bun tooling/scripts/src/patch-tree-sitter.ts",
-    "test": "bun --bun run vitest",
+    "test": "bun --bun run vitest run",
     "typecheck": "turbo run typecheck"
   },
   "devDependencies": {

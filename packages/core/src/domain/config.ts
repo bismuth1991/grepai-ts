@@ -41,4 +41,6 @@ export const GrepAiConfig = Schema.Struct({
   ),
   storage: Storage,
 })
-export type GrepAiConfig = typeof GrepAiConfig.Type
+type GrepAiConfig = typeof GrepAiConfig.Type & {
+  cwd: string
+}

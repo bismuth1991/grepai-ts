@@ -59,3 +59,10 @@ export class LanguageNotSupported extends Schema.TaggedError<LanguageNotSupporte
     cause: Schema.Defect,
   },
 ) {}
+
+export class CodebaseScannerError extends Schema.TaggedError<CodebaseScannerError>()(
+  'CodebaseScannerError',
+  {
+    cause: Schema.Defect,
+  },
+) {}

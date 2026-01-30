@@ -10,6 +10,6 @@
     "model": "gemini-embedding-001",
     "apiKey": "${GEMINI_API_KEY}"
   },
-  "include": [],
-  "exclude": []
+  "include": ["**/*.ts"],
+  "exclude": ["node_modules", ".opencode", ".turbo", ".cache", ".zed"]
 }
