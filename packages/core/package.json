@@ -9,7 +9,7 @@
     "clean": "git clean -xdf .cache .turbo node_modules",
     "format": "oxfmt",
     "lint": "oxlint",
-    "vitest": "bun --bun run vitest run",
+    "test": "bun --bun run vitest -u run",
     "typecheck": "tsc --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
