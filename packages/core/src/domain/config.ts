@@ -17,13 +17,13 @@ const EmbeddingGoogle = Schema.Struct({
   provider: Schema.Literal('google'),
   model: Schema.Literal('gemini-embedding-001', 'text-embedding-004'),
   apiKey: Schema.String,
+  targetChunkSize: Schema.Number.pipe(
+    Schema.optional,
+    Schema.withDecodingDefault(() => 256),
+  ),
   maxChunkSize: Schema.Number.pipe(
     Schema.optional,
-    Schema.withDecodingDefault(() => 1536),
-  ),
-  chunkOverlap: Schema.Number.pipe(
-    Schema.optional,
-    Schema.withDecodingDefault(() => 192),
+    Schema.withDecodingDefault(() => 1024),
   ),
 })
 const Embedding = Schema.Union(EmbeddingGoogle)

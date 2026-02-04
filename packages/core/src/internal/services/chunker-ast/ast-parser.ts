@@ -2,19 +2,18 @@ import * as Effect from 'effect/Effect'
 import Parser from 'tree-sitter'
 import Typescript from 'tree-sitter-typescript'
 
-import { SupportedLanguage } from '../../domain'
-import { AstParserError } from '../../domain/errors'
+import { SupportedLanguage } from '../../../domain'
+import { AstParserError } from '../../../domain/errors'
 
 export class AstParser extends Effect.Service<AstParser>()(
-  '@grepai/core/internal/services/ast-parser-v2/AstParser',
+  '@grepai/core/internal/services/chunker-ast/ast-parser/AstParser',
   {
     sync: () => {
       const parse = Effect.fnUntraced(function* (input: {
         content: string
-        query: string
         language: SupportedLanguage
       }) {
-        const { content, query, language } = input
+        const { content, language } = input
 
         return yield* Effect.try({
           try: () => {
@@ -24,11 +23,8 @@ export class AstParser extends Effect.Service<AstParser>()(
             parser.setLanguage(languageMap[language])
 
             const tree = parser.parse(content)
-            const parserQuery = new Parser.Query(parser.getLanguage(), query)
 
-            return parserQuery
-              .matches(tree.rootNode)
-              .map(({ captures }) => captures)
+            return tree
           },
           catch: (cause) => new AstParserError({ cause }),
         })
@@ -40,6 +36,8 @@ export class AstParser extends Effect.Service<AstParser>()(
     },
   },
 ) {}
+
+export type { SyntaxNode } from 'tree-sitter'
 
 const languageMap = {
   typescript: Typescript.typescript as Parser.Language,

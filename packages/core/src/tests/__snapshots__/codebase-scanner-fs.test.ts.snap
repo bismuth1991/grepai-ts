@@ -1,6 +1,6 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`CodebaseScannerFs > exclude patterns > excludes .turbo directory 1`] = `
+exports[`CodebaseScannerFs > include patterns > includes files from packages/core/src 1`] = `
 [
   "vitest.config.ts",
   "vitest.setup.ts",
@@ -10,7 +10,9 @@ exports[`CodebaseScannerFs > exclude patterns > excludes .turbo directory 1`] = 
   "packages/core/src/domain/document.ts",
   "packages/core/src/domain/document-storage.ts",
   "packages/core/src/domain/chunk.ts",
+  "packages/core/src/domain/chunker.ts",
   "packages/core/src/domain/embedding.ts",
+  "packages/core/src/domain/index.ts",
   "packages/core/src/domain/token-counter.ts",
   "packages/core/src/domain/config.ts",
   "packages/core/src/domain/chunk-storage.ts",
@@ -21,13 +23,18 @@ exports[`CodebaseScannerFs > exclude patterns > excludes .turbo directory 1`] = 
   "packages/core/src/internal/services/embedder-gemini.ts",
   "packages/core/src/internal/services/codebase-scanner-fs.ts",
   "packages/core/src/internal/services/document-storage-sql.ts",
-  "packages/core/src/internal/services/ast-parser.ts",
   "packages/core/src/internal/services/vercel-ai.ts",
   "packages/core/src/internal/services/config-json.ts",
+  "packages/core/src/internal/services/chunker-ast/ast-parser.ts",
+  "packages/core/src/internal/services/chunker-ast/index.ts",
+  "packages/core/src/internal/services/chunker-ast/context-header-builder.ts",
+  "packages/core/src/internal/services/chunker-ast/language-config/typescript.ts",
+  "packages/core/src/internal/services/chunker-ast/language-config/index.ts",
   "packages/core/src/internal/scripts/build-config-json-schema.ts",
+  "packages/core/src/internal/scripts/test.ts",
   "packages/core/src/internal/scripts/build.ts",
+  "packages/core/src/tests/chunker-ast.test.ts",
   "packages/core/src/tests/codebase-scanner-fs.test.ts",
-  "packages/core/src/tests/ast-parser-typescript.test.ts",
   "tooling/scripts/src/patch-tree-sitter.ts",
   "tooling/scripts/src/index.ts",
   "tooling/scripts/src/internal/git.ts",

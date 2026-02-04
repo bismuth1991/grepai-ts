@@ -67,15 +67,8 @@ export class CodebaseScannerError extends Schema.TaggedError<CodebaseScannerErro
   },
 ) {}
 
-export class ImportExtractorError extends Schema.TaggedError<ImportExtractorError>()(
-  'ImportExtractorError',
-  {
-    cause: Schema.Defect,
-  },
-) {}
-
-export class ExportExtractorError extends Schema.TaggedError<ExportExtractorError>()(
-  'ExportExtractorError',
+export class ChunkerError extends Schema.TaggedError<ChunkerError>()(
+  'ChunkerError',
   {
     cause: Schema.Defect,
   },

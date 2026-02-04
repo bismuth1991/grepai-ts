@@ -33,10 +33,10 @@
         "apiKey": {
           "type": "string"
         },
-        "maxChunkSize": {
+        "targetChunkSize": {
           "type": "number"
         },
-        "chunkOverlap": {
+        "maxChunkSize": {
           "type": "number"
         }
       },
