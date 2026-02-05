@@ -24,7 +24,7 @@ export const TokenCounterCacheSql = Layer.effect(
                   token_counter_caches
                 WHERE
                   chunk_hash = ${chunkHash}
-                  , tokenizer = ${tokenizer}
+                  AND tokenizer = ${tokenizer}
               `,
             })
             .pipe(
@@ -48,17 +48,21 @@ export const TokenCounterCacheSql = Layer.effect(
 
       set: Effect.fnUntraced(
         function* ({ chunkHash, tokenizer }, tokenCount) {
+          const now = new Date().toISOString()
+
           yield* db.onDialectOrElse({
             orElse: () => db`
               INSERT INTO token_counter_caches (
                 chunk_hash
                 , tokenizer
                 , token_count
+                , created_at
               )
               VALUES (
                 ${chunkHash}
                 , ${tokenizer}
                 , ${tokenCount}
+                , ${now}
               )
               ON CONFLICT (chunk_hash, tokenizer)
               DO UPDATE SET
