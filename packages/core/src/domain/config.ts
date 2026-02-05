@@ -15,8 +15,9 @@ const Storage = Schema.Union(StorageTurso)
 
 const EmbeddingGoogle = Schema.Struct({
   provider: Schema.Literal('google'),
-  model: Schema.Literal('gemini-embedding-001', 'text-embedding-004'),
+  model: Schema.Literal('gemini-embedding-001'),
   apiKey: Schema.String,
+  dimensions: Schema.Literal(768, 1536, 3072),
   targetChunkSize: Schema.Number.pipe(
     Schema.optional,
     Schema.withDecodingDefault(() => 256),

@@ -27,7 +27,7 @@ export const TokenCounterGemini = Layer.effect(
 
         const cachedTokenCount = yield* cache.get({ chunkHash, tokenizer })
 
-        if (cachedTokenCount) {
+        if (typeof cachedTokenCount === 'number') {
           return cachedTokenCount
         }
 

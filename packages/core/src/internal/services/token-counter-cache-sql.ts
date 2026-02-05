@@ -67,6 +67,7 @@ export const TokenCounterCacheSql = Layer.effect(
               ON CONFLICT (chunk_hash, tokenizer)
               DO UPDATE SET
                 token_count = ${tokenCount}
+                , created_at = ${now}
             `,
           })
         },
