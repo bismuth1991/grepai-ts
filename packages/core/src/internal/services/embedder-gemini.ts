@@ -36,7 +36,7 @@ export const EmbedderGemini = Layer.effect(
           })),
         )
 
-        const cacheMisses = Array.filter(cached, ({ embedding }) => !!embedding)
+        const cacheMisses = Array.filter(cached, ({ embedding }) => !embedding)
 
         const embeddingHashMap = yield* ai
           .use(({ embedMany: embed, google }) =>
