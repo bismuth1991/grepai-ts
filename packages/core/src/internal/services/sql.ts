@@ -155,10 +155,7 @@ const MigratorLive = LibsqlMigrator.layer({
           sql`
             CREATE TABLE IF NOT EXISTS embedding_caches (
               id           INTEGER PRIMARY KEY
-              , chunk_hash TEXT NOT NULL
-              , embedder   TEXT NOT NULL
-              , task_type  TEXT NOT NULL
-              , dimensions INTEGER NOT NULL
+              , hash       TEXT NOT NULL
               , embedding  TEXT NOT NULL
               , created_at TEXT NOT NULL
             );
@@ -167,8 +164,8 @@ const MigratorLive = LibsqlMigrator.layer({
       yield* sql.onDialectOrElse({
         orElse: () =>
           sql`
-            CREATE UNIQUE INDEX IF NOT EXISTS uniq_embedding_caches_chunk_hash_embedder_task_type_dimensions
-              ON embedding_caches (chunk_hash, embedder, task_type, dimensions);
+            CREATE UNIQUE INDEX IF NOT EXISTS uniq_embedding_caches_hash
+              ON embedding_caches (hash);
           `,
       })
     }),

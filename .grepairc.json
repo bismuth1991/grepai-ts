@@ -8,7 +8,10 @@
   "embedding": {
     "provider": "google",
     "model": "gemini-embedding-001",
-    "apiKey": "${GEMINI_API_KEY}"
+    "apiKey": "${GEMINI_API_KEY}",
+    "dimensions": 3072,
+    "maxChunkSize": 1024,
+    "targetChunkSize": 512
   },
   "include": ["**/*.ts"],
   "exclude": ["node_modules", ".opencode", ".turbo", ".cache", ".zed"]

@@ -73,3 +73,24 @@ export class ChunkerError extends Schema.TaggedError<ChunkerError>()(
     cause: Schema.Defect,
   },
 ) {}
+
+export class TokenCounterCacheError extends Schema.TaggedError<TokenCounterCacheError>()(
+  'TokenCounterCacheError',
+  {
+    cause: Schema.Defect,
+  },
+) {}
+
+export class EmbeddingCacheError extends Schema.TaggedError<EmbeddingCacheError>()(
+  'EmbeddingCacheError',
+  {
+    cause: Schema.Defect,
+  },
+) {}
+
+export class EmbeddingError extends Schema.TaggedError<EmbeddingError>()(
+  'EmbeddingError',
+  {
+    cause: Schema.Defect,
+  },
+) {}

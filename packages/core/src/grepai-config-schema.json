@@ -14,7 +14,8 @@
       "required": [
         "provider",
         "model",
-        "apiKey"
+        "apiKey",
+        "dimensions"
       ],
       "properties": {
         "provider": {
@@ -26,12 +27,19 @@
         "model": {
           "type": "string",
           "enum": [
-            "gemini-embedding-001",
-            "text-embedding-004"
+            "gemini-embedding-001"
           ]
         },
         "apiKey": {
           "type": "string"
+        },
+        "dimensions": {
+          "type": "number",
+          "enum": [
+            768,
+            1536,
+            3072
+          ]
         },
         "targetChunkSize": {
           "type": "number"
