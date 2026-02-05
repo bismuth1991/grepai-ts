@@ -4,23 +4,35 @@ import {
   HttpClientResponse,
 } from '@effect/platform'
 import * as Effect from 'effect/Effect'
+import * as Hash from 'effect/Hash'
 import * as Layer from 'effect/Layer'
 import * as Schema from 'effect/Schema'
 
 import { Config } from '../../domain/config'
 import { TokenCounterError } from '../../domain/errors'
 import { TokenCounter } from '../../domain/token-counter'
+import { TokenCounterCache } from '../../domain/token-counter-cache'
 
 export const TokenCounterGemini = Layer.effect(
   TokenCounter,
   Effect.gen(function* () {
     const httpClient = yield* HttpClient.HttpClient
     const config = yield* Config
+    const cache = yield* TokenCounterCache
 
     const count = Effect.fnUntraced(
       function* (text: string) {
+        const tokenizer = 'gemini-embedding-001'
+        const chunkHash = Hash.hash(text).toString()
+
+        const cachedTokenCount = yield* cache.get({ chunkHash, tokenizer })
+
+        if (cachedTokenCount) {
+          return cachedTokenCount
+        }
+
         const request = yield* HttpClientRequest.post(
-          '/gemini-embedding-001:countTokens',
+          `/${tokenizer}:countTokens`,
         ).pipe(
           HttpClientRequest.prependUrl(
             'https://generativelanguage.googleapis.com/v1beta/models',
@@ -36,7 +48,7 @@ export const TokenCounterGemini = Layer.effect(
           }),
         )
 
-        return yield* httpClient.execute(request).pipe(
+        const tokenCount = yield* httpClient.execute(request).pipe(
           Effect.flatMap(
             HttpClientResponse.schemaBodyJson(
               Schema.Struct({
@@ -46,6 +58,9 @@ export const TokenCounterGemini = Layer.effect(
           ),
           Effect.map(({ totalTokens }) => totalTokens),
         )
+        yield* cache.set({ chunkHash, tokenizer }, tokenCount)
+
+        return tokenCount
       },
       Effect.catchTags({
         HttpBodyError: (cause) => new TokenCounterError({ cause }),
