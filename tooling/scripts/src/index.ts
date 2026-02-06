@@ -1,6 +1,6 @@
 import { Command } from '@effect/cli'
 import { BunContext, BunRuntime } from '@effect/platform-bun'
-import { VercelAi } from '@grepai/core/vercel-ai'
+import { VercelAi } from '@grepai/core'
 import * as Effect from 'effect/Effect'
 import * as Layer from 'effect/Layer'
 

@@ -1,6 +1,6 @@
 import { Command, Prompt } from '@effect/cli'
 import { FileSystem } from '@effect/platform'
-import { VercelAi } from '@grepai/core/vercel-ai'
+import { VercelAi } from '@grepai/core'
 import * as Effect from 'effect/Effect'
 import * as String from 'effect/String'
 

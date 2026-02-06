@@ -32,6 +32,13 @@ export class SchemaValidationFailed extends Schema.TaggedError<SchemaValidationF
   },
 ) {}
 
+export class DocumentStorageError extends Schema.TaggedError<DocumentStorageError>()(
+  'DocumentStorageError',
+  {
+    cause: Schema.Defect,
+  },
+) {}
+
 export class DocumentNotFound extends Schema.TaggedError<DocumentNotFound>()(
   'DocumentNotFound',
   {

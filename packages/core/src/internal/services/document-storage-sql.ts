@@ -8,7 +8,11 @@ import * as Schema from 'effect/Schema'
 
 import { Document } from '../../domain/document'
 import { DocumentStorage } from '../../domain/document-storage'
-import { DocumentNotFound, SchemaValidationFailed } from '../../domain/errors'
+import {
+  DocumentNotFound,
+  DocumentStorageError,
+  SchemaValidationFailed,
+} from '../../domain/errors'
 
 export const DocumentStorageSql = Layer.effect(
   DocumentStorage,
@@ -43,6 +47,7 @@ export const DocumentStorageSql = Layer.effect(
           Effect.catchTags({
             ParseError: (cause) => new SchemaValidationFailed({ cause }),
             NoSuchElementException: () => new DocumentNotFound({ filePath }),
+            SqlError: (cause) => new DocumentStorageError({ cause }),
           }),
         ),
     )
@@ -66,14 +71,16 @@ export const DocumentStorageSql = Layer.effect(
       },
       Effect.catchTags({
         ParseError: (cause) => new SchemaValidationFailed({ cause }),
+        SqlError: (cause) => new DocumentStorageError({ cause }),
       }),
     )
 
-    const insert = Effect.fnUntraced(function* (document: DocumentInsertInput) {
-      const now = new Date().toISOString()
+    const insert = Effect.fnUntraced(
+      function* (document: DocumentInsertInput) {
+        const now = new Date().toISOString()
 
-      yield* db.onDialectOrElse({
-        orElse: () => db`
+        yield* db.onDialectOrElse({
+          orElse: () => db`
             INSERT INTO documents (
               file_path
               , hash
@@ -87,19 +94,28 @@ export const DocumentStorageSql = Layer.effect(
               , ${now}
             )
           `,
-      })
-    })
+        })
+      },
+      Effect.catchTags({
+        SqlError: (cause) => new DocumentStorageError({ cause }),
+      }),
+    )
 
-    const removeByFilePath = Effect.fnUntraced(function* (filePath: string) {
-      yield* db.onDialectOrElse({
-        orElse: () => db`
-          DELETE FROM
-            documents
-          WHERE
-            file_path = ${filePath}
-        `,
-      })
-    })
+    const removeByFilePath = Effect.fnUntraced(
+      function* (filePath: string) {
+        yield* db.onDialectOrElse({
+          orElse: () => db`
+            DELETE FROM
+              documents
+            WHERE
+              file_path = ${filePath}
+          `,
+        })
+      },
+      Effect.catchTags({
+        SqlError: (cause) => new DocumentStorageError({ cause }),
+      }),
+    )
 
     return DocumentStorage.of({
       getAll,

@@ -1,10 +1,12 @@
-import type { Document } from './document'
+import type { Document, DocumentInsertInput } from './document'
+import type {
+  DocumentNotFound,
+  DocumentStorageError,
+  SchemaValidationFailed,
+} from './errors'
 
-import { SqlError } from '@effect/sql'
 import * as Context from 'effect/Context'
 import * as Effect from 'effect/Effect'
-
-import { DocumentNotFound, SchemaValidationFailed } from './errors'
 
 export class DocumentStorage extends Context.Tag(
   '@grepai/core/domain/document-storage/DocumentStorage',
@@ -15,21 +17,21 @@ export class DocumentStorage extends Context.Tag(
       filePath: string,
     ) => Effect.Effect<
       Document,
-      SqlError.SqlError | SchemaValidationFailed | DocumentNotFound,
+      DocumentStorageError | DocumentNotFound | SchemaValidationFailed,
       never
     >
 
     insert: (
-      document: Document,
-    ) => Effect.Effect<void, SqlError.SqlError, never>
+      document: DocumentInsertInput,
+    ) => Effect.Effect<void, DocumentStorageError, never>
 
     removeByFilePath: (
       filePath: string,
-    ) => Effect.Effect<void, SqlError.SqlError, never>
+    ) => Effect.Effect<void, DocumentStorageError, never>
 
     getAll: () => Effect.Effect<
       ReadonlyArray<Document>,
-      SqlError.SqlError | SchemaValidationFailed,
+      SchemaValidationFailed | DocumentStorageError,
       never
     >
   }

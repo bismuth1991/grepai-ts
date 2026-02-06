@@ -11,7 +11,7 @@
         "oxfmt": "0.27.0",
         "oxlint": "1.42.0",
         "turbo": "2.7.6",
-        "vitest": "^3.2.0",
+        "vitest": "^3.2.4",
       },
       "peerDependencies": {
         "typescript": "catalog:",
@@ -24,8 +24,7 @@
         "@effect/cli": "catalog:effect",
         "@effect/platform": "catalog:effect",
         "@effect/platform-bun": "catalog:effect",
-        "@effect/sql": "catalog:effect",
-        "@effect/sql-libsql": "catalog:effect",
+        "@grepai/core": "workspace:*",
         "effect": "catalog:effect",
       },
       "devDependencies": {

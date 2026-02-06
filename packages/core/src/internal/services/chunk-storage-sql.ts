@@ -112,7 +112,7 @@ export const ChunkStorageSql = Layer.effect(
               )
             `,
           }),
-        ).pipe(db.withTransaction)
+        )
       },
       Effect.catchTags({
         ParseError: (cause) => new SchemaValidationFailed({ cause }),

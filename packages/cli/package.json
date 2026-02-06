@@ -23,8 +23,7 @@
     "@effect/cli": "catalog:effect",
     "@effect/platform": "catalog:effect",
     "@effect/platform-bun": "catalog:effect",
-    "@effect/sql": "catalog:effect",
-    "@effect/sql-libsql": "catalog:effect",
+    "@grepai/core": "workspace:*",
     "effect": "catalog:effect"
   },
   "devDependencies": {

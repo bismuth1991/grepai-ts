@@ -8,7 +8,11 @@ import * as Layer from 'effect/Layer'
 
 import { Chunker } from '../../../domain/chunker'
 import { Config } from '../../../domain/config'
-import { ChunkerError, TokenCounterError } from '../../../domain/errors'
+import {
+  ChunkerError,
+  TokenCounterCacheError,
+  TokenCounterError,
+} from '../../../domain/errors'
 import { TokenCounter } from '../../../domain/token-counter'
 
 import { AstParser } from './ast-parser'
@@ -31,7 +35,11 @@ type SplitFn = (
   node: SyntaxNode,
   language: SupportedLanguage,
   scopeStack: ReadonlyArray<string>,
-) => Effect.Effect<SplitChunk[], TokenCounterError, never>
+) => Effect.Effect<
+  SplitChunk[],
+  TokenCounterError | TokenCounterCacheError,
+  never
+>
 
 export const ChunkerAst = Layer.effect(
   Chunker,
@@ -184,6 +192,7 @@ export const ChunkerAst = Layer.effect(
 
                   return {
                     hash: Hash.hash(contextualizedChunk).toString(),
+                    filePath,
                     content: contextualizedChunk,
                     startLine,
                     endLine,
@@ -200,6 +209,9 @@ export const ChunkerAst = Layer.effect(
       ),
     })
   }),
+).pipe(
+  Layer.provide(AstParser.Default),
+  Layer.provide(ContextHeaderBuilder.Default),
 )
 
 function mergeChunks(a: OutChunk, b: OutChunk): OutChunk {
