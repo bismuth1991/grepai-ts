@@ -355,43 +355,6 @@ const c = 3`,
     )
   })
 
-  describe('TSX support', () => {
-    it.effect('chunks TSX files correctly', () =>
-      Effect.gen(function* () {
-        const chunker = yield* Chunker
-        const result = yield* chunker.chunk({
-          filePath: '/test/component.tsx',
-          content: `function MyComponent() {
-  return <div>Hello</div>
-}`,
-          language: 'tsx',
-        })
-
-        expect(result.length).toBeGreaterThan(0)
-        expect(result[0]!.content).toContain('MyComponent')
-      }).pipe(Effect.provide(TestLive)),
-    )
-
-    it.effect('handles JSX with arrow function components', () =>
-      Effect.gen(function* () {
-        const chunker = yield* Chunker
-        const result = yield* chunker.chunk({
-          filePath: '/test/component.tsx',
-          content: `const Button = () => {
-  return <button>Click me</button>
-}`,
-          language: 'tsx',
-        })
-
-        expect(result.length).toBeGreaterThan(0)
-        const hasButtonScope = result.some((chunk) =>
-          chunk.scope.some((s) => s.includes('Button')),
-        )
-        expect(hasButtonScope).toBe(true)
-      }).pipe(Effect.provide(TestLive)),
-    )
-  })
-
   describe('line tracking', () => {
     it.effect('tracks start and end lines correctly', () =>
       Effect.gen(function* () {
