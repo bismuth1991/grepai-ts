@@ -2,6 +2,9 @@
 .cache
 .turbo
 
+# Build outputs
+dist
+
 # Dependency directories
 node_modules/
 
