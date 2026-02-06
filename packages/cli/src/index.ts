@@ -9,6 +9,7 @@ const program = Effect.gen(function* () {
   const grepAi = yield* GrepAi
 
   const indexCommand = Command.make('index').pipe(
+    Command.withDescription('Index codebase for semantic search'),
     Command.withHandler(grepAi.index),
   )
   const searchCommand = Command.make('search', {
@@ -21,6 +22,7 @@ const program = Effect.gen(function* () {
       Options.withDescription('Number of results to return'),
     ),
   }).pipe(
+    Command.withDescription('Search code using natural language queries'),
     Command.withHandler((input) =>
       grepAi.search(input).pipe(Effect.tap(Console.log)),
     ),
