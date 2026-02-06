@@ -64,16 +64,20 @@ export class Indexer extends Effect.Service<Indexer>()(
             hash,
           }),
         )
-        const documentsToDelete = Array.map(deleted, ({ filePath }) => filePath)
+        const documentsToDelete = Array.map(
+          Array.appendAll(modified, deleted),
+          ({ filePath }) => filePath,
+        )
 
         yield* pipe(
-          chunkStorage.insertMany(chunksToInsert),
-          Effect.zipRight(
-            Effect.forEach(documentsToInsert, documentStorage.insert),
-          ),
+          Effect.forEach(documentsToDelete, chunkStorage.removeByFilePath),
           Effect.zipRight(
             Effect.forEach(documentsToDelete, documentStorage.removeByFilePath),
           ),
+          Effect.zipRight(
+            Effect.forEach(documentsToInsert, documentStorage.insert),
+          ),
+          Effect.zipRight(chunkStorage.insertMany(chunksToInsert)),
           db.withTransaction,
         )
       })
