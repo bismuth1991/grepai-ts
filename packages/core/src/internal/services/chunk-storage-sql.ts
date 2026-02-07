@@ -74,33 +74,36 @@ export const ChunkStorageSql = Layer.effect(
           ),
         )
 
-        yield* Effect.forEach(chunksToInsert, (chunk) =>
-          db.onDialectOrElse({
-            orElse: () => db`
-              INSERT INTO chunks (
-                chunk_id
-                , file_path
-                , start_line
-                , end_line
-                , content
-                , embedding
-                , hash
-                , created_at
-                , updated_at
-              )
-              VALUES (
-                ${chunk.chunkId}
-                , ${chunk.filePath}
-                , ${chunk.startLine}
-                , ${chunk.endLine}
-                , ${chunk.content}
-                , vector32(${chunk.embedding})
-                , ${chunk.hash}
-                , ${chunk.createdAt}
-                , ${chunk.updatedAt}
-              )
-            `,
-          }),
+        yield* Effect.forEach(
+          chunksToInsert,
+          (chunk) =>
+            db.onDialectOrElse({
+              orElse: () => db`
+                INSERT INTO chunks (
+                  chunk_id
+                  , file_path
+                  , start_line
+                  , end_line
+                  , content
+                  , embedding
+                  , hash
+                  , created_at
+                  , updated_at
+                )
+                VALUES (
+                  ${chunk.chunkId}
+                  , ${chunk.filePath}
+                  , ${chunk.startLine}
+                  , ${chunk.endLine}
+                  , ${chunk.content}
+                  , vector32(${chunk.embedding})
+                  , ${chunk.hash}
+                  , ${chunk.createdAt}
+                  , ${chunk.updatedAt}
+                )
+              `,
+            }),
+          { concurrency: 'unbounded' },
         )
       },
       Effect.catchTags({

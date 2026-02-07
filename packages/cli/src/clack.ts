@@ -3,7 +3,7 @@ import { IndexerCallbackError } from '@grepai/core/domain'
 import * as Effect from 'effect/Effect'
 
 export class Clack extends Effect.Service<Clack>()('@grepai/cli/clack', {
-  scoped: Effect.gen(function* () {
+  effect: Effect.gen(function* () {
     const useClack = <T>(f: (p: typeof clack) => Promise<T> | T) =>
       Effect.tryPromise({
         try: () => {
@@ -17,10 +17,15 @@ export class Clack extends Effect.Service<Clack>()('@grepai/cli/clack', {
       })
 
     const spinner = yield* useClack((clack) => clack.spinner())
+    const throttledSpinnerMessage = throttleSync(spinner.message, 2000)
+    const _spinner = {
+      ...spinner,
+      message: throttledSpinnerMessage,
+    }
 
-    const useSpinner = <T>(f: (p: typeof spinner) => T) =>
+    const useSpinner = <T>(f: (p: typeof _spinner) => T) =>
       Effect.try({
-        try: () => f(spinner),
+        try: () => f(_spinner),
         catch: (cause) => new IndexerCallbackError({ cause }),
       })
 
@@ -44,8 +49,6 @@ export class Clack extends Effect.Service<Clack>()('@grepai/cli/clack', {
       yield* useSpinner((spinner) => spinner.stop(message))
     })
 
-    yield* Effect.addFinalizer(() => spinnerStop().pipe(Effect.orDie))
-
     return {
       intro,
       outro,
@@ -58,3 +61,21 @@ export class Clack extends Effect.Service<Clack>()('@grepai/cli/clack', {
     } as const
   }),
 }) {}
+
+function throttleSync<T extends (...args: any[]) => any>(
+  fn: T,
+  interval: number,
+): (...args: Parameters<T>) => ReturnType<T> | undefined {
+  let lastCalledAt = 0
+
+  return (...args: Parameters<T>): ReturnType<T> | undefined => {
+    const now = Date.now()
+
+    if (now - lastCalledAt >= interval) {
+      lastCalledAt = now
+      return fn(...args)
+    }
+
+    return void 0
+  }
+}

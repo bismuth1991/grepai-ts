@@ -191,7 +191,7 @@ export const ChunkerAst = Layer.effect(
                   const contextualizedChunk = contextHeader + chunkContent
 
                   return {
-                    hash: Hash.hash(contextualizedChunk).toString(),
+                    hash: Hash.string(contextualizedChunk).toString(),
                     filePath,
                     content: contextualizedChunk,
                     startLine,

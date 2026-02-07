@@ -9,6 +9,7 @@ import {
   CodebaseScanner,
   CodebaseScanResult,
 } from '../../domain/codebase-scanner'
+import { Config } from '../../domain/config'
 import { DocumentStorage } from '../../domain/document-storage'
 import { Embedder } from '../../domain/embedder'
 import { IndexerCallbackError, IndexerError } from '../../domain/errors'
@@ -19,8 +20,7 @@ export class Indexer extends Effect.Service<Indexer>()(
   '@grepai/core/internal/services/indexer',
   {
     effect: Effect.gen(function* () {
-      const CHUNK_BATCH_SIZE = 100
-
+      const config = yield* Config
       const db = yield* SqlClient.SqlClient
       const codebaseScanner = yield* CodebaseScanner
       const chunker = yield* Chunker
@@ -57,6 +57,8 @@ export class Indexer extends Effect.Service<Indexer>()(
             onCodebaseIndexFinished = voidFn,
           } = callbacks ?? {}
 
+          const mutex = yield* Effect.makeSemaphore(1)
+
           yield* onCodebaseIndexStarted()
 
           const {
@@ -74,10 +76,15 @@ export class Indexer extends Effect.Service<Indexer>()(
           )
 
           yield* pipe(
-            Effect.forEach(filesToDelete, chunkStorage.removeByFilePath),
+            Effect.forEach(filesToDelete, chunkStorage.removeByFilePath, {
+              concurrency: 'unbounded',
+            }),
             Effect.zipRight(
-              Effect.forEach(filesToDelete, documentStorage.removeByFilePath),
+              Effect.forEach(filesToDelete, documentStorage.removeByFilePath, {
+                concurrency: 'unbounded',
+              }),
             ),
+            db.withTransaction,
           )
 
           const filesToProcess = Array.appendAll(newFiles, modified)
@@ -87,12 +94,6 @@ export class Indexer extends Effect.Service<Indexer>()(
             ({ filePath, language, content, hash: fileHash }) =>
               pipe(
                 chunker.chunk({ filePath, content, language }),
-                Effect.tap(() =>
-                  onFileChunked({
-                    filePath,
-                    fileCount: filesToProcess.length,
-                  }),
-                ),
                 Effect.map(
                   Array.map((chunk, index) => ({
                     ...chunk,
@@ -100,10 +101,19 @@ export class Indexer extends Effect.Service<Indexer>()(
                     chunkId: `${filePath}__${index}`,
                   })),
                 ),
+                Effect.tap(() =>
+                  mutex.withPermits(1)(
+                    onFileChunked({
+                      filePath,
+                      fileCount: filesToProcess.length,
+                    }),
+                  ),
+                ),
               ),
+            { concurrency: 'unbounded' },
           ).pipe(
             Effect.map(Array.flatten),
-            Effect.map(Array.chunksOf(CHUNK_BATCH_SIZE)),
+            Effect.map(Array.chunksOf(config.embedding.embeddingBatchSize)),
           )
 
           yield* Effect.forEach(chunkBatches, (chunks) =>
@@ -126,7 +136,9 @@ export class Indexer extends Effect.Service<Indexer>()(
                 }),
               )
               yield* pipe(
-                Effect.forEach(documentsToInsert, documentStorage.insert),
+                Effect.forEach(documentsToInsert, documentStorage.insert, {
+                  concurrency: 'unbounded',
+                }),
                 Effect.zipRight(chunkStorage.insertMany(chunksToInsert)),
                 db.withTransaction,
               )

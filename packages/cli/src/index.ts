@@ -4,6 +4,7 @@ import { GrepAi } from '@grepai/core'
 import * as Console from 'effect/Console'
 import * as Effect from 'effect/Effect'
 import * as Layer from 'effect/Layer'
+import * as SynchronizedRef from 'effect/SynchronizedRef'
 
 import { Clack } from './clack'
 
@@ -15,8 +16,8 @@ const program = Effect.gen(function* () {
     Command.withDescription('Index codebase for semantic search'),
     Command.withHandler(
       Effect.fnUntraced(function* () {
-        let filesChunked = 0
-        let chunkBatchesIndexed = 0
+        const filesChunked = yield* SynchronizedRef.make(0)
+        const chunkBatchesIndexed = yield* SynchronizedRef.make(0)
 
         yield* grepAi.index({
           onCodebaseIndexStarted: () =>
@@ -36,19 +37,33 @@ const program = Effect.gen(function* () {
               'Codebase scanned',
             ),
           onFileChunked: ({ filePath, fileCount }) => {
-            filesChunked++
-            return clack.spinner.message(
-              `Chunking files: ${filesChunked}/${fileCount} ${filePath}`,
+            return SynchronizedRef.updateAndGetEffect(filesChunked, (n) =>
+              Effect.succeed(n + 1),
+            ).pipe(
+              Effect.tap((filesChunked) =>
+                clack.spinner.message(
+                  `Chunking files: ${filesChunked}/${fileCount} ${filePath}`,
+                ),
+              ),
             )
           },
           onChunkBatchProcessed: (chunkCount) => {
-            chunkBatchesIndexed++
-            const chunksIndexed = Math.min(
-              chunkBatchesIndexed * grepAi.config.embedding.embeddingBatchSize,
-              chunkCount,
-            )
-            return clack.spinner.message(
-              `Indexing: ${chunksIndexed}/${chunkCount}`,
+            return SynchronizedRef.updateAndGetEffect(
+              chunkBatchesIndexed,
+              (n) => Effect.succeed(n + 1),
+            ).pipe(
+              Effect.map((chunkBatchesIndexed) =>
+                Math.min(
+                  chunkBatchesIndexed *
+                    grepAi.config.embedding.embeddingBatchSize,
+                  chunkCount,
+                ),
+              ),
+              Effect.tap((chunksIndexed) =>
+                clack.spinner.message(
+                  `Indexing: ${chunksIndexed}/${chunkCount}`,
+                ),
+              ),
             )
           },
           onCodebaseIndexFinished: () =>
@@ -81,7 +96,7 @@ const program = Effect.gen(function* () {
 
   const cli = Command.run(command, {
     name: 'GREP AI',
-    version: 'v0.2.4',
+    version: 'v0.2.17',
   })
 
   yield* cli(process.argv)

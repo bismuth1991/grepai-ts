@@ -46,6 +46,9 @@
         },
         "maxChunkSize": {
           "type": "number"
+        },
+        "embeddingBatchSize": {
+          "type": "number"
         }
       },
       "additionalProperties": false

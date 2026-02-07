@@ -23,7 +23,7 @@ export const TokenCounterGemini = Layer.effect(
     const count = Effect.fnUntraced(
       function* (text: string) {
         const tokenizer = 'gemini-embedding-001'
-        const chunkHash = Hash.hash(text).toString()
+        const chunkHash = Hash.string(text).toString()
 
         const cachedTokenCount = yield* cache.get({ chunkHash, tokenizer })
 
