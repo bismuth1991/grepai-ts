@@ -19,21 +19,23 @@
     },
     "packages/cli": {
       "name": "@grepai/cli",
-      "version": "0.0.1",
-      "dependencies": {
+      "version": "0.1.1",
+      "bin": {
+        "grepai": "./dist/index.js",
+      },
+      "devDependencies": {
         "@effect/cli": "catalog:effect",
         "@effect/platform": "catalog:effect",
         "@effect/platform-bun": "catalog:effect",
-        "@grepai/core": "workspace:*",
+        "@grepai/core": "workspace:0.1.1",
+        "@grepai/tsconfig": "workspace:1.0.0",
         "effect": "catalog:effect",
-      },
-      "devDependencies": {
-        "@grepai/tsconfig": "workspace:*",
         "typescript": "catalog:",
       },
     },
     "packages/core": {
       "name": "@grepai/core",
+      "version": "0.1.1",
       "dependencies": {
         "@ai-sdk/google": "catalog:ai",
         "@effect/platform": "catalog:effect",
@@ -68,6 +70,7 @@
     },
     "tooling/typescript": {
       "name": "@grepai/tsconfig",
+      "version": "1.0.0",
     },
   },
   "catalog": {

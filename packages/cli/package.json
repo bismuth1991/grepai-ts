@@ -34,7 +34,7 @@
     "@effect/cli": "catalog:effect",
     "@effect/platform": "catalog:effect",
     "@effect/platform-bun": "catalog:effect",
-    "@grepai/core": "workspace:0.1.0",
+    "@grepai/core": "workspace:0.1.1",
     "@grepai/tsconfig": "workspace:1.0.0",
     "effect": "catalog:effect",
     "typescript": "catalog:"
