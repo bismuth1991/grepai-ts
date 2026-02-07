@@ -26,6 +26,10 @@ const EmbeddingGoogle = Schema.Struct({
     Schema.optional,
     Schema.withDecodingDefault(() => 1024),
   ),
+  embeddingBatchSize: Schema.Number.pipe(
+    Schema.optional,
+    Schema.withDecodingDefault(() => 100),
+  ),
 })
 const Embedding = Schema.Union(EmbeddingGoogle)
 

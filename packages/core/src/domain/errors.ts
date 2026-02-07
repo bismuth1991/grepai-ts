@@ -108,3 +108,17 @@ export class EmbeddingError extends Schema.TaggedError<EmbeddingError>()(
     cause: Schema.Defect,
   },
 ) {}
+
+export class IndexerError extends Schema.TaggedError<IndexerError>()(
+  'IndexerError',
+  {
+    cause: Schema.Defect,
+  },
+) {}
+
+export class IndexerCallbackError extends Schema.TaggedError<IndexerCallbackError>()(
+  'IndexerCallbackError',
+  {
+    cause: Schema.Defect,
+  },
+) {}

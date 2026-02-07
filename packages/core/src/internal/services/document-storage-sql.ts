@@ -93,6 +93,7 @@ export const DocumentStorageSql = Layer.effect(
               , ${now}
               , ${now}
             )
+            ON CONFLICT DO NOTHING
           `,
         })
       },

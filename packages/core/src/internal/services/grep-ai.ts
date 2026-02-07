@@ -79,12 +79,14 @@ export class GrepAi extends Effect.Service<GrepAi>()(
   {
     dependencies: [GrepAiLive],
     effect: Effect.gen(function* () {
+      const config = yield* Config
       const indexer = yield* Indexer
       const chunkStorage = yield* ChunkStorage
 
       return {
         search: chunkStorage.search,
         index: indexer.index,
+        config,
       } as const
     }),
   },

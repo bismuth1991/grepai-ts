@@ -15,6 +15,12 @@ type File = {
   hash: string
   language: SupportedLanguage
 }
+export type CodebaseScanResult = {
+  new: ReadonlyArray<File>
+  unchanged: ReadonlyArray<File>
+  modified: ReadonlyArray<File>
+  deleted: ReadonlyArray<Pick<File, 'filePath' | 'hash'>>
+}
 
 export class CodebaseScanner extends Context.Tag(
   '@grepai/core/domain/codebase-scanner/CodebaseScanner',
@@ -22,12 +28,7 @@ export class CodebaseScanner extends Context.Tag(
   CodebaseScanner,
   {
     scan: () => Effect.Effect<
-      {
-        new: ReadonlyArray<File>
-        unchanged: ReadonlyArray<File>
-        modified: ReadonlyArray<File>
-        deleted: ReadonlyArray<Pick<File, 'filePath' | 'hash'>>
-      },
+      CodebaseScanResult,
       CodebaseScannerError | DocumentStorageError | SchemaValidationFailed,
       never
     >
