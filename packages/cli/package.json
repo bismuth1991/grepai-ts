@@ -17,7 +17,8 @@
     "grepai": "./dist/index.js"
   },
   "files": [
-    "./dis/index.js"
+    "./dist/index.js",
+    "README.md"
   ],
   "publishConfig": {
     "access": "public"
