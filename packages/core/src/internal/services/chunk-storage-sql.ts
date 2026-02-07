@@ -4,68 +4,57 @@ import * as Effect from 'effect/Effect'
 import * as Layer from 'effect/Layer'
 import * as Schema from 'effect/Schema'
 
-import { Chunk, ChunkInsertInput } from '../../domain/chunk'
+import { ChunkInsertInput } from '../../domain/chunk'
 import { ChunkStorage } from '../../domain/chunk-storage'
-import { SchemaValidationFailed } from '../../domain/errors'
+import { Embedder } from '../../domain/embedder'
+import { ChunkStorageError, SchemaValidationFailed } from '../../domain/errors'
 
 export const ChunkStorageSql = Layer.effect(
   ChunkStorage,
   Effect.gen(function* () {
     const db = yield* SqlClient.SqlClient
+    const embedder = yield* Embedder
 
-    const getByFilePath = Effect.fnUntraced(
-      function* (filePath: string) {
+    const search = Effect.fnUntraced(
+      function* (input: { query: string; topK?: number }) {
+        const { query, topK } = input
+
+        const queryEmbedding = yield* embedder.embedQuery(query)
+
         return yield* db
           .onDialectOrElse({
             orElse: () => db`
               SELECT
-                id
-                , chunk_id
-                , file_path
-                , start_line
-                , end_line
-                , content
-                , vector_extract(embedding)
-                , hash
-                , created_at
-                , updated_at
+                c.file_path
+                , c.start_line
+                , c.end_line
               FROM
-                chunks
-              WHERE
-                file_path = ${filePath}
+                vector_top_k(
+                  'idx_chunks_vector'
+                  , vector32(${queryEmbedding})
+                  , ${topK}
+                ) v
+              INNER JOIN
+                chunks c ON c.id = v.id
             `,
           })
-          .pipe(Effect.flatMap(Schema.decodeUnknown(Schema.Array(Chunk))))
+          .pipe(
+            Effect.flatMap(
+              Schema.decodeUnknown(
+                Schema.Array(
+                  Schema.Struct({
+                    filePath: Schema.String,
+                    startLine: Schema.Number,
+                    endLine: Schema.Number,
+                  }),
+                ),
+              ),
+            ),
+          )
       },
       Effect.catchTags({
         ParseError: (cause) => new SchemaValidationFailed({ cause }),
-      }),
-    )
-
-    const getAll = Effect.fnUntraced(
-      function* () {
-        return yield* db
-          .onDialectOrElse({
-            orElse: () => db`
-              SELECT
-                id
-                , chunk_id
-                , file_path
-                , start_line
-                , end_line
-                , content
-                , vector_extract(embedding)
-                , hash
-                , created_at
-                , updated_at
-              FROM
-                chunks
-            `,
-          })
-          .pipe(Effect.flatMap(Schema.decodeUnknown(Schema.Array(Chunk))))
-      },
-      Effect.catchTags({
-        ParseError: (cause) => new SchemaValidationFailed({ cause }),
+        SqlError: (cause) => new ChunkStorageError({ cause }),
       }),
     )
 
@@ -116,23 +105,29 @@ export const ChunkStorageSql = Layer.effect(
       },
       Effect.catchTags({
         ParseError: (cause) => new SchemaValidationFailed({ cause }),
+        SqlError: (cause) => new ChunkStorageError({ cause }),
       }),
     )
 
-    const removeByFilePath = Effect.fnUntraced(function* (filePath: string) {
-      yield* db.onDialectOrElse({
-        orElse: () => db`
-          DELETE FROM
-            chunks
-          WHERE
-            file_path = ${filePath}
-        `,
-      })
-    })
+    const removeByFilePath = Effect.fnUntraced(
+      function* (filePath: string) {
+        yield* db.onDialectOrElse({
+          orElse: () => db`
+            DELETE FROM
+              chunks
+            WHERE
+              file_path = ${filePath}
+          `,
+        })
+      },
+
+      Effect.catchTags({
+        SqlError: (cause) => new ChunkStorageError({ cause }),
+      }),
+    )
 
     return ChunkStorage.of({
-      getByFilePath,
-      getAll,
+      search,
       insertMany,
       removeByFilePath,
     })

@@ -32,6 +32,13 @@ export class SchemaValidationFailed extends Schema.TaggedError<SchemaValidationF
   },
 ) {}
 
+export class ChunkStorageError extends Schema.TaggedError<ChunkStorageError>()(
+  'ChunkStorageError',
+  {
+    cause: Schema.Defect,
+  },
+) {}
+
 export class DocumentStorageError extends Schema.TaggedError<DocumentStorageError>()(
   'DocumentStorageError',
   {

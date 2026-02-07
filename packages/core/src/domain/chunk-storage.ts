@@ -1,36 +1,38 @@
-import type { Chunk, ChunkInsertInput } from './chunk'
+import type { ChunkInsertInput } from './chunk'
 
-import { SqlError } from '@effect/sql'
 import * as Context from 'effect/Context'
 import * as Effect from 'effect/Effect'
 
-import { SchemaValidationFailed } from './errors'
+import {
+  ChunkStorageError,
+  EmbeddingCacheError,
+  SchemaValidationFailed,
+  VercelAiError,
+} from './errors'
 
 export class ChunkStorage extends Context.Tag(
   '@grepai/core/domain/chunk-storage/ChunkStorage',
 )<
   ChunkStorage,
   {
-    getByFilePath: (
-      filePath: string,
-    ) => Effect.Effect<
-      ReadonlyArray<Chunk>,
-      SchemaValidationFailed | SqlError.SqlError,
-      never
-    >
-
-    getAll: () => Effect.Effect<
-      ReadonlyArray<Chunk>,
-      SchemaValidationFailed | SqlError.SqlError,
+    search: (input: {
+      query: string
+      topK?: number
+    }) => Effect.Effect<
+      ReadonlyArray<{ filePath: string; startLine: number; endLine: number }>,
+      | ChunkStorageError
+      | SchemaValidationFailed
+      | EmbeddingCacheError
+      | VercelAiError,
       never
     >
 
     insertMany: (
       chunks: ReadonlyArray<ChunkInsertInput>,
-    ) => Effect.Effect<void, SchemaValidationFailed | SqlError.SqlError, never>
+    ) => Effect.Effect<void, ChunkStorageError | SchemaValidationFailed, never>
 
     removeByFilePath: (
       filePath: string,
-    ) => Effect.Effect<void, SqlError.SqlError, never>
+    ) => Effect.Effect<void, ChunkStorageError, never>
   }
 >() {}

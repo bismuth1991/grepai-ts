@@ -1,11 +1,10 @@
 import { FetchHttpClient } from '@effect/platform'
-import { SqlClient } from '@effect/sql'
 import * as Effect from 'effect/Effect'
 import * as Layer from 'effect/Layer'
 import * as Match from 'effect/Match'
 
+import { ChunkStorage } from '../../domain/chunk-storage'
 import { Config } from '../../domain/config'
-import { Embedder } from '../../domain/embedder'
 
 import { ChunkStorageSql } from './chunk-storage-sql'
 import { ChunkerAst } from './chunker-ast'
@@ -54,20 +53,22 @@ const GrepAiLive = Layer.unwrapEffect(
     )
 
     return Indexer.Default.pipe(
+      Layer.provideMerge(ChunkStorageLive),
       Layer.provide(CodebaseScannerFs),
       Layer.provide(ChunkerAst),
-      Layer.provide(ChunkStorageLive),
       Layer.provide(
-        TokenCounterLive.pipe(Layer.provide(TokenCounterCacheLive)),
+        TokenCounterLive.pipe(
+          Layer.provide(FetchHttpClient.layer),
+          Layer.provide(TokenCounterCacheLive),
+        ),
       ),
-      Layer.provideMerge(
+      Layer.provide(
         EmbedderLive.pipe(
           Layer.provide(VercelAi.Default),
           Layer.provide(EmbeddingCacheLive),
         ),
       ),
-      Layer.provideMerge(DocumentStorageLive),
-      Layer.provideMerge(FetchHttpClient.layer),
+      Layer.provide(DocumentStorageLive),
       Layer.provideMerge(StorageLive),
     )
   }),
@@ -78,38 +79,11 @@ export class GrepAi extends Effect.Service<GrepAi>()(
   {
     dependencies: [GrepAiLive],
     effect: Effect.gen(function* () {
-      const embedder = yield* Embedder
-      const db = yield* SqlClient.SqlClient
       const indexer = yield* Indexer
-
-      const search = Effect.fnUntraced(function* (input: {
-        query: string
-        topK: number
-      }) {
-        const { query, topK } = input
-
-        const queryEmbedding = yield* embedder.embedQuery(query)
-
-        return yield* db.onDialectOrElse({
-          orElse: () => db`
-            SELECT
-              c.file_path
-              , c.start_line
-              , c.end_line
-            FROM
-              vector_top_k(
-                'idx_chunks_vector'
-                , vector32(${queryEmbedding})
-                , ${topK}
-              ) v
-            INNER JOIN
-              chunks c ON c.id = v.id
-          `,
-        })
-      })
+      const chunkStorage = yield* ChunkStorage
 
       return {
-        search,
+        search: chunkStorage.search,
         index: indexer.index,
       } as const
     }),
