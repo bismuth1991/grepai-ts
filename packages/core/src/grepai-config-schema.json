@@ -1,45 +1,29 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "type": "object",
-  "required": [
-    "embedding",
-    "storage"
-  ],
+  "required": ["embedding", "storage"],
   "properties": {
     "$schema": {
       "type": "string"
     },
     "embedding": {
       "type": "object",
-      "required": [
-        "provider",
-        "model",
-        "apiKey",
-        "dimensions"
-      ],
+      "required": ["provider", "model", "apiKey", "dimensions"],
       "properties": {
         "provider": {
           "type": "string",
-          "enum": [
-            "google"
-          ]
+          "enum": ["google"]
         },
         "model": {
           "type": "string",
-          "enum": [
-            "gemini-embedding-001"
-          ]
+          "enum": ["gemini-embedding-001"]
         },
         "apiKey": {
           "type": "string"
         },
         "dimensions": {
           "type": "number",
-          "enum": [
-            768,
-            1536,
-            3072
-          ]
+          "enum": [768, 1536, 3072]
         },
         "targetChunkSize": {
           "type": "number"
@@ -67,17 +51,11 @@
     },
     "storage": {
       "type": "object",
-      "required": [
-        "type",
-        "authToken",
-        "url"
-      ],
+      "required": ["type", "authToken", "url"],
       "properties": {
         "type": {
           "type": "string",
-          "enum": [
-            "turso"
-          ]
+          "enum": ["turso"]
         },
         "authToken": {
           "type": "string"

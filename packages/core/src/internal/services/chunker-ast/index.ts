@@ -122,38 +122,30 @@ export const ChunkerAst = Layer.effect(
       )
       const { isClosingSyntax } = languageConfig[language]
 
-      const loop = (
-        index: number = 0,
-        output: OutChunk[] = [],
-        current?: OutChunk,
-        pendingGap?: OutChunk,
-      ): OutChunk[] => {
-        if (index === sorted.length) {
-          if (!current) {
-            return output
-          }
-          return Array.append(output, appendGap(current, pendingGap))
-        }
+      const output: OutChunk[] = []
+      let current: OutChunk | undefined
+      let pendingGap: OutChunk | undefined
 
-        const chunk = sorted[index]!
-
+      for (const chunk of sorted) {
         if (chunk.type === 'gap') {
           const gapContent = content.slice(chunk.startIndex, chunk.endIndex)
 
           if (isClosingSyntax(gapContent) && current) {
-            const nextCurrent = mergeChunks(
-              appendGap(current, pendingGap),
-              chunk,
-            )
-            return loop(index + 1, output, nextCurrent)
+            current = mergeChunks(appendGap(current, pendingGap), chunk)
+            pendingGap = undefined
+            continue
           }
-          return loop(index + 1, output, current, mergeGap(chunk, pendingGap))
+
+          pendingGap = mergeGap(chunk, pendingGap)
+          continue
         }
 
         const nextOutChunk = prependGap(chunk, pendingGap)
+        pendingGap = undefined
 
         if (!current) {
-          return loop(index + 1, output, nextOutChunk)
+          current = nextOutChunk
+          continue
         }
 
         const { current: nextCurrent, outputToAppend } =
@@ -161,14 +153,18 @@ export const ChunkerAst = Layer.effect(
             targetChunkSize: config.embedding.targetChunkSize,
           })
 
-        const nextOutput = !outputToAppend
-          ? output
-          : Array.append(output, outputToAppend)
+        if (outputToAppend) {
+          output.push(outputToAppend)
+        }
 
-        return loop(index + 1, nextOutput, nextCurrent)
+        current = nextCurrent
       }
 
-      return loop()
+      if (current) {
+        output.push(appendGap(current, pendingGap))
+      }
+
+      return output
     }
 
     return Chunker.of({

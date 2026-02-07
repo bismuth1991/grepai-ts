@@ -21,6 +21,7 @@ const ConfigTest = Layer.succeed(Config, {
     apiKey: 'test-key',
     targetChunkSize: 50,
     maxChunkSize: 100,
+    embeddingBatchSize: 10,
     dimensions: 3072,
   },
   include: [],
@@ -40,6 +41,7 @@ const LargeChunkConfigTest = Layer.succeed(Config, {
     apiKey: 'test-key',
     targetChunkSize: 500,
     maxChunkSize: 1000,
+    embeddingBatchSize: 10,
     dimensions: 3072,
   },
   include: [],
@@ -63,6 +65,33 @@ const TestLiveLargeChunks = ChunkerAst.pipe(
   Layer.provide(ContextHeaderBuilder.Default),
   Layer.provide(TokenCounterTest),
   Layer.provide(LargeChunkConfigTest),
+)
+
+const TinyChunkConfigTest = Layer.succeed(Config, {
+  cwd: '/test',
+  embedding: {
+    provider: 'google',
+    model: 'gemini-embedding-001',
+    apiKey: 'test-key',
+    targetChunkSize: 20,
+    maxChunkSize: 40,
+    embeddingBatchSize: 10,
+    dimensions: 3072,
+  },
+  include: [],
+  exclude: [],
+  storage: {
+    type: 'turso',
+    url: 'test',
+    authToken: 'test',
+  },
+})
+
+const TestLiveTinyChunks = ChunkerAst.pipe(
+  Layer.provide(AstParser.Default),
+  Layer.provide(ContextHeaderBuilder.Default),
+  Layer.provide(TokenCounterTest),
+  Layer.provide(TinyChunkConfigTest),
 )
 
 describe('ChunkerAst', () => {
@@ -318,6 +347,50 @@ export default function() {}`,
         expect(result1[0]!.hash).not.toBe(result2[0]!.hash)
       }).pipe(Effect.provide(TestLive)),
     )
+
+    it.effect('generates stable hashes for identical input', () =>
+      Effect.gen(function* () {
+        const chunker = yield* Chunker
+        const content = 'function stable() { return 1 }'
+
+        const result1 = yield* chunker.chunk({
+          filePath: '/test/file.ts',
+          content,
+          language: 'typescript',
+        })
+        const result2 = yield* chunker.chunk({
+          filePath: '/test/file.ts',
+          content,
+          language: 'typescript',
+        })
+
+        expect(result1).toHaveLength(1)
+        expect(result2).toHaveLength(1)
+        expect(result1[0]!.hash).toBe(result2[0]!.hash)
+      }).pipe(Effect.provide(TestLive)),
+    )
+
+    it.effect('changes hash when only file path changes', () =>
+      Effect.gen(function* () {
+        const chunker = yield* Chunker
+        const content = 'function sameContent() { return 1 }'
+
+        const result1 = yield* chunker.chunk({
+          filePath: '/test/a.ts',
+          content,
+          language: 'typescript',
+        })
+        const result2 = yield* chunker.chunk({
+          filePath: '/test/b.ts',
+          content,
+          language: 'typescript',
+        })
+
+        expect(result1).toHaveLength(1)
+        expect(result2).toHaveLength(1)
+        expect(result1[0]!.hash).not.toBe(result2[0]!.hash)
+      }).pipe(Effect.provide(TestLive)),
+    )
   })
 
   describe('chunk merging behavior', () => {
@@ -390,6 +463,108 @@ function third() {}`,
         expect(result[0]!.startLine).toBe(0)
         expect(result[0]!.endLine).toBe(0)
       }).pipe(Effect.provide(TestLive)),
+    )
+
+    it.effect('returns chunks in non-decreasing line order', () =>
+      Effect.gen(function* () {
+        const chunker = yield* Chunker
+        const result = yield* chunker.chunk({
+          filePath: '/test/ordered.ts',
+          content: `function first() {
+  return 1
+}
+
+function second() {
+  return 2
+}
+
+function third() {
+  return 3
+}`,
+          language: 'typescript',
+        })
+
+        expect(result.length).toBeGreaterThan(0)
+        for (let i = 1; i < result.length; i++) {
+          expect(result[i]!.startLine).toBeGreaterThanOrEqual(
+            result[i - 1]!.startLine,
+          )
+        }
+      }).pipe(Effect.provide(TestLiveTinyChunks)),
+    )
+  })
+
+  describe('scope and merge invariants', () => {
+    it.effect('deduplicates repeated scope paths within a merged chunk', () =>
+      Effect.gen(function* () {
+        const chunker = yield* Chunker
+        const result = yield* chunker.chunk({
+          filePath: '/test/dedupe.ts',
+          content: `class Service {
+  run() {
+    const alpha = 'a'
+    const beta = 'b'
+    const gamma = 'c'
+    return alpha + beta + gamma
+  }
+}`,
+          language: 'typescript',
+        })
+
+        const chunkWithScope = result.find((chunk) => chunk.scope.length > 0)
+        expect(chunkWithScope).toBeDefined()
+        if (chunkWithScope) {
+          const serialized = chunkWithScope.scope.map((s) => s.join(' -> '))
+          expect(new Set(serialized).size).toBe(serialized.length)
+        }
+      }).pipe(Effect.provide(TestLiveTinyChunks)),
+    )
+
+    it.effect('does not treat import bindings as scope names', () =>
+      Effect.gen(function* () {
+        const chunker = yield* Chunker
+        const result = yield* chunker.chunk({
+          filePath: '/test/import-and-code.ts',
+          content: `import { dep } from './dep'
+
+function execute() {
+  return dep
+}`,
+          language: 'typescript',
+        })
+
+        expect(result.length).toBeGreaterThan(0)
+
+        const allScopeNames = result
+          .flatMap((chunk) => chunk.scope)
+          .flatMap((scopePath) => scopePath)
+        expect(allScopeNames.includes('dep')).toBe(false)
+        expect(allScopeNames.includes('execute')).toBe(true)
+      }).pipe(Effect.provide(TestLiveTinyChunks)),
+    )
+
+    it.effect('does not emit chunks that only contain closing syntax', () =>
+      Effect.gen(function* () {
+        const chunker = yield* Chunker
+        const result = yield* chunker.chunk({
+          filePath: '/test/closing-syntax.ts',
+          content: `function wrapped() {
+  if (true) {
+    return {
+      ok: true,
+    }
+  }
+}`,
+          language: 'typescript',
+        })
+
+        expect(result.length).toBeGreaterThan(0)
+        const hasClosingOnlyChunk = result.some((chunk) => {
+          const body = chunk.content.split('---\n')[1] ?? ''
+          return /^[\s)\]}>]+$/.test(body)
+        })
+        expect(hasClosingOnlyChunk).toBe(false)
+      }).pipe(Effect.provide(TestLiveTinyChunks)),
     )
   })
 
