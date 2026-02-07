@@ -1,0 +1,39 @@
+diff --git a/index.js b/index.js
+index 4e8423491ab51a9eb9fee22182e4ea0fcc3d3d3b..79c8119f0b453be62c133bc8059d8fac9a0c9b85 100644
+--- a/index.js
++++ b/index.js
+@@ -2,6 +2,7 @@
+ 
+ const { load, currentTarget } = require("@neon-rs/load");
+ const { familySync, GLIBC } = require("detect-libc");
++const path = require("path");
+ 
+ function requireNative() {
+   if (process.env.LIBSQL_JS_DEV) {
+@@ -19,7 +20,7 @@ function requireNative() {
+       break;
+     }
+   }
+-  return require(`@libsql/${target}`);
++  return require(path.resolve(__dirname, `../@libsql/${target}/index.node`));
+ }
+ 
+ const {
+@@ -114,7 +115,7 @@ class Database {
+   prepare(sql) {
+     try {
+       const stmt = databasePrepareSync.call(this.db, sql);
+-      return new Statement(stmt);  
++      return new Statement(stmt);
+     } catch (err) {
+       throw convertError(err);
+     }
+@@ -296,7 +297,7 @@ class Statement {
+         return statementRun.call(this.stmt, bindParameters[0]);
+       } else {
+         return statementRun.call(this.stmt, bindParameters.flat());
+-      }  
++      }
+     } catch (err) {
+       throw convertError(err);
+     }

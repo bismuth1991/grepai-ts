@@ -19,9 +19,9 @@
     },
     "packages/cli": {
       "name": "@grepai/cli",
-      "version": "0.1.1",
+      "version": "0.1.9",
       "bin": {
-        "grepai": "./dist/index.js",
+        "grepai": "./dist/grepai",
       },
       "devDependencies": {
         "@effect/cli": "catalog:effect",
@@ -72,6 +72,9 @@
       "name": "@grepai/tsconfig",
       "version": "1.0.0",
     },
+  },
+  "patchedDependencies": {
+    "libsql@0.4.7": "patches/libsql@0.4.7.patch",
   },
   "catalog": {
     "@dotenvx/dotenvx": "1.52.0",

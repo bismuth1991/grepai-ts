@@ -1,6 +1,6 @@
 {
   "name": "@grepai/cli",
-  "version": "0.1.1",
+  "version": "0.1.0",
   "description": "CLI for semantic code search. It uses vector embeddings to understand code meaning, enabling natural language queries that find relevant code—even when naming conventions vary.",
   "homepage": "https://github.com/bismuth1991/grepai-ts#readme",
   "bugs": {
@@ -14,18 +14,18 @@
     "directory": "packages/cli"
   },
   "bin": {
-    "grepai": "./dist/index.js"
+    "grepai": "./dist/grepai"
   },
   "files": [
-    "./dist/index.js",
+    "./dist/grepai",
     "README.md"
   ],
   "publishConfig": {
     "access": "public"
   },
   "scripts": {
-    "build": "bun build --production --target bun --outdir dist src/index.ts",
-    "clean": "git clean -xdf .cache .turbo node_modules",
+    "build": "bun build --compile --minify --bytecode --sourcemap --outfile dist/grepai src/index.ts",
+    "clean": "git clean -xdf .cache .turbo node_modules dist",
     "format": "oxfmt",
     "lint": "oxlint",
     "typecheck": "tsc --noEmit --emitDeclarationOnly false"
@@ -34,7 +34,7 @@
     "@effect/cli": "catalog:effect",
     "@effect/platform": "catalog:effect",
     "@effect/platform-bun": "catalog:effect",
-    "@grepai/core": "workspace:0.1.1",
+    "@grepai/core": "workspace:0.1.0",
     "@grepai/tsconfig": "workspace:1.0.0",
     "effect": "catalog:effect",
     "typescript": "catalog:"

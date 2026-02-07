@@ -53,5 +53,8 @@
   "peerDependencies": {
     "typescript": "catalog:"
   },
-  "packageManager": "bun@1.3.8"
+  "packageManager": "bun@1.3.8",
+  "patchedDependencies": {
+    "libsql@0.4.7": "patches/libsql@0.4.7.patch"
+  }
 }
