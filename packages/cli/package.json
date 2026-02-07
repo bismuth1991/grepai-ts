@@ -1,6 +1,6 @@
 {
   "name": "@grepai/cli",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "CLI for semantic code search. It uses vector embeddings to understand code meaning, enabling natural language queries that find relevant code—even when naming conventions vary.",
   "homepage": "https://github.com/bismuth1991/grepai-ts#readme",
   "bugs": {
@@ -24,7 +24,7 @@
     "access": "public"
   },
   "scripts": {
-    "build": "bun build --compile --minify --bytecode --sourcemap --outfile dist/grepai src/index.ts",
+    "build": "bun build --compile --minify-syntax --bytecode --sourcemap --outfile dist/grepai src/index.ts",
     "clean": "git clean -xdf .cache .turbo node_modules dist",
     "format": "oxfmt",
     "lint": "oxlint",
