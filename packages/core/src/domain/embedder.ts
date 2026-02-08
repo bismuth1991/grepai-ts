@@ -1,9 +1,5 @@
 import type { Embedding } from './embedding'
-import type {
-  EmbeddingCacheError,
-  SchemaValidationFailed,
-  VercelAiError,
-} from './errors'
+import type { SchemaValidationFailed, VercelAiError } from './errors'
 import type * as Array from 'effect/Array'
 
 import * as Context from 'effect/Context'
@@ -18,17 +14,13 @@ export class Embedder extends Context.Tag('@grepai/core/domain/embedder')<
       textChunks: Array.NonEmptyReadonlyArray<string>,
     ) => Effect.Effect<
       Array.NonEmptyReadonlyArray<Embedding>,
-      VercelAiError | SchemaValidationFailed | EmbeddingCacheError,
+      VercelAiError | SchemaValidationFailed,
       never
     >
 
     embedQuery: (
       query: string,
       type?: EmbedQueryType,
-    ) => Effect.Effect<
-      Embedding,
-      VercelAiError | SchemaValidationFailed | EmbeddingCacheError,
-      never
-    >
+    ) => Effect.Effect<Embedding, VercelAiError | SchemaValidationFailed, never>
   }
 >() {}

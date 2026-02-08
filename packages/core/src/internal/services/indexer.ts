@@ -57,8 +57,6 @@ export class Indexer extends Effect.Service<Indexer>()(
             onCodebaseIndexFinished = voidFn,
           } = callbacks ?? {}
 
-          const mutex = yield* Effect.makeSemaphore(1)
-
           yield* onCodebaseIndexStarted()
 
           const {
@@ -89,60 +87,55 @@ export class Indexer extends Effect.Service<Indexer>()(
 
           const filesToProcess = Array.appendAll(newFiles, modified)
 
-          const chunkBatches = yield* Effect.forEach(
+          yield* Effect.forEach(
             filesToProcess,
-            ({ filePath, language, content, hash: fileHash }) =>
+            ({ filePath, language, content, hash }) =>
               pipe(
                 chunker.chunk({ filePath, content, language }),
-                Effect.map(
-                  Array.map((chunk, index) => ({
-                    ...chunk,
-                    fileHash,
-                    chunkId: `${filePath}__${index}`,
-                  })),
+                Effect.tap((chunks) =>
+                  pipe(
+                    documentStorage.insert({
+                      filePath,
+                      hash,
+                    }),
+                    Effect.zipRight(chunkStorage.insertMany(chunks)),
+                    db.withTransaction,
+                  ),
                 ),
                 Effect.tap(() =>
-                  mutex.withPermits(1)(
-                    onFileChunked({
-                      filePath,
-                      fileCount: filesToProcess.length,
-                    }),
-                  ),
+                  onFileChunked({
+                    filePath,
+                    fileCount: filesToProcess.length,
+                  }),
                 ),
               ),
             { concurrency: 'unbounded' },
-          ).pipe(
-            Effect.map(Array.flatten),
-            Effect.map(Array.chunksOf(config.embedding.embeddingBatchSize)),
-          )
+          ).pipe(Effect.map(Array.flatten))
 
-          yield* Effect.forEach(chunkBatches, (chunks) =>
-            Effect.gen(function* () {
-              const embeddings = yield* embedder.embedMany(
-                Array.map(chunks, ({ content }) => content),
-              )
-              const chunksToInsert = Array.map(
-                chunks,
-                ({ scope: _, ...chunk }, index) => ({
-                  ...chunk,
-                  embedding: embeddings[index]!,
-                }),
-              )
-              const documentsToInsert = Array.map(
-                chunks,
-                ({ filePath, fileHash }) => ({
-                  filePath,
-                  hash: fileHash,
-                }),
-              )
-              yield* pipe(
-                Effect.forEach(documentsToInsert, documentStorage.insert, {
-                  concurrency: 'unbounded',
-                }),
-                Effect.zipRight(chunkStorage.insertMany(chunksToInsert)),
-                db.withTransaction,
-              )
-            }).pipe(Effect.tap(() => onChunkBatchProcessed(chunks.length))),
+          const chunksToEmbed = yield* chunkStorage.getAllWithoutEmbedding()
+
+          yield* Effect.forEach(
+            Array.chunksOf(chunksToEmbed, config.embedding.embeddingBatchSize),
+            (chunks) =>
+              Effect.gen(function* () {
+                const embeddings = yield* embedder.embedMany(
+                  Array.map(chunks, ({ content }) => content),
+                )
+                const chunkEmbeddingToInsert = Array.map(
+                  chunks,
+                  (chunk, index) => ({
+                    chunkId: chunk.id,
+                    embedding: embeddings[index]!,
+                  }),
+                )
+                yield* Effect.forEach(
+                  chunkEmbeddingToInsert,
+                  chunkStorage.insertEmbedding,
+                  { concurrency: 'unbounded' },
+                )
+              }).pipe(
+                Effect.tap(() => onChunkBatchProcessed(chunksToEmbed.length)),
+              ),
           )
 
           yield* Effect.sleep(1000).pipe(

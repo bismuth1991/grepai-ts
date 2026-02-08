@@ -4,32 +4,26 @@ import {
   HttpClientResponse,
 } from '@effect/platform'
 import * as Effect from 'effect/Effect'
-import * as Hash from 'effect/Hash'
 import * as Layer from 'effect/Layer'
+import * as Match from 'effect/Match'
 import * as Schema from 'effect/Schema'
 
 import { Config } from '../../domain/config'
 import { TokenCounterError } from '../../domain/errors'
 import { TokenCounter } from '../../domain/token-counter'
-import { TokenCounterCache } from '../../domain/token-counter-cache'
 
 export const TokenCounterGemini = Layer.effect(
   TokenCounter,
   Effect.gen(function* () {
     const httpClient = yield* HttpClient.HttpClient
     const config = yield* Config
-    const cache = yield* TokenCounterCache
 
     const count = Effect.fnUntraced(
       function* (text: string) {
-        const tokenizer = 'gemini-embedding-001'
-        const chunkHash = Hash.string(text).toString()
-
-        const cachedTokenCount = yield* cache.get({ chunkHash, tokenizer })
-
-        if (typeof cachedTokenCount === 'number') {
-          return cachedTokenCount
-        }
+        const tokenizer = Match.value(config.embedding.model).pipe(
+          Match.when('gemini-embedding-001', () => 'gemini-embedding-001'),
+          Match.exhaustive,
+        )
 
         const request = yield* HttpClientRequest.post(
           `/${tokenizer}:countTokens`,
@@ -48,7 +42,7 @@ export const TokenCounterGemini = Layer.effect(
           }),
         )
 
-        const tokenCount = yield* httpClient.execute(request).pipe(
+        return yield* httpClient.execute(request).pipe(
           Effect.flatMap(
             HttpClientResponse.schemaBodyJson(
               Schema.Struct({
@@ -58,9 +52,6 @@ export const TokenCounterGemini = Layer.effect(
           ),
           Effect.map(({ totalTokens }) => totalTokens),
         )
-        yield* cache.set({ chunkHash, tokenizer }, tokenCount)
-
-        return tokenCount
       },
       Effect.catchTags({
         HttpBodyError: (cause) => new TokenCounterError({ cause }),

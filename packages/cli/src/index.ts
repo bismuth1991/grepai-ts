@@ -20,12 +20,7 @@ const program = Effect.gen(function* () {
         const chunkBatchesIndexed = yield* SynchronizedRef.make(0)
 
         yield* grepAi.index({
-          onCodebaseIndexStarted: () =>
-            clack
-              .intro('GREP AI')
-              .pipe(
-                Effect.zipRight(clack.spinner.start('Scanning codebase...')),
-              ),
+          onCodebaseIndexStarted: () => clack.intro('GREP AI'),
           onCodebaseScanned: (result) =>
             clack.note(
               [
@@ -96,7 +91,7 @@ const program = Effect.gen(function* () {
 
   const cli = Command.run(command, {
     name: 'GREP AI',
-    version: 'v0.2.18',
+    version: 'v0.2.20',
   })
 
   yield* cli(process.argv)

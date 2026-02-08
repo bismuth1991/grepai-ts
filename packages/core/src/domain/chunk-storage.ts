@@ -1,11 +1,14 @@
-import type { ChunkInsertInput } from './chunk'
+import type {
+  ChunkEmbeddingInsertInput,
+  ChunkInsertInput,
+  ChunkSearchResult,
+} from './chunk'
 
 import * as Context from 'effect/Context'
 import * as Effect from 'effect/Effect'
 
 import {
   ChunkStorageError,
-  EmbeddingCacheError,
   SchemaValidationFailed,
   VercelAiError,
 } from './errors'
@@ -19,16 +22,23 @@ export class ChunkStorage extends Context.Tag(
       query: string
       topK?: number
     }) => Effect.Effect<
-      ReadonlyArray<{ filePath: string; startLine: number; endLine: number }>,
-      | ChunkStorageError
-      | SchemaValidationFailed
-      | EmbeddingCacheError
-      | VercelAiError,
+      ReadonlyArray<ChunkSearchResult>,
+      ChunkStorageError | SchemaValidationFailed | VercelAiError,
+      never
+    >
+
+    getAllWithoutEmbedding: () => Effect.Effect<
+      ReadonlyArray<{ id: string; content: string }>,
+      ChunkStorageError | SchemaValidationFailed,
       never
     >
 
     insertMany: (
       chunks: ReadonlyArray<ChunkInsertInput>,
+    ) => Effect.Effect<void, ChunkStorageError | SchemaValidationFailed, never>
+
+    insertEmbedding: (
+      embedding: ChunkEmbeddingInsertInput,
     ) => Effect.Effect<void, ChunkStorageError | SchemaValidationFailed, never>
 
     removeByFilePath: (

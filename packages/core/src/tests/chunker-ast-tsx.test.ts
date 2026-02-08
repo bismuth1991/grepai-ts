@@ -94,6 +94,11 @@ const TestLiveTinyChunks = ChunkerAst.pipe(
   Layer.provide(TinyChunkConfig),
 )
 
+function extractContextHeader(content: string) {
+  const [header = ''] = content.split('\n---\n')
+  return header
+}
+
 describe('ChunkerAst TSX Support', () => {
   describe('basic JSX parsing', () => {
     it.effect('parses simple JSX element', () =>
@@ -198,10 +203,10 @@ describe('ChunkerAst TSX Support', () => {
         })
 
         expect(result.length).toBeGreaterThan(0)
-        const hasScope = result.some((chunk) =>
-          chunk.scope.some((s) => s.includes('MyComponent')),
+        const hasComponent = result.some((chunk) =>
+          chunk.content.includes('function MyComponent()'),
         )
-        expect(hasScope).toBe(true)
+        expect(hasComponent).toBe(true)
       }).pipe(Effect.provide(TestLive)),
     )
 
@@ -217,10 +222,10 @@ describe('ChunkerAst TSX Support', () => {
         })
 
         expect(result.length).toBeGreaterThan(0)
-        const hasScope = result.some((chunk) =>
-          chunk.scope.some((s) => s.includes('Button')),
+        const hasButton = result.some((chunk) =>
+          chunk.content.includes('const Button = () =>'),
         )
-        expect(hasScope).toBe(true)
+        expect(hasButton).toBe(true)
       }).pipe(Effect.provide(TestLive)),
     )
 
@@ -234,10 +239,10 @@ describe('ChunkerAst TSX Support', () => {
         })
 
         expect(result.length).toBeGreaterThan(0)
-        const hasScope = result.some((chunk) =>
-          chunk.scope.some((s) => s.includes('Card')),
+        const hasCard = result.some((chunk) =>
+          chunk.content.includes('const Card = () =>'),
         )
-        expect(hasScope).toBe(true)
+        expect(hasCard).toBe(true)
       }).pipe(Effect.provide(TestLive)),
     )
 
@@ -253,10 +258,10 @@ describe('ChunkerAst TSX Support', () => {
         })
 
         expect(result.length).toBeGreaterThan(0)
-        const hasScope = result.some((chunk) =>
-          chunk.scope.some((s) => s.includes('Header')),
+        const hasHeader = result.some((chunk) =>
+          chunk.content.includes('const Header: React.FC'),
         )
-        expect(hasScope).toBe(true)
+        expect(hasHeader).toBe(true)
       }).pipe(Effect.provide(TestLive)),
     )
 
@@ -272,10 +277,10 @@ describe('ChunkerAst TSX Support', () => {
         })
 
         expect(result.length).toBeGreaterThan(0)
-        const hasScope = result.some((chunk) =>
-          chunk.scope.some((s) => s.includes('Input')),
+        const hasInput = result.some((chunk) =>
+          chunk.content.includes('const Input = React.forwardRef'),
         )
-        expect(hasScope).toBe(true)
+        expect(hasInput).toBe(true)
       }).pipe(Effect.provide(TestLive)),
     )
 
@@ -309,10 +314,10 @@ describe('ChunkerAst TSX Support', () => {
         })
 
         expect(result.length).toBeGreaterThan(0)
-        const hasScope = result.some((chunk) =>
-          chunk.scope.some((s) => s.includes('Counter')),
+        const hasCounter = result.some((chunk) =>
+          chunk.content.includes('class Counter extends React.Component'),
         )
-        expect(hasScope).toBe(true)
+        expect(hasCounter).toBe(true)
       }).pipe(Effect.provide(TestLive)),
     )
   })
@@ -467,8 +472,8 @@ describe('ChunkerAst TSX Support', () => {
     )
   })
 
-  describe('scope tracking with JSX', () => {
-    it.effect('function component has correct scope', () =>
+  describe('component tracking with JSX', () => {
+    it.effect('function component is preserved in output', () =>
       Effect.gen(function* () {
         const chunker = yield* Chunker
         const result = yield* chunker.chunk({
@@ -480,12 +485,11 @@ describe('ChunkerAst TSX Support', () => {
         })
 
         expect(result.length).toBe(1)
-        expect(result[0]!.scope.length).toBeGreaterThan(0)
-        expect(result[0]!.scope[0]).toContain('UserProfile')
+        expect(result[0]!.content).toContain('function UserProfile()')
       }).pipe(Effect.provide(TestLive)),
     )
 
-    it.effect('arrow function component has correct scope', () =>
+    it.effect('arrow function component is preserved in output', () =>
       Effect.gen(function* () {
         const chunker = yield* Chunker
         const result = yield* chunker.chunk({
@@ -497,12 +501,11 @@ describe('ChunkerAst TSX Support', () => {
         })
 
         expect(result.length).toBe(1)
-        expect(result[0]!.scope.length).toBeGreaterThan(0)
-        expect(result[0]!.scope[0]).toContain('Dashboard')
+        expect(result[0]!.content).toContain('const Dashboard = () =>')
       }).pipe(Effect.provide(TestLive)),
     )
 
-    it.effect('class component method has correct scope', () =>
+    it.effect('class component method is preserved in output', () =>
       Effect.gen(function* () {
         const chunker = yield* Chunker
         const result = yield* chunker.chunk({
@@ -516,10 +519,10 @@ describe('ChunkerAst TSX Support', () => {
         })
 
         expect(result.length).toBeGreaterThan(0)
-        const hasAppScope = result.some((chunk) =>
-          chunk.scope.some((s) => s.includes('App')),
+        const hasAppClass = result.some((chunk) =>
+          chunk.content.includes('class App extends React.Component'),
         )
-        expect(hasAppScope).toBe(true)
+        expect(hasAppClass).toBe(true)
       }).pipe(Effect.provide(TestLive)),
     )
   })
@@ -539,7 +542,7 @@ describe('ChunkerAst TSX Support', () => {
       }).pipe(Effect.provide(TestLive)),
     )
 
-    it.effect('includes component name in header', () =>
+    it.effect('injects component scope lines into header', () =>
       Effect.gen(function* () {
         const chunker = yield* Chunker
         const result = yield* chunker.chunk({
@@ -551,7 +554,10 @@ describe('ChunkerAst TSX Support', () => {
         })
 
         expect(result.length).toBe(1)
-        expect(result[0]!.content).toContain('NavigationMenu')
+        const header = extractContextHeader(result[0]!.content)
+        expect(header).toContain('# filePath: /test/component.tsx')
+        expect(header).toContain('# scope:')
+        expect(header).toContain('#   - NavigationMenu')
       }).pipe(Effect.provide(TestLive)),
     )
   })
@@ -1129,26 +1135,29 @@ function Second() {
     )
   })
 
-  describe('hash generation with JSX', () => {
-    it.effect('generates unique hashes for different JSX content', () =>
-      Effect.gen(function* () {
-        const chunker = yield* Chunker
-        const result1 = yield* chunker.chunk({
-          filePath: '/test/component.tsx',
-          content: `function A() { return <div>A</div> }`,
-          language: 'tsx',
-        })
-        const result2 = yield* chunker.chunk({
-          filePath: '/test/component.tsx',
-          content: `function B() { return <div>B</div> }`,
-          language: 'tsx',
-        })
+  describe('id generation with JSX', () => {
+    it.effect(
+      'generates deterministic ids for different JSX content in same file',
+      () =>
+        Effect.gen(function* () {
+          const chunker = yield* Chunker
+          const result1 = yield* chunker.chunk({
+            filePath: '/test/component.tsx',
+            content: `function A() { return <div>A</div> }`,
+            language: 'tsx',
+          })
+          const result2 = yield* chunker.chunk({
+            filePath: '/test/component.tsx',
+            content: `function B() { return <div>B</div> }`,
+            language: 'tsx',
+          })
 
-        expect(result1[0]!.hash).not.toBe(result2[0]!.hash)
-      }).pipe(Effect.provide(TestLive)),
+          expect(result1[0]!.id).toBe('/test/component.tsx__0')
+          expect(result2[0]!.id).toBe('/test/component.tsx__0')
+        }).pipe(Effect.provide(TestLive)),
     )
 
-    it.effect('generates same hash for identical JSX content', () =>
+    it.effect('generates same id for identical JSX content', () =>
       Effect.gen(function* () {
         const chunker = yield* Chunker
         const content = `function Same() { return <div>Same</div> }`
@@ -1164,7 +1173,7 @@ function Second() {
           language: 'tsx',
         })
 
-        expect(result1[0]!.hash).toBe(result2[0]!.hash)
+        expect(result1[0]!.id).toBe(result2[0]!.id)
       }).pipe(Effect.provide(TestLive)),
     )
   })
@@ -1239,7 +1248,10 @@ import { useState } from 'react'`,
 
         expect(result.length).toBeGreaterThan(0)
         result.forEach((chunk) => {
-          expect(chunk.scope).toEqual([])
+          const header = extractContextHeader(chunk.content)
+          expect(header).toContain('# filePath: /test/imports.tsx')
+          expect(header).not.toContain('# scope:')
+          expect(chunk.content).toContain('import')
         })
       }).pipe(Effect.provide(TestLive)),
     )
@@ -1310,9 +1322,9 @@ function Empty() {
     )
   })
 
-  describe('JSX scope propagation on chunk splitting', () => {
+  describe('JSX chunk splitting behavior', () => {
     it.effect(
-      'propagates function scope when component is split into multiple chunks',
+      'preserves function declaration when component is split into multiple chunks',
       () =>
         Effect.gen(function* () {
           const chunker = yield* Chunker
@@ -1329,17 +1341,16 @@ function Empty() {
           })
 
           expect(result.length).toBeGreaterThanOrEqual(1)
-          const chunksWithScope = result.filter((c) => c.scope.length > 0)
-          if (chunksWithScope.length > 0) {
-            const allHaveComponentScope = chunksWithScope.every((chunk) =>
-              chunk.scope.some((s) => s.includes('LargeComponent')),
-            )
-            expect(allHaveComponentScope).toBe(true)
-          }
+          const combinedContent = result
+            .map((chunk) => chunk.content)
+            .join('\n')
+          expect(combinedContent.includes('function LargeComponent()')).toBe(
+            true,
+          )
         }).pipe(Effect.provide(TestLiveTinyChunks)),
     )
 
-    it.effect('includes parent function scope in all child chunks', () =>
+    it.effect('includes parent function declaration across child chunks', () =>
       Effect.gen(function* () {
         const chunker = yield* Chunker
         const result = yield* chunker.chunk({
@@ -1357,18 +1368,13 @@ function Empty() {
           language: 'tsx',
         })
 
-        const chunksWithScope = result.filter((c) => c.scope.length > 0)
-        if (chunksWithScope.length > 0) {
-          const allHaveDashboard = chunksWithScope.every((chunk) =>
-            chunk.scope.some((s) => s.includes('Dashboard')),
-          )
-          expect(allHaveDashboard).toBe(true)
-        }
+        const combinedContent = result.map((chunk) => chunk.content).join('\n')
+        expect(combinedContent.includes('function Dashboard()')).toBe(true)
       }).pipe(Effect.provide(TestLiveTinyChunks)),
     )
 
     it.effect(
-      'splits large component with hooks and JSX preserving scope',
+      'splits large component with hooks and JSX preserving declarations',
       () =>
         Effect.gen(function* () {
           const chunker = yield* Chunker
@@ -1390,13 +1396,10 @@ function Empty() {
           })
 
           expect(result.length).toBeGreaterThanOrEqual(1)
-          const chunksWithScope = result.filter((c) => c.scope.length > 0)
-          if (chunksWithScope.length > 0) {
-            const allHaveCounterScope = chunksWithScope.every((chunk) =>
-              chunk.scope.some((s) => s.includes('Counter')),
-            )
-            expect(allHaveCounterScope).toBe(true)
-          }
+          const combinedContent = result
+            .map((chunk) => chunk.content)
+            .join('\n')
+          expect(combinedContent.includes('function Counter()')).toBe(true)
         }).pipe(Effect.provide(TestLiveTinyChunks)),
     )
 
@@ -1427,7 +1430,7 @@ function Empty() {
       }).pipe(Effect.provide(TestLiveTinyChunks)),
     )
 
-    it.effect('context header includes scope path for nested structures', () =>
+    it.effect('context header includes nested structure identifiers', () =>
       Effect.gen(function* () {
         const chunker = yield* Chunker
         const result = yield* chunker.chunk({
@@ -1442,10 +1445,10 @@ function Empty() {
           language: 'tsx',
         })
 
-        const chunksWithClassScope = result.filter((chunk) =>
-          chunk.scope.some((s) => s.includes('MyClass')),
+        const hasMyClass = result.some((chunk) =>
+          chunk.content.includes('class MyClass'),
         )
-        expect(chunksWithClassScope.length).toBeGreaterThan(0)
+        expect(hasMyClass).toBe(true)
       }).pipe(Effect.provide(TestLiveTinyChunks)),
     )
 

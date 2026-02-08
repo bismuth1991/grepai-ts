@@ -1,13 +1,13 @@
 {
   "name": "@grepai/core",
-  "version": "0.2.18",
+  "version": "0.2.20",
   "exports": {
     ".": "./src/index.ts",
     "./domain": "./src/domain/index.ts",
     "./grepai-config-schema.json": "./src/grep-ai-config-schema.json"
   },
   "scripts": {
-    "build": "bun --bun run src/internal/scripts/build.ts",
+    "build": "bun --bun run src/internal/scripts/build.ts && oxfmt",
     "clean": "git clean -xdf .cache .turbo node_modules",
     "format": "oxfmt",
     "lint": "oxlint",

@@ -1,10 +1,15 @@
 import { SqlClient } from '@effect/sql'
+import { pipe } from 'effect'
 import * as Array from 'effect/Array'
 import * as Effect from 'effect/Effect'
 import * as Layer from 'effect/Layer'
 import * as Schema from 'effect/Schema'
 
-import { ChunkInsertInput } from '../../domain/chunk'
+import {
+  ChunkEmbeddingInsertInput,
+  ChunkInsertInput,
+  ChunkSearchResult,
+} from '../../domain/chunk'
 import { ChunkStorage } from '../../domain/chunk-storage'
 import { Embedder } from '../../domain/embedder'
 import { ChunkStorageError, SchemaValidationFailed } from '../../domain/errors'
@@ -30,12 +35,42 @@ export const ChunkStorageSql = Layer.effect(
                 , c.end_line
               FROM
                 vector_top_k(
-                  'idx_chunks_vector'
+                  'idx_chunk_embeddings_embedding'
                   , vector32(${queryEmbedding})
                   , ${topK}
                 ) v
               INNER JOIN
-                chunks c ON c.id = v.id
+                chunk_embeddings ce ON ce.id = v.id
+              INNER JOIN
+                chunks c ON c.id = ce.chunk_id
+            `,
+          })
+          .pipe(
+            Effect.flatMap(
+              Schema.decodeUnknown(Schema.Array(ChunkSearchResult)),
+            ),
+          )
+      },
+      Effect.catchTags({
+        ParseError: (cause) => new SchemaValidationFailed({ cause }),
+        SqlError: (cause) => new ChunkStorageError({ cause }),
+      }),
+    )
+
+    const getAllWithoutEmbedding = Effect.fnUntraced(
+      function* () {
+        return yield* db
+          .onDialectOrElse({
+            orElse: () => db`
+              SELECT
+                c.id
+                , c.content
+              FROM
+                chunks c
+              LEFT JOIN
+                chunk_embeddings ce ON ce.chunk_id = c.id
+              WHERE
+                ce.id IS NULL
             `,
           })
           .pipe(
@@ -43,9 +78,8 @@ export const ChunkStorageSql = Layer.effect(
               Schema.decodeUnknown(
                 Schema.Array(
                   Schema.Struct({
-                    filePath: Schema.String,
-                    startLine: Schema.Number,
-                    endLine: Schema.Number,
+                    id: Schema.String,
+                    content: Schema.String,
                   }),
                 ),
               ),
@@ -69,7 +103,6 @@ export const ChunkStorageSql = Layer.effect(
             Array.map((chunk) => ({
               ...chunk,
               createdAt: now,
-              updatedAt: now,
             })),
           ),
         )
@@ -80,26 +113,20 @@ export const ChunkStorageSql = Layer.effect(
             db.onDialectOrElse({
               orElse: () => db`
                 INSERT INTO chunks (
-                  chunk_id
+                  id
                   , file_path
                   , start_line
                   , end_line
                   , content
-                  , embedding
-                  , hash
                   , created_at
-                  , updated_at
                 )
                 VALUES (
-                  ${chunk.chunkId}
+                  ${chunk.id}
                   , ${chunk.filePath}
                   , ${chunk.startLine}
                   , ${chunk.endLine}
                   , ${chunk.content}
-                  , vector32(${chunk.embedding})
-                  , ${chunk.hash}
                   , ${chunk.createdAt}
-                  , ${chunk.updatedAt}
                 )
               `,
             }),
@@ -112,16 +139,65 @@ export const ChunkStorageSql = Layer.effect(
       }),
     )
 
-    const removeByFilePath = Effect.fnUntraced(
-      function* (filePath: string) {
+    const insertEmbedding = Effect.fnUntraced(
+      function* (chunkEmbedding: ChunkEmbeddingInsertInput) {
+        const now = new Date().toISOString()
+        const { chunkId, embedding, createdAt } = yield* Effect.succeed(
+          chunkEmbedding,
+        ).pipe(
+          Effect.flatMap(Schema.decodeUnknown(ChunkEmbeddingInsertInput)),
+          Effect.map(({ chunkId, embedding }) => ({
+            chunkId,
+            embedding,
+            createdAt: now,
+          })),
+        )
+
         yield* db.onDialectOrElse({
           orElse: () => db`
-            DELETE FROM
-              chunks
-            WHERE
-              file_path = ${filePath}
+            INSERT INTO chunk_embeddings (
+              chunk_id
+              , embedding
+              , created_at
+            )
+            VALUES (
+              ${chunkId}
+              , vector32(${embedding})
+              , ${createdAt}
+            )
           `,
         })
+      },
+      Effect.catchTags({
+        ParseError: (cause) => new SchemaValidationFailed({ cause }),
+        SqlError: (cause) => new ChunkStorageError({ cause }),
+      }),
+    )
+
+    const removeByFilePath = Effect.fnUntraced(
+      function* (filePath: string) {
+        yield* pipe(
+          db.onDialectOrElse({
+            orElse: () => db`
+              DELETE FROM
+                chunk_embeddings
+              WHERE chunk_id IN (
+                SELECT id FROM chunks WHERE file_path = ${filePath}
+              );
+            `,
+          }),
+          Effect.zipRight(
+            db.onDialectOrElse({
+              orElse: () => db`
+                DELETE FROM
+                  chunks
+                WHERE
+                  file_path = ${filePath}
+              `,
+            }),
+          ),
+          db.withTransaction,
+        )
       },
 
       Effect.catchTags({
@@ -131,7 +207,9 @@ export const ChunkStorageSql = Layer.effect(
 
     return ChunkStorage.of({
       search,
+      getAllWithoutEmbedding,
       insertMany,
+      insertEmbedding,
       removeByFilePath,
     })
   }),

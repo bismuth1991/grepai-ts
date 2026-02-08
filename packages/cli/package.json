@@ -1,6 +1,6 @@
 {
   "name": "@grepai/cli",
-  "version": "0.2.18",
+  "version": "0.2.20",
   "description": "CLI for semantic code search. It uses vector embeddings to understand code meaning, enabling natural language queries that find relevant code—even when naming conventions vary.",
   "homepage": "https://github.com/bismuth1991/grepai-ts#readme",
   "bugs": {
@@ -35,7 +35,7 @@
     "@effect/cli": "catalog:effect",
     "@effect/platform": "catalog:effect",
     "@effect/platform-bun": "catalog:effect",
-    "@grepai/core": "workspace:0.2.18",
+    "@grepai/core": "workspace:0.2.20",
     "@grepai/tsconfig": "workspace:1.0.0",
     "effect": "catalog:effect",
     "typescript": "catalog:"

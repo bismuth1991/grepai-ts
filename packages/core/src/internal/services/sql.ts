@@ -22,7 +22,7 @@ const LibsqlClientLive = Layer.unwrapEffect(
 
 const MigratorLive = LibsqlMigrator.layer({
   loader: LibsqlMigrator.fromRecord({
-    '202601282204_create_documents_table': Effect.gen(function* () {
+    '0001_create_documents_table': Effect.gen(function* () {
       const sql = (yield* SqlClient.SqlClient).withoutTransforms()
 
       yield* sql.onDialectOrElse({
@@ -51,39 +51,21 @@ const MigratorLive = LibsqlMigrator.layer({
               ON documents (hash);
           `,
       })
-      yield* sql.onDialectOrElse({
-        orElse: () =>
-          sql`
-            CREATE INDEX IF NOT EXISTS idx_documents_updated_at
-              ON documents (updated_at);
-          `,
-      })
     }),
-    '202601282212_create_chunks_table': Effect.gen(function* () {
+    '0002_create_chunks_table': Effect.gen(function* () {
       const sql = (yield* SqlClient.SqlClient).withoutTransforms()
 
       yield* sql.onDialectOrElse({
         orElse: () =>
           sql`
             CREATE TABLE IF NOT EXISTS chunks (
-              id           INTEGER PRIMARY KEY
-              , chunk_id   TEXT NOT NULL
+              id           TEXT PRIMARY KEY
               , file_path  TEXT NOT NULL
               , start_line INTEGER NOT NULL
               , end_line   INTEGER NOT NULL
               , content    TEXT NOT NULL
-              , embedding  F32_BLOB(3072) NOT NULL
-              , hash       TEXT NOT NULL
               , created_at TEXT NOT NULL
-              , updated_at TEXT NOT NULL
             );
-          `,
-      })
-      yield* sql.onDialectOrElse({
-        orElse: () =>
-          sql`
-            CREATE UNIQUE INDEX IF NOT EXISTS uniq_chunks_chunk_id
-              ON chunks (chunk_id);
           `,
       })
       yield* sql.onDialectOrElse({
@@ -93,25 +75,33 @@ const MigratorLive = LibsqlMigrator.layer({
               ON chunks (file_path);
           `,
       })
+    }),
+    '0003_create_chunk_embeddings_table': Effect.gen(function* () {
+      const sql = (yield* SqlClient.SqlClient).withoutTransforms()
+
       yield* sql.onDialectOrElse({
         orElse: () =>
           sql`
-            CREATE INDEX IF NOT EXISTS idx_chunks_hash
-              ON chunks (hash);
+            CREATE TABLE IF NOT EXISTS chunk_embeddings (
+              id           INTEGER PRIMARY KEY
+              , chunk_id   TEXT NOT NULL
+              , embedding  F32_BLOB(3072) NOT NULL
+              , created_at TEXT NOT NULL
+            );
           `,
       })
       yield* sql.onDialectOrElse({
         orElse: () =>
           sql`
-            CREATE INDEX IF NOT EXISTS idx_chunks_updated_at
-              ON chunks (updated_at);
+            CREATE UNIQUE INDEX IF NOT EXISTS uniq_chunk_embeddings_chunk_id
+              ON chunk_embeddings (chunk_id);
           `,
       })
       yield* sql.onDialectOrElse({
         orElse: () =>
           sql`
-            CREATE INDEX IF NOT EXISTS idx_chunks_vector
-              ON chunks(
+            CREATE INDEX IF NOT EXISTS idx_chunk_embeddings_embedding
+              ON chunk_embeddings (
                 libsql_vector_idx(
                   embedding
                   , 'metric=cosine'
@@ -121,51 +111,6 @@ const MigratorLive = LibsqlMigrator.layer({
                   , 'insert_l=150'
                 )
               );
-          `,
-      })
-    }),
-    '202605020643_create_token_counter_caches_table': Effect.gen(function* () {
-      const sql = (yield* SqlClient.SqlClient).withoutTransforms()
-
-      yield* sql.onDialectOrElse({
-        orElse: () =>
-          sql`
-            CREATE TABLE IF NOT EXISTS token_counter_caches (
-              id            INTEGER PRIMARY KEY
-              , chunk_hash  TEXT NOT NULL
-              , tokenizer   TEXT NOT NULL
-              , token_count INTEGER NOT NULL
-              , created_at  TEXT NOT NULL
-            );
-          `,
-      })
-      yield* sql.onDialectOrElse({
-        orElse: () =>
-          sql`
-            CREATE UNIQUE INDEX IF NOT EXISTS uniq_token_counter_caches_chunk_hash_tokenizer
-              ON token_counter_caches (chunk_hash, tokenizer);
-          `,
-      })
-    }),
-    '202605020650_create_embedding_caches_table': Effect.gen(function* () {
-      const sql = (yield* SqlClient.SqlClient).withoutTransforms()
-
-      yield* sql.onDialectOrElse({
-        orElse: () =>
-          sql`
-            CREATE TABLE IF NOT EXISTS embedding_caches (
-              id           INTEGER PRIMARY KEY
-              , hash       TEXT NOT NULL
-              , embedding  TEXT NOT NULL
-              , created_at TEXT NOT NULL
-            );
-          `,
-      })
-      yield* sql.onDialectOrElse({
-        orElse: () =>
-          sql`
-            CREATE UNIQUE INDEX IF NOT EXISTS uniq_embedding_caches_hash
-              ON embedding_caches (hash);
           `,
       })
     }),

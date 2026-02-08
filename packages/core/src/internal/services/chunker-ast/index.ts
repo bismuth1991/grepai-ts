@@ -3,16 +3,11 @@ import type { SyntaxNode } from './ast-parser'
 
 import * as Array from 'effect/Array'
 import * as Effect from 'effect/Effect'
-import * as Hash from 'effect/Hash'
 import * as Layer from 'effect/Layer'
 
 import { Chunker } from '../../../domain/chunker'
 import { Config } from '../../../domain/config'
-import {
-  ChunkerError,
-  TokenCounterCacheError,
-  TokenCounterError,
-} from '../../../domain/errors'
+import { ChunkerError, TokenCounterError } from '../../../domain/errors'
 import { TokenCounter } from '../../../domain/token-counter'
 
 import { AstParser } from './ast-parser'
@@ -35,11 +30,7 @@ type SplitFn = (
   node: SyntaxNode,
   language: SupportedLanguage,
   scopeStack: ReadonlyArray<string>,
-) => Effect.Effect<
-  SplitChunk[],
-  TokenCounterError | TokenCounterCacheError,
-  never
->
+) => Effect.Effect<SplitChunk[], TokenCounterError, never>
 
 export const ChunkerAst = Layer.effect(
   Chunker,
@@ -178,7 +169,10 @@ export const ChunkerAst = Layer.effect(
             ),
             Effect.map(
               Array.map(
-                ({ startLine, endLine, startIndex, endIndex, scope }) => {
+                (
+                  { startLine, endLine, startIndex, endIndex, scope },
+                  index,
+                ) => {
                   const chunkContent = content.slice(startIndex, endIndex)
                   const contextHeader = contextHeaderBuilder.stringify({
                     filePath,
@@ -187,12 +181,11 @@ export const ChunkerAst = Layer.effect(
                   const contextualizedChunk = contextHeader + chunkContent
 
                   return {
-                    hash: Hash.string(contextualizedChunk).toString(),
+                    id: `${filePath}__${index}`,
                     filePath,
                     content: contextualizedChunk,
                     startLine,
                     endLine,
-                    scope,
                   }
                 },
               ),

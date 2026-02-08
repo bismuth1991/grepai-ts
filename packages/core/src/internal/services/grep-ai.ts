@@ -12,10 +12,8 @@ import { CodebaseScannerFs } from './codebase-scanner-fs'
 import { ConfigJson } from './config-json'
 import { DocumentStorageSql } from './document-storage-sql'
 import { EmbedderGemini } from './embedder-gemini'
-import { EmbeddingCacheSql } from './embedding-cache-sql'
 import { Indexer } from './indexer'
 import { LibsqlLive } from './sql'
-import { TokenCounterCacheSql } from './token-counter-cache-sql'
 import { TokenCounterGemini } from './token-counter-gemini'
 import { VercelAi } from './vercel-ai'
 
@@ -43,31 +41,15 @@ const GrepAiLive = Layer.unwrapEffect(
       Match.when('turso', () => ChunkStorageSql),
       Match.exhaustive,
     )
-    const EmbeddingCacheLive = Match.value(config.storage.type).pipe(
-      Match.when('turso', () => EmbeddingCacheSql),
-      Match.exhaustive,
-    )
-    const TokenCounterCacheLive = Match.value(config.storage.type).pipe(
-      Match.when('turso', () => TokenCounterCacheSql),
-      Match.exhaustive,
-    )
 
     return Indexer.Default.pipe(
       Layer.provideMerge(ChunkStorageLive),
       Layer.provide(CodebaseScannerFs),
       Layer.provide(ChunkerAst),
       Layer.provide(
-        TokenCounterLive.pipe(
-          Layer.provide(FetchHttpClient.layer),
-          Layer.provide(TokenCounterCacheLive),
-        ),
+        TokenCounterLive.pipe(Layer.provide(FetchHttpClient.layer)),
       ),
-      Layer.provide(
-        EmbedderLive.pipe(
-          Layer.provide(VercelAi.Default),
-          Layer.provide(EmbeddingCacheLive),
-        ),
-      ),
+      Layer.provide(EmbedderLive.pipe(Layer.provide(VercelAi.Default))),
       Layer.provide(DocumentStorageLive),
       Layer.provideMerge(StorageLive),
     )

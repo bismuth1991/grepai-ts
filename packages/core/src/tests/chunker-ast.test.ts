@@ -94,6 +94,11 @@ const TestLiveTinyChunks = ChunkerAst.pipe(
   Layer.provide(TinyChunkConfigTest),
 )
 
+function extractContextHeader(content: string) {
+  const [header = ''] = content.split('\n---\n')
+  return header
+}
+
 describe('ChunkerAst', () => {
   describe('basic chunking', () => {
     it.effect('chunks a simple function declaration', () =>
@@ -106,11 +111,11 @@ describe('ChunkerAst', () => {
         })
 
         expect(result.length).toBeGreaterThan(0)
-        expect(result[0]).toHaveProperty('hash')
+        expect(result[0]).toHaveProperty('id')
         expect(result[0]).toHaveProperty('content')
         expect(result[0]).toHaveProperty('startLine')
         expect(result[0]).toHaveProperty('endLine')
-        expect(result[0]).toHaveProperty('scope')
+        expect(result[0]).toHaveProperty('id')
       }).pipe(Effect.provide(TestLive)),
     )
 
@@ -127,10 +132,10 @@ describe('ChunkerAst', () => {
         })
 
         expect(result.length).toBeGreaterThan(0)
-        const hasClassScope = result.some((chunk) =>
-          chunk.scope.some((s) => s.includes('MyClass')),
+        const hasClassContent = result.some((chunk) =>
+          chunk.content.includes('class MyClass'),
         )
-        expect(hasClassScope).toBe(true)
+        expect(hasClassContent).toBe(true)
       }).pipe(Effect.provide(TestLive)),
     )
 
@@ -147,10 +152,10 @@ describe('ChunkerAst', () => {
         })
 
         expect(result.length).toBeGreaterThan(0)
-        const hasInterfaceScope = result.some((chunk) =>
-          chunk.scope.some((s) => s.includes('User')),
+        const hasInterfaceContent = result.some((chunk) =>
+          chunk.content.includes('interface User'),
         )
-        expect(hasInterfaceScope).toBe(true)
+        expect(hasInterfaceContent).toBe(true)
       }).pipe(Effect.provide(TestLive)),
     )
 
@@ -181,16 +186,16 @@ describe('ChunkerAst', () => {
         })
 
         expect(result.length).toBeGreaterThan(0)
-        const hasEnumScope = result.some((chunk) =>
-          chunk.scope.some((s) => s.includes('Status')),
+        const hasEnumContent = result.some((chunk) =>
+          chunk.content.includes('enum Status'),
         )
-        expect(hasEnumScope).toBe(true)
+        expect(hasEnumContent).toBe(true)
       }).pipe(Effect.provide(TestLive)),
     )
   })
 
   describe('import handling', () => {
-    it.effect('chunks import statements without scope', () =>
+    it.effect('chunks import statements', () =>
       Effect.gen(function* () {
         const chunker = yield* Chunker
         const result = yield* chunker.chunk({
@@ -201,10 +206,10 @@ import { bar } from './bar'`,
         })
 
         expect(result.length).toBeGreaterThan(0)
-        const allImportsHaveEmptyScope = result.every(
-          (chunk) => chunk.scope.length === 0,
+        const allChunksContainImport = result.every((chunk) =>
+          chunk.content.includes('import'),
         )
-        expect(allImportsHaveEmptyScope).toBe(true)
+        expect(allChunksContainImport).toBe(true)
       }).pipe(Effect.provide(TestLive)),
     )
 
@@ -223,8 +228,8 @@ export default function() {}`,
     )
   })
 
-  describe('scope tracking', () => {
-    it.effect('tracks class scope when content fits in one chunk', () =>
+  describe('structure tracking', () => {
+    it.effect('keeps class declaration when content fits in one chunk', () =>
       Effect.gen(function* () {
         const chunker = yield* Chunker
         const result = yield* chunker.chunk({
@@ -240,14 +245,14 @@ export default function() {}`,
         })
 
         expect(result.length).toBeGreaterThan(0)
-        const hasOuterScope = result.some((chunk) =>
-          chunk.scope.some((s) => s.includes('Outer')),
+        const hasOuterDeclaration = result.some((chunk) =>
+          chunk.content.includes('class Outer'),
         )
-        expect(hasOuterScope).toBe(true)
+        expect(hasOuterDeclaration).toBe(true)
       }).pipe(Effect.provide(TestLive)),
     )
 
-    it.effect('tracks nested scope when content forces chunking', () =>
+    it.effect('keeps nested declarations when content forces chunking', () =>
       Effect.gen(function* () {
         const chunker = yield* Chunker
         const nestedContent = `class Outer {
@@ -267,14 +272,14 @@ export default function() {}`,
         })
 
         expect(result.length).toBeGreaterThan(0)
-        const hasOuterScope = result.some((chunk) =>
-          chunk.scope.some((s) => s.includes('Outer')),
+        const hasOuterDeclaration = result.some((chunk) =>
+          chunk.content.includes('class Outer'),
         )
-        expect(hasOuterScope).toBe(true)
+        expect(hasOuterDeclaration).toBe(true)
       }).pipe(Effect.provide(TestLive)),
     )
 
-    it.effect('tracks arrow function scope via variable name', () =>
+    it.effect('keeps arrow function declaration via variable name', () =>
       Effect.gen(function* () {
         const chunker = yield* Chunker
         const result = yield* chunker.chunk({
@@ -284,10 +289,10 @@ export default function() {}`,
         })
 
         expect(result.length).toBeGreaterThan(0)
-        const hasArrowScope = result.some((chunk) =>
-          chunk.scope.some((s) => s.includes('myArrow')),
+        const hasArrowDeclaration = result.some((chunk) =>
+          chunk.content.includes('const myArrow = () =>'),
         )
-        expect(hasArrowScope).toBe(true)
+        expect(hasArrowDeclaration).toBe(true)
       }).pipe(Effect.provide(TestLive)),
     )
   })
@@ -307,7 +312,7 @@ export default function() {}`,
       }).pipe(Effect.provide(TestLive)),
     )
 
-    it.effect('includes scope in context header when present', () =>
+    it.effect('injects scope header lines when scope is present', () =>
       Effect.gen(function* () {
         const chunker = yield* Chunker
         const result = yield* chunker.chunk({
@@ -321,16 +326,20 @@ export default function() {}`,
         })
 
         expect(result.length).toBeGreaterThan(0)
-        const hasMethodScope = result.some(
-          (chunk) =>
-            chunk.content.includes('MyClass') &&
-            chunk.content.includes('myMethod'),
+        const chunkWithMethod = result.find((chunk) =>
+          chunk.content.includes('myMethod'),
         )
-        expect(hasMethodScope).toBe(true)
+        expect(chunkWithMethod).toBeDefined()
+        if (!chunkWithMethod) return
+
+        const header = extractContextHeader(chunkWithMethod.content)
+        expect(header).toContain('# filePath: /test/file.ts')
+        expect(header).toContain('# scope:')
+        expect(header).toContain('#   - MyClass')
       }).pipe(Effect.provide(TestLive)),
     )
 
-    it.effect('generates unique hashes for different content', () =>
+    it.effect('generates deterministic ids from file path and index', () =>
       Effect.gen(function* () {
         const chunker = yield* Chunker
         const result1 = yield* chunker.chunk({
@@ -344,11 +353,12 @@ export default function() {}`,
           language: 'typescript',
         })
 
-        expect(result1[0]!.hash).not.toBe(result2[0]!.hash)
+        expect(result1[0]!.id).toBe('/test/file.ts__0')
+        expect(result2[0]!.id).toBe('/test/file.ts__0')
       }).pipe(Effect.provide(TestLive)),
     )
 
-    it.effect('generates stable hashes for identical input', () =>
+    it.effect('generates stable ids for identical input', () =>
       Effect.gen(function* () {
         const chunker = yield* Chunker
         const content = 'function stable() { return 1 }'
@@ -366,11 +376,11 @@ export default function() {}`,
 
         expect(result1).toHaveLength(1)
         expect(result2).toHaveLength(1)
-        expect(result1[0]!.hash).toBe(result2[0]!.hash)
+        expect(result1[0]!.id).toBe(result2[0]!.id)
       }).pipe(Effect.provide(TestLive)),
     )
 
-    it.effect('changes hash when only file path changes', () =>
+    it.effect('changes id when only file path changes', () =>
       Effect.gen(function* () {
         const chunker = yield* Chunker
         const content = 'function sameContent() { return 1 }'
@@ -388,7 +398,7 @@ export default function() {}`,
 
         expect(result1).toHaveLength(1)
         expect(result2).toHaveLength(1)
-        expect(result1[0]!.hash).not.toBe(result2[0]!.hash)
+        expect(result1[0]!.id).not.toBe(result2[0]!.id)
       }).pipe(Effect.provide(TestLive)),
     )
   })
@@ -494,13 +504,15 @@ function third() {
     )
   })
 
-  describe('scope and merge invariants', () => {
-    it.effect('deduplicates repeated scope paths within a merged chunk', () =>
-      Effect.gen(function* () {
-        const chunker = yield* Chunker
-        const result = yield* chunker.chunk({
-          filePath: '/test/dedupe.ts',
-          content: `class Service {
+  describe('merge invariants', () => {
+    it.effect(
+      'retains class and method declarations within merged chunks',
+      () =>
+        Effect.gen(function* () {
+          const chunker = yield* Chunker
+          const result = yield* chunker.chunk({
+            filePath: '/test/dedupe.ts',
+            content: `class Service {
   run() {
     const alpha = 'a'
     const beta = 'b'
@@ -508,19 +520,18 @@ function third() {
     return alpha + beta + gamma
   }
 }`,
-          language: 'typescript',
-        })
+            language: 'typescript',
+          })
 
-        const chunkWithScope = result.find((chunk) => chunk.scope.length > 0)
-        expect(chunkWithScope).toBeDefined()
-        if (chunkWithScope) {
-          const serialized = chunkWithScope.scope.map((s) => s.join(' -> '))
-          expect(new Set(serialized).size).toBe(serialized.length)
-        }
-      }).pipe(Effect.provide(TestLiveTinyChunks)),
+          const mergedChunk = result.find((chunk) =>
+            chunk.content.includes('class Service'),
+          )
+          expect(mergedChunk).toBeDefined()
+          expect(mergedChunk?.content.includes('run()')).toBe(true)
+        }).pipe(Effect.provide(TestLiveTinyChunks)),
     )
 
-    it.effect('does not treat import bindings as scope names', () =>
+    it.effect('does not drop import bindings and function declarations', () =>
       Effect.gen(function* () {
         const chunker = yield* Chunker
         const result = yield* chunker.chunk({
@@ -535,11 +546,11 @@ function execute() {
 
         expect(result.length).toBeGreaterThan(0)
 
-        const allScopeNames = result
-          .flatMap((chunk) => chunk.scope)
-          .flatMap((scopePath) => scopePath)
-        expect(allScopeNames.includes('dep')).toBe(false)
-        expect(allScopeNames.includes('execute')).toBe(true)
+        const combinedContent = result.map((chunk) => chunk.content).join('\n')
+        expect(combinedContent.includes("import { dep } from './dep'")).toBe(
+          true,
+        )
+        expect(combinedContent.includes('function execute()')).toBe(true)
       }).pipe(Effect.provide(TestLiveTinyChunks)),
     )
 
@@ -581,10 +592,10 @@ function execute() {
         })
 
         expect(result.length).toBeGreaterThan(0)
-        const hasBaseScope = result.some((chunk) =>
-          chunk.scope.some((s) => s.includes('Base')),
+        const hasBaseClass = result.some((chunk) =>
+          chunk.content.includes('abstract class Base'),
         )
-        expect(hasBaseScope).toBe(true)
+        expect(hasBaseClass).toBe(true)
       }).pipe(Effect.provide(TestLive)),
     )
 
@@ -601,10 +612,10 @@ function execute() {
         })
 
         expect(result.length).toBeGreaterThan(0)
-        const hasGeneratorScope = result.some((chunk) =>
-          chunk.scope.some((s) => s.includes('generator')),
+        const hasGeneratorFunction = result.some((chunk) =>
+          chunk.content.includes('function* generator()'),
         )
-        expect(hasGeneratorScope).toBe(true)
+        expect(hasGeneratorFunction).toBe(true)
       }).pipe(Effect.provide(TestLive)),
     )
 
@@ -645,13 +656,13 @@ export const service = new UserService()`,
         })
 
         expect(result.length).toBeGreaterThan(0)
-        const hasUserScope = result.some((chunk) =>
-          chunk.scope.some((s) => s.includes('User')),
+        const hasUserDeclaration = result.some((chunk) =>
+          chunk.content.includes('interface User'),
         )
-        const hasUserServiceScope = result.some((chunk) =>
-          chunk.scope.some((s) => s.includes('UserService')),
+        const hasUserServiceDeclaration = result.some((chunk) =>
+          chunk.content.includes('class UserService'),
         )
-        expect(hasUserScope || hasUserServiceScope).toBe(true)
+        expect(hasUserDeclaration || hasUserServiceDeclaration).toBe(true)
       }).pipe(Effect.provide(TestLive)),
     )
   })
