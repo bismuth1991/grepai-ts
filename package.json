@@ -12,8 +12,8 @@
     },
     "catalogs": {
       "ai": {
-        "@ai-sdk/google": "3.0.7",
-        "ai": "6.0.33"
+        "@ai-sdk/google": "3.0.22",
+        "ai": "6.0.77"
       },
       "effect": {
         "@effect/cli": "0.73.1",
@@ -48,7 +48,7 @@
     "@types/bun": "catalog:",
     "oxfmt": "0.27.0",
     "oxlint": "1.42.0",
-    "turbo": "2.7.6",
+    "turbo": "2.8.3",
     "vitest": "^3.2.4"
   },
   "peerDependencies": {
