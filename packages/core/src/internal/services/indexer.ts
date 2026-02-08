@@ -109,7 +109,7 @@ export class Indexer extends Effect.Service<Indexer>()(
                   }),
                 ),
               ),
-            { concurrency: 'unbounded' },
+            { concurrency: 500 },
           ).pipe(Effect.map(Array.flatten))
 
           const chunksToEmbed = yield* chunkStorage.getAllWithoutEmbedding()
@@ -136,6 +136,7 @@ export class Indexer extends Effect.Service<Indexer>()(
               }).pipe(
                 Effect.tap(() => onChunkBatchProcessed(chunksToEmbed.length)),
               ),
+            { concurrency: 10 },
           )
 
           yield* Effect.sleep(1000).pipe(

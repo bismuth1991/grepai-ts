@@ -5,7 +5,6 @@ import {
 } from '@effect/platform'
 import * as Effect from 'effect/Effect'
 import * as Layer from 'effect/Layer'
-import * as Match from 'effect/Match'
 import * as Schema from 'effect/Schema'
 
 import { Config } from '../../domain/config'
@@ -20,10 +19,7 @@ export const TokenCounterGemini = Layer.effect(
 
     const count = Effect.fnUntraced(
       function* (text: string) {
-        const tokenizer = Match.value(config.embedding.model).pipe(
-          Match.when('gemini-embedding-001', () => 'gemini-embedding-001'),
-          Match.exhaustive,
-        )
+        const tokenizer = 'gemini-embedding-001'
 
         const request = yield* HttpClientRequest.post(
           `/${tokenizer}:countTokens`,

@@ -30,6 +30,10 @@ const EmbeddingGoogle = Schema.Struct({
     Schema.optional,
     Schema.withDecodingDefault(() => 100),
   ),
+  tokenizer: Schema.Literal('simple', 'gemini-embedding-001').pipe(
+    Schema.optional,
+    Schema.withDecodingDefault(() => 'gemini-embedding-001'),
+  ),
 })
 const Embedding = Schema.Union(EmbeddingGoogle)
 

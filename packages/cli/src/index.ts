@@ -22,15 +22,17 @@ const program = Effect.gen(function* () {
         yield* grepAi.index({
           onCodebaseIndexStarted: () => clack.intro('GREP AI'),
           onCodebaseScanned: (result) =>
-            clack.note(
-              [
-                `New     : ${result.new.length} files`,
-                `Modified: ${result.modified.length} files`,
-                `Unchaged: ${result.unchanged.length} files`,
-                `Deleted : ${result.deleted.length} files`,
-              ].join('\n'),
-              'Codebase scanned',
-            ),
+            clack
+              .note(
+                [
+                  `New     : ${result.new.length} files`,
+                  `Modified: ${result.modified.length} files`,
+                  `Unchaged: ${result.unchanged.length} files`,
+                  `Deleted : ${result.deleted.length} files`,
+                ].join('\n'),
+                'Codebase scanned',
+              )
+              .pipe(Effect.zipRight(clack.spinner.start('Chunking files'))),
           onFileChunked: ({ filePath, fileCount }) => {
             return SynchronizedRef.updateAndGetEffect(filesChunked, (n) =>
               Effect.succeed(n + 1),
@@ -91,7 +93,7 @@ const program = Effect.gen(function* () {
 
   const cli = Command.run(command, {
     name: 'GREP AI',
-    version: 'v0.2.20',
+    version: 'v0.2.22',
   })
 
   yield* cli(process.argv)

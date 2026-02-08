@@ -33,6 +33,10 @@
         },
         "embeddingBatchSize": {
           "type": "number"
+        },
+        "tokenizer": {
+          "type": "string",
+          "enum": ["simple", "gemini-embedding-001"]
         }
       },
       "additionalProperties": false

@@ -96,9 +96,7 @@ export const ChunkStorageSql = Layer.effect(
       function* (chunks: ReadonlyArray<ChunkInsertInput>) {
         const now = new Date().toISOString()
         const chunksToInsert = yield* Effect.succeed(chunks).pipe(
-          Effect.flatMap(
-            Schema.decodeUnknown(Schema.NonEmptyArray(ChunkInsertInput)),
-          ),
+          Effect.flatMap(Schema.decodeUnknown(Schema.Array(ChunkInsertInput))),
           Effect.map(
             Array.map((chunk) => ({
               ...chunk,

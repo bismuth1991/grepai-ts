@@ -15,6 +15,7 @@ import { EmbedderGemini } from './embedder-gemini'
 import { Indexer } from './indexer'
 import { LibsqlLive } from './sql'
 import { TokenCounterGemini } from './token-counter-gemini'
+import { TokenCounterSimple } from './token-counter-simple'
 import { VercelAi } from './vercel-ai'
 
 const GrepAiLive = Layer.unwrapEffect(
@@ -25,8 +26,9 @@ const GrepAiLive = Layer.unwrapEffect(
       Match.when('google', () => EmbedderGemini),
       Match.exhaustive,
     )
-    const TokenCounterLive = Match.value(config.embedding.provider).pipe(
-      Match.when('google', () => TokenCounterGemini),
+    const TokenCounterLive = Match.value(config.embedding.tokenizer).pipe(
+      Match.when('simple', () => TokenCounterSimple),
+      Match.when('gemini-embedding-001', () => TokenCounterGemini),
       Match.exhaustive,
     )
     const StorageLive = Match.value(config.storage.type).pipe(
