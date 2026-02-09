@@ -19,7 +19,7 @@
     },
     "packages/cli-dev": {
       "name": "@grepai/cli-dev",
-      "version": "0.3.1",
+      "version": "0.3.2",
       "bin": {
         "grepai": "grepai",
       },
@@ -56,32 +56,32 @@
     },
     "releases/cli": {
       "name": "@grepai/cli",
-      "version": "0.3.1",
+      "version": "0.3.2",
       "bin": {
         "grepai": "./bin/grepai",
       },
       "optionalDependencies": {
-        "@grepai/cli-darwin-arm64": "0.3.1",
-        "@grepai/cli-linux-arm64-musl": "0.3.1",
-        "@grepai/cli-linux-x64": "0.3.1",
-        "@grepai/cli-linux-x64-musl": "0.3.1",
+        "@grepai/cli-darwin-arm64": "0.3.2",
+        "@grepai/cli-linux-arm64-musl": "0.3.2",
+        "@grepai/cli-linux-x64": "0.3.2",
+        "@grepai/cli-linux-x64-musl": "0.3.2",
       },
     },
     "releases/cli-darwin-arm64": {
       "name": "@grepai/cli-darwin-arm64",
-      "version": "0.3.1",
+      "version": "0.3.2",
     },
     "releases/cli-linux-arm64-musl": {
       "name": "@grepai/cli-linux-arm64-musl",
-      "version": "0.3.1",
+      "version": "0.3.2",
     },
     "releases/cli-linux-x64": {
       "name": "@grepai/cli-linux-x64",
-      "version": "0.3.1",
+      "version": "0.3.2",
     },
     "releases/cli-linux-x64-musl": {
       "name": "@grepai/cli-linux-x64-musl",
-      "version": "0.3.1",
+      "version": "0.3.2",
     },
     "tooling/scripts": {
       "name": "@grepai/scripts",
