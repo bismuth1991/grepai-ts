@@ -40,7 +40,7 @@
     "lint:fix": "turbo run lint --continue -- --fix",
     "format": "turbo run format",
     "postinstall": "bun --bun ./packages/core/src/internal/scripts/patch-tree-sitter.ts",
-    "publish:all": "turbo run publish",
+    "publish:npm": "turbo run publish:npm",
     "test": "bun --bun run vitest -u run",
     "typecheck": "turbo run typecheck",
     "version:sync": "bun --bun packages/cli-dev/sync-version.ts && bun i"

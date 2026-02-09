@@ -6,7 +6,7 @@
       "outputs": ["src/grepai-config-schema.json", "dist"],
       "cache": true
     },
-    "publish": {
+    "publish:npm": {
       "outputs": [],
       "cache": false
     },
