@@ -7,12 +7,10 @@ import * as Layer from 'effect/Layer'
 import * as SynchronizedRef from 'effect/SynchronizedRef'
 
 import { Clack } from './clack'
-import { Version } from './version'
 
 const program = Effect.gen(function* () {
   const grepAi = yield* GrepAi
   const clack = yield* Clack
-  const version = yield* Version
 
   const indexCommand = Command.make('index').pipe(
     Command.withDescription('Index codebase for semantic search'),
@@ -85,11 +83,9 @@ const program = Effect.gen(function* () {
     Command.withSubcommands([indexCommand, searchCommand]),
   )
 
-  const currentVersion = yield* version.get()
-
   const cli = Command.run(command, {
     name: 'GREP AI',
-    version: `v${currentVersion}`,
+    version: 'v0.3.5',
   })
 
   yield* cli(process.argv)
@@ -97,7 +93,7 @@ const program = Effect.gen(function* () {
 
 program.pipe(
   Effect.provide(
-    Layer.mergeAll(GrepAi.Default, Version.Default).pipe(
+    Layer.mergeAll(GrepAi.Default).pipe(
       Layer.provideMerge(Clack.Default),
       Layer.provideMerge(BunContext.layer),
     ),
