@@ -54,21 +54,39 @@
       }
     },
     "storage": {
-      "type": "object",
-      "required": ["type", "authToken", "url"],
-      "properties": {
-        "type": {
-          "type": "string",
-          "enum": ["turso"]
+      "anyOf": [
+        {
+          "type": "object",
+          "required": ["type", "authToken", "url"],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": ["turso"]
+            },
+            "authToken": {
+              "type": "string"
+            },
+            "url": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
         },
-        "authToken": {
-          "type": "string"
-        },
-        "url": {
-          "type": "string"
+        {
+          "type": "object",
+          "required": ["type", "connectionString"],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": ["postgres"]
+            },
+            "connectionString": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
         }
-      },
-      "additionalProperties": false
+      ]
     }
   },
   "additionalProperties": false

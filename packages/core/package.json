@@ -19,6 +19,7 @@
     "@effect/platform-bun": "catalog:effect",
     "@effect/sql": "catalog:effect",
     "@effect/sql-libsql": "catalog:effect",
+    "@effect/sql-pg": "catalog:effect",
     "ai": "catalog:ai",
     "effect": "catalog:effect",
     "tree-sitter": "0.25.0",

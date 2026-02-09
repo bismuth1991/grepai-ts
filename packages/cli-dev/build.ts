@@ -13,7 +13,7 @@ const build = Effect.gen(function* () {
     try: () =>
       Bun.build({
         entrypoints: ['./src/index.ts'],
-        format: 'esm',
+        format: 'cjs',
         sourcemap: true,
         bytecode: true,
         compile: {

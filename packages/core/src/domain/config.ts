@@ -11,7 +11,11 @@ const StorageTurso = Schema.Struct({
   authToken: Schema.String,
   url: Schema.String,
 })
-const Storage = Schema.Union(StorageTurso)
+const StoragePostgres = Schema.Struct({
+  type: Schema.Literal('postgres'),
+  connectionString: Schema.String,
+})
+const Storage = Schema.Union(StorageTurso, StoragePostgres)
 
 const EmbeddingGoogle = Schema.Struct({
   provider: Schema.Literal('google'),

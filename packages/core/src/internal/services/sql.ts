@@ -7,9 +7,17 @@ import * as String from 'effect/String'
 
 import { Config } from '../../domain/config'
 
+// ─────────────────────────────────────────────────────────────────────────────
+// LibSQL (Turso) Client Layer
+// ─────────────────────────────────────────────────────────────────────────────
+
 const LibsqlClientLive = Layer.unwrapEffect(
   Effect.gen(function* () {
     const config = yield* Config
+
+    if (config.storage.type !== 'turso') {
+      return Layer.fail(new Error('Expected turso storage configuration'))
+    }
 
     return LibsqlClient.layer({
       url: config.storage.url,

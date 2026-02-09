@@ -22,12 +22,24 @@ export const ChunkStorageSql = Layer.effect(
 
     const search = Effect.fnUntraced(
       function* (input: { query: string; topK?: number }) {
-        const { query, topK } = input
+        const { query, topK = 10 } = input
 
         const queryEmbedding = yield* embedder.embedQuery(query)
 
         return yield* db
           .onDialectOrElse({
+            pg: () => db`
+              SELECT
+                c.file_path
+                , c.start_line
+                , c.end_line
+              FROM
+                chunk_embeddings ce
+              INNER JOIN
+                chunks c ON c.id = ce.chunk_id
+              ORDER BY ce.embedding <=> ${queryEmbedding}::vector
+              LIMIT ${topK}
+            `,
             orElse: () => db`
               SELECT
                 c.file_path
@@ -135,6 +147,21 @@ export const ChunkStorageSql = Layer.effect(
         )
 
         yield* db.onDialectOrElse({
+          pg: () => db`
+            INSERT INTO chunk_embeddings (
+              chunk_id
+              , embedding
+              , created_at
+            )
+            VALUES
+            ${db.unsafe(
+              Array.map(
+                embeddingsToInsert,
+                ({ chunkId, embedding, createdAt }) =>
+                  `('${chunkId}', '${embedding}'::vector, '${createdAt}')`,
+              ).join(',\n'),
+            )}
+          `,
           orElse: () => db`
             INSERT INTO chunk_embeddings (
               chunk_id
