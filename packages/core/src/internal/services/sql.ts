@@ -105,10 +105,10 @@ const MigratorLive = LibsqlMigrator.layer({
                 libsql_vector_idx(
                   embedding
                   , 'metric=cosine'
-                  , 'compress_neighbors=float32'
-                  , 'alpha=1.4'
-                  , 'search_l=400'
-                  , 'insert_l=150'
+                  , 'compress_neighbors=float8'
+                  , 'alpha=1.2'
+                  , 'search_l=200'
+                  , 'insert_l=70'
                 )
               );
           `,

@@ -1,5 +1,5 @@
 import { createGoogleGenerativeAI } from '@ai-sdk/google'
-import { embedMany, generateText } from 'ai'
+import { embed, embedMany, generateText } from 'ai'
 import * as Effect from 'effect/Effect'
 
 import { Config } from '../../domain/config'
@@ -19,6 +19,7 @@ export class VercelAi extends Effect.Service<VercelAi>()(
       })
 
       const ai = {
+        embed,
         embedMany,
         generateText,
         google,
@@ -36,6 +37,7 @@ export class VercelAi extends Effect.Service<VercelAi>()(
 ) {}
 
 type Ai = {
+  embed: typeof embed
   embedMany: typeof embedMany
   generateText: typeof generateText
   google: ReturnType<typeof createGoogleGenerativeAI>

@@ -10,6 +10,10 @@ export type EmbedQueryType = 'code-retrieval' | 'retrieval'
 export class Embedder extends Context.Tag('@grepai/core/domain/embedder')<
   Embedder,
   {
+    embed: (
+      textChunk: string,
+    ) => Effect.Effect<Embedding, VercelAiError | SchemaValidationFailed, never>
+
     embedMany: (
       textChunks: Array.NonEmptyReadonlyArray<string>,
     ) => Effect.Effect<

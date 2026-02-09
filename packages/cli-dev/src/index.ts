@@ -7,20 +7,22 @@ import * as Layer from 'effect/Layer'
 import * as SynchronizedRef from 'effect/SynchronizedRef'
 
 import { Clack } from './clack'
+import { Version } from './version'
 
 const program = Effect.gen(function* () {
   const grepAi = yield* GrepAi
   const clack = yield* Clack
+  const version = yield* Version
 
   const indexCommand = Command.make('index').pipe(
     Command.withDescription('Index codebase for semantic search'),
     Command.withHandler(
       Effect.fnUntraced(function* () {
-        const filesChunked = yield* SynchronizedRef.make(0)
-        const chunkBatchesIndexed = yield* SynchronizedRef.make(0)
+        const filesCleaned = yield* SynchronizedRef.make(0)
+        const filesIndexed = yield* SynchronizedRef.make(0)
 
         yield* grepAi.index({
-          onCodebaseIndexStarted: () => clack.intro('GREP AI'),
+          onStarted: () => clack.intro('GREP AI - INDEX CODEBASE'),
           onCodebaseScanned: (result) =>
             clack
               .note(
@@ -32,38 +34,30 @@ const program = Effect.gen(function* () {
                 ].join('\n'),
                 'Codebase scanned',
               )
-              .pipe(Effect.zipRight(clack.spinner.start('Chunking files'))),
-          onFileChunked: ({ filePath, fileCount }) => {
-            return SynchronizedRef.updateAndGetEffect(filesChunked, (n) =>
+              .pipe(Effect.zipRight(clack.spinner.start('Starting'))),
+          onFileCleaned: ({ filePath, fileCount }) => {
+            return SynchronizedRef.updateAndGetEffect(filesCleaned, (n) =>
               Effect.succeed(n + 1),
             ).pipe(
-              Effect.tap((filesChunked) =>
+              Effect.tap((filesCleaned) =>
                 clack.spinner.message(
-                  `Chunking files: ${filesChunked}/${fileCount} ${filePath}`,
+                  `Cleaning: ${filesCleaned}/${fileCount} ${filePath}`,
                 ),
               ),
             )
           },
-          onChunkBatchProcessed: (chunkCount) => {
-            return SynchronizedRef.updateAndGetEffect(
-              chunkBatchesIndexed,
-              (n) => Effect.succeed(n + 1),
+          onFileIndexed: ({ filePath, fileCount }) => {
+            return SynchronizedRef.updateAndGetEffect(filesIndexed, (n) =>
+              Effect.succeed(n + 1),
             ).pipe(
-              Effect.map((chunkBatchesIndexed) =>
-                Math.min(
-                  chunkBatchesIndexed *
-                    grepAi.config.embedding.embeddingBatchSize,
-                  chunkCount,
-                ),
-              ),
-              Effect.tap((chunksIndexed) =>
+              Effect.tap((filesIndexed) =>
                 clack.spinner.message(
-                  `Indexing: ${chunksIndexed}/${chunkCount}`,
+                  `Indexing: ${filesIndexed}/${fileCount} ${filePath}`,
                 ),
               ),
             )
           },
-          onCodebaseIndexFinished: () =>
+          onFinished: () =>
             clack.spinner
               .stop('Codebase indexed')
               .pipe(Effect.zipRight(clack.outro('DONE!'))),
@@ -91,9 +85,11 @@ const program = Effect.gen(function* () {
     Command.withSubcommands([indexCommand, searchCommand]),
   )
 
+  const currentVersion = yield* version.get()
+
   const cli = Command.run(command, {
     name: 'GREP AI',
-    version: 'v0.2.22',
+    version: `v${currentVersion}`,
   })
 
   yield* cli(process.argv)
@@ -101,7 +97,7 @@ const program = Effect.gen(function* () {
 
 program.pipe(
   Effect.provide(
-    GrepAi.Default.pipe(
+    Layer.mergeAll(GrepAi.Default, Version.Default).pipe(
       Layer.provideMerge(Clack.Default),
       Layer.provideMerge(BunContext.layer),
     ),

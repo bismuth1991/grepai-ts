@@ -12,6 +12,7 @@ import { CodebaseScannerFs } from './codebase-scanner-fs'
 import { ConfigJson } from './config-json'
 import { DocumentStorageSql } from './document-storage-sql'
 import { EmbedderGemini } from './embedder-gemini'
+import { FileIndexer } from './file-indexer'
 import { Indexer } from './indexer'
 import { LibsqlLive } from './sql'
 import { TokenCounterGemini } from './token-counter-gemini'
@@ -45,6 +46,7 @@ const GrepAiLive = Layer.unwrapEffect(
     )
 
     return Indexer.Default.pipe(
+      Layer.provide(FileIndexer.Default),
       Layer.provideMerge(ChunkStorageLive),
       Layer.provide(CodebaseScannerFs),
       Layer.provide(ChunkerAst),

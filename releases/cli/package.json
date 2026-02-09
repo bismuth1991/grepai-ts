@@ -1,0 +1,35 @@
+{
+  "name": "@grepai/cli",
+  "version": "0.3.1",
+  "description": "CLI for semantic code search. It uses vector embeddings to understand code meaning, enabling natural language queries that find relevant code—even when naming conventions vary.",
+  "homepage": "https://github.com/bismuth1991/grepai-ts#readme",
+  "bugs": {
+    "url": "https://github.com/bismuth1991/grepai-ts/issues"
+  },
+  "license": "MIT",
+  "author": "bismuth1991",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bismuth1991/grepai-ts.git"
+  },
+  "bin": {
+    "grepai": "./bin/grepai"
+  },
+  "files": [
+    "bin/",
+    "install.js"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "postinstall": "node install.js",
+    "publish": "bun publish"
+  },
+  "optionalDependencies": {
+    "@grepai/cli-darwin-arm64": "0.3.1",
+    "@grepai/cli-linux-arm64-musl": "0.3.1",
+    "@grepai/cli-linux-x64": "0.3.1",
+    "@grepai/cli-linux-x64-musl": "0.3.1"
+  }
+}

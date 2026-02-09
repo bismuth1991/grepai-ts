@@ -4,6 +4,8 @@
 
 # Build outputs
 dist
+*.tgz
+**/bin/grepai
 
 # Dependency directories
 node_modules/

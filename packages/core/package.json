@@ -1,6 +1,5 @@
 {
   "name": "@grepai/core",
-  "version": "0.2.22",
   "exports": {
     ".": "./src/index.ts",
     "./domain": "./src/domain/index.ts",

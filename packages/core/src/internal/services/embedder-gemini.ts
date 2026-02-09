@@ -18,6 +18,35 @@ export const EmbedderGemini = Layer.effect(
     const ai = yield* VercelAi
     const config = yield* Config
 
+    const embed = Effect.fnUntraced(
+      function* (textChunk: string) {
+        const taskType = 'RETRIEVAL_DOCUMENT'
+        const embedder = config.embedding.model
+        const dimensions = config.embedding.dimensions
+
+        return yield* ai
+          .use(({ embed: _embed, google }) =>
+            _embed({
+              model: google.embedding(embedder),
+              value: textChunk,
+              providerOptions: {
+                google: {
+                  taskType,
+                  outputDimensionality: dimensions,
+                },
+              },
+            }),
+          )
+          .pipe(
+            Effect.map(({ embedding }) => embedding),
+            Effect.flatMap(Schema.decodeUnknown(Embedding)),
+          )
+      },
+      Effect.catchTags({
+        ParseError: (cause) => new SchemaValidationFailed({ cause }),
+      }),
+    )
+
     const embedMany = Effect.fnUntraced(
       function* (textChunks: Array.NonEmptyReadonlyArray<string>) {
         const taskType = 'RETRIEVAL_DOCUMENT'
@@ -57,10 +86,10 @@ export const EmbedderGemini = Layer.effect(
           type === 'code-retrieval' ? 'CODE_RETRIEVAL_QUERY' : 'RETRIEVAL_QUERY'
 
         return yield* ai
-          .use(({ embedMany: embed, google }) =>
+          .use(({ embed, google }) =>
             embed({
               model: google.embedding(embedder),
-              values: [query],
+              value: query,
               providerOptions: {
                 google: {
                   taskType,
@@ -70,11 +99,8 @@ export const EmbedderGemini = Layer.effect(
             }),
           )
           .pipe(
-            Effect.map(({ embeddings }) => embeddings),
-            Effect.flatMap(
-              Schema.decodeUnknown(Schema.NonEmptyArray(Embedding)),
-            ),
-            Effect.map(Array.headNonEmpty),
+            Effect.map(({ embedding }) => embedding),
+            Effect.flatMap(Schema.decodeUnknown(Embedding)),
           )
       },
       Effect.catchTags({
@@ -83,6 +109,7 @@ export const EmbedderGemini = Layer.effect(
     )
 
     return Embedder.of({
+      embed,
       embedMany,
       embedQuery,
     })

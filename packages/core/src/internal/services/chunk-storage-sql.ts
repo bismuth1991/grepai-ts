@@ -40,7 +40,7 @@ export const ChunkStorageSql = Layer.effect(
                   , ${topK}
                 ) v
               INNER JOIN
-                chunk_embeddings ce ON ce.id = v.id
+                chunk_embeddings ce ON ce.rowid = v.id
               INNER JOIN
                 chunks c ON c.id = ce.chunk_id
             `,
@@ -105,31 +105,12 @@ export const ChunkStorageSql = Layer.effect(
           ),
         )
 
-        yield* Effect.forEach(
-          chunksToInsert,
-          (chunk) =>
-            db.onDialectOrElse({
-              orElse: () => db`
-                INSERT INTO chunks (
-                  id
-                  , file_path
-                  , start_line
-                  , end_line
-                  , content
-                  , created_at
-                )
-                VALUES (
-                  ${chunk.id}
-                  , ${chunk.filePath}
-                  , ${chunk.startLine}
-                  , ${chunk.endLine}
-                  , ${chunk.content}
-                  , ${chunk.createdAt}
-                )
-              `,
-            }),
-          { concurrency: 'unbounded' },
-        )
+        yield* db.onDialectOrElse({
+          orElse: () => db`
+            INSERT INTO chunks
+            ${db.insert(chunksToInsert)}
+          `,
+        })
       },
       Effect.catchTags({
         ParseError: (cause) => new SchemaValidationFailed({ cause }),
@@ -137,18 +118,20 @@ export const ChunkStorageSql = Layer.effect(
       }),
     )
 
-    const insertEmbedding = Effect.fnUntraced(
-      function* (chunkEmbedding: ChunkEmbeddingInsertInput) {
+    const insertManyEmbeddings = Effect.fnUntraced(
+      function* (embeddings: ReadonlyArray<ChunkEmbeddingInsertInput>) {
         const now = new Date().toISOString()
-        const { chunkId, embedding, createdAt } = yield* Effect.succeed(
-          chunkEmbedding,
-        ).pipe(
-          Effect.flatMap(Schema.decodeUnknown(ChunkEmbeddingInsertInput)),
-          Effect.map(({ chunkId, embedding }) => ({
-            chunkId,
-            embedding,
-            createdAt: now,
-          })),
+        const embeddingsToInsert = yield* Effect.succeed(embeddings).pipe(
+          Effect.flatMap(
+            Schema.decodeUnknown(Schema.Array(ChunkEmbeddingInsertInput)),
+          ),
+          Effect.map(
+            Array.map(({ chunkId, embedding }) => ({
+              chunkId,
+              embedding,
+              createdAt: now,
+            })),
+          ),
         )
 
         yield* db.onDialectOrElse({
@@ -158,11 +141,14 @@ export const ChunkStorageSql = Layer.effect(
               , embedding
               , created_at
             )
-            VALUES (
-              ${chunkId}
-              , vector32(${embedding})
-              , ${createdAt}
-            )
+            VALUES
+            ${db.unsafe(
+              Array.map(
+                embeddingsToInsert,
+                ({ chunkId, embedding, createdAt }) =>
+                  `('${chunkId}', vector32('${embedding}'), '${createdAt}')`,
+              ).join(',\n'),
+            )}
           `,
         })
       },
@@ -207,7 +193,7 @@ export const ChunkStorageSql = Layer.effect(
       search,
       getAllWithoutEmbedding,
       insertMany,
-      insertEmbedding,
+      insertManyEmbeddings,
       removeByFilePath,
     })
   }),

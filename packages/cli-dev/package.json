@@ -1,0 +1,23 @@
+{
+  "name": "@grepai/cli-dev",
+  "version": "0.3.1",
+  "scripts": {
+    "build": "bun --bun build.ts",
+    "clean": "git clean -xdf .cache .turbo node_modules dist",
+    "format": "oxfmt",
+    "lint": "oxlint",
+    "typecheck": "tsc --noEmit --emitDeclarationOnly false"
+  },
+  "dependencies": {
+    "@clack/prompts": "1.0.0",
+    "@effect/cli": "catalog:effect",
+    "@effect/platform": "catalog:effect",
+    "@effect/platform-bun": "catalog:effect",
+    "@grepai/core": "workspace:",
+    "effect": "catalog:effect"
+  },
+  "devDependencies": {
+    "@grepai/tsconfig": "workspace:",
+    "typescript": "catalog:"
+  }
+}

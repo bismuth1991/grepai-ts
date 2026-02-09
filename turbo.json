@@ -3,7 +3,12 @@
   "ui": "stream",
   "tasks": {
     "build": {
-      "outputs": ["src/grepai-config-schema.json", "dist"]
+      "outputs": ["src/grepai-config-schema.json", "dist"],
+      "cache": true
+    },
+    "publish": {
+      "outputs": [],
+      "cache": false
     },
     "lint": {
       "outputs": []
@@ -22,5 +27,9 @@
     }
   },
   "globalEnv": [],
-  "globalPassThroughEnv": ["NODE_ENV", "npm_lifecycle_event"]
+  "globalPassThroughEnv": [
+    "NODE_ENV",
+    "NPM_CONFIG_TOKEN",
+    "npm_lifecycle_event"
+  ]
 }

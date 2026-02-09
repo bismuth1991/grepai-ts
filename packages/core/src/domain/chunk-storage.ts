@@ -37,8 +37,8 @@ export class ChunkStorage extends Context.Tag(
       chunks: ReadonlyArray<ChunkInsertInput>,
     ) => Effect.Effect<void, ChunkStorageError | SchemaValidationFailed, never>
 
-    insertEmbedding: (
-      embedding: ChunkEmbeddingInsertInput,
+    insertManyEmbeddings: (
+      embeddings: ReadonlyArray<ChunkEmbeddingInsertInput>,
     ) => Effect.Effect<void, ChunkStorageError | SchemaValidationFailed, never>
 
     removeByFilePath: (

@@ -1,5 +1,5 @@
 {
   "extends": "@grepai/tsconfig/base.json",
-  "include": ["src"],
+  "include": ["src", "build.ts", "sync-version.ts"],
   "exclude": ["node_modules", ".turbo", ".cache"]
 }

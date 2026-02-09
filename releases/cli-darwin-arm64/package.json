@@ -1,0 +1,25 @@
+{
+  "name": "@grepai/cli-darwin-arm64",
+  "version": "0.3.1",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bismuth1991/grepai-ts.git"
+  },
+  "files": [
+    "./bin/grepai"
+  ],
+  "os": [
+    "darwin"
+  ],
+  "cpu": [
+    "arm64"
+  ],
+  "main": "./bin/grepai",
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "publish": "bun publish"
+  }
+}
