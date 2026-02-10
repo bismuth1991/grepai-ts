@@ -10,6 +10,7 @@ import { Embedder } from '../../domain/embedder'
 import { Embedding } from '../../domain/embedding'
 import { SchemaValidationFailed } from '../../domain/errors'
 
+import { EmbeddingNormalizer } from './embedding-normalizer'
 import { VercelAi } from './vercel-ai'
 
 export const EmbedderGemini = Layer.effect(
@@ -17,12 +18,18 @@ export const EmbedderGemini = Layer.effect(
   Effect.gen(function* () {
     const ai = yield* VercelAi
     const config = yield* Config
+    const normalizer = yield* EmbeddingNormalizer
+
+    const getDimensions = () =>
+      config.storage.type === 'postgres'
+        ? Math.min(1576, config.embedding.dimensions)
+        : config.embedding.dimensions
 
     const embed = Effect.fnUntraced(
       function* (textChunk: string) {
         const taskType = 'RETRIEVAL_DOCUMENT'
         const embedder = config.embedding.model
-        const dimensions = config.embedding.dimensions
+        const dimensions = getDimensions()
 
         return yield* ai
           .use(({ embed: _embed, google }) =>
@@ -38,7 +45,11 @@ export const EmbedderGemini = Layer.effect(
             }),
           )
           .pipe(
-            Effect.map(({ embedding }) => embedding),
+            Effect.map(({ embedding }) =>
+              config.embedding.dimensions !== 3072
+                ? normalizer.normalize(embedding).normalized
+                : embedding,
+            ),
             Effect.flatMap(Schema.decodeUnknown(Embedding)),
           )
       },
@@ -50,8 +61,8 @@ export const EmbedderGemini = Layer.effect(
     const embedMany = Effect.fnUntraced(
       function* (textChunks: Array.NonEmptyReadonlyArray<string>) {
         const taskType = 'RETRIEVAL_DOCUMENT'
-        const dimensions = config.embedding.dimensions
         const embedder = config.embedding.model
+        const dimensions = getDimensions()
 
         return yield* ai
           .use(({ embedMany: embed, google }) =>
@@ -81,7 +92,7 @@ export const EmbedderGemini = Layer.effect(
     const embedQuery = Effect.fnUntraced(
       function* (query: string, type: EmbedQueryType = 'code-retrieval') {
         const embedder = config.embedding.model
-        const dimensions = config.embedding.dimensions
+        const dimensions = getDimensions()
         const taskType =
           type === 'code-retrieval' ? 'CODE_RETRIEVAL_QUERY' : 'RETRIEVAL_QUERY'
 

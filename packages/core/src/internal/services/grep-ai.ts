@@ -12,6 +12,7 @@ import { CodebaseScannerFs } from './codebase-scanner-fs'
 import { ConfigJson } from './config-json'
 import { DocumentStorageSql } from './document-storage-sql'
 import { EmbedderGemini } from './embedder-gemini'
+import { EmbeddingNormalizer } from './embedding-normalizer'
 import { FileIndexer } from './file-indexer'
 import { Indexer } from './indexer'
 import { LibsqlLive, PgLive } from './sql'
@@ -56,7 +57,12 @@ const GrepAiLive = Layer.unwrapEffect(
       Layer.provide(
         TokenCounterLive.pipe(Layer.provide(FetchHttpClient.layer)),
       ),
-      Layer.provide(EmbedderLive.pipe(Layer.provide(VercelAi.Default))),
+      Layer.provide(
+        EmbedderLive.pipe(
+          Layer.provide(EmbeddingNormalizer.Default),
+          Layer.provide(VercelAi.Default),
+        ),
+      ),
       Layer.provide(DocumentStorageLive),
       Layer.provideMerge(StorageLive),
     )

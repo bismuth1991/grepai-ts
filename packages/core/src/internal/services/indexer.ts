@@ -1,10 +1,12 @@
 import * as Array from 'effect/Array'
 import * as Effect from 'effect/Effect'
+import * as Match from 'effect/Match'
 
 import {
   CodebaseScanner,
   CodebaseScanResult,
 } from '../../domain/codebase-scanner'
+import { Config } from '../../domain/config'
 import { IndexerCallbackError } from '../../domain/errors'
 
 import { FileIndexer } from './file-indexer'
@@ -17,6 +19,7 @@ export class Indexer extends Effect.Service<Indexer>()(
     effect: Effect.gen(function* () {
       const codebaseScanner = yield* CodebaseScanner
       const fileIndexer = yield* FileIndexer
+      const config = yield* Config
 
       const index = Effect.fnUntraced(function* (callbacks?: {
         onStarted?: () => Effect.Effect<void, IndexerCallbackError>
@@ -76,7 +79,13 @@ export class Indexer extends Effect.Service<Indexer>()(
                 }),
               ),
             ),
-          { concurrency: 10 },
+          {
+            concurrency: Match.value(config.storage.type).pipe(
+              Match.when('turso', () => 1),
+              Match.when('postgres', () => 100),
+              Match.exhaustive,
+            ),
+          },
         )
 
         yield* onFinished()

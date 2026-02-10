@@ -74,8 +74,35 @@ const program = Effect.gen(function* () {
     ),
   }).pipe(
     Command.withDescription('Search code using natural language queries'),
-    Command.withHandler((input) =>
-      grepAi.search(input).pipe(Effect.tap(Console.log)),
+    Command.withHandler(
+      Effect.fnUntraced(function* (input) {
+        const files = yield* grepAi.search(input)
+
+        function mergeRanges(ranges: typeof files): string {
+          return [...ranges]
+            .sort((a, b) => a.startLine - b.startLine)
+            .reduce<[number, number][]>((acc, { startLine, endLine }) => {
+              const prev = acc.at(-1)
+              if (prev && startLine <= prev[1]) {
+                prev[1] = Math.max(prev[1], endLine)
+              } else {
+                acc.push([startLine, endLine])
+              }
+              return acc
+            }, [])
+            .map(([s, e]) => `${s}-${e}`)
+            .join(', ')
+        }
+        function compactFileRanges(ranges: typeof files): string {
+          const grouped = Map.groupBy(ranges, (r) => r.filePath)
+
+          return [...grouped.entries()]
+            .map(([file, rs]) => `${file}: ${mergeRanges(rs!)}`)
+            .join('\n')
+        }
+
+        yield* Console.log(compactFileRanges(files))
+      }),
     ),
   )
 
@@ -85,7 +112,7 @@ const program = Effect.gen(function* () {
 
   const cli = Command.run(command, {
     name: 'GREP AI',
-    version: 'v0.4.0',
+    version: 'v0.4.1',
   })
 
   yield* cli(process.argv)
