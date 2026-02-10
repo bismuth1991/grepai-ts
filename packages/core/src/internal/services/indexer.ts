@@ -58,15 +58,24 @@ export class Indexer extends Effect.Service<Indexer>()(
         const filesToClean = Array.appendAll(modified, deleted)
         const filesToIndex = Array.appendAll(newFiles, modified)
 
-        yield* Effect.forEach(filesToClean, ({ filePath }) =>
-          fileIndexer.clean(filePath).pipe(
-            Effect.tap(() =>
-              onFileCleaned({
-                filePath,
-                fileCount: filesToClean.length,
-              }),
+        yield* Effect.forEach(
+          filesToClean,
+          ({ filePath }) =>
+            fileIndexer.clean(filePath).pipe(
+              Effect.tap(() =>
+                onFileCleaned({
+                  filePath,
+                  fileCount: filesToClean.length,
+                }),
+              ),
             ),
-          ),
+          {
+            concurrency: Match.value(config.storage.type).pipe(
+              Match.when('turso', () => 1),
+              Match.when('postgres', () => 100),
+              Match.exhaustive,
+            ),
+          },
         )
         yield* Effect.forEach(
           filesToIndex,
