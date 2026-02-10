@@ -4,7 +4,8 @@
   "required": ["embedding", "storage"],
   "properties": {
     "$schema": {
-      "type": "string"
+      "type": "string",
+      "description": "JSON Schema URL for editor validation and autocompletion"
     },
     "embedding": {
       "type": "object",
@@ -12,46 +13,53 @@
       "properties": {
         "provider": {
           "type": "string",
-          "enum": ["google"]
+          "enum": ["google"],
+          "description": "Google as the embedding provider"
         },
         "model": {
           "type": "string",
-          "enum": ["gemini-embedding-001"]
+          "enum": ["gemini-embedding-001"],
+          "description": "Google embedding model to use"
         },
         "apiKey": {
-          "type": "string"
+          "type": "string",
+          "description": "Google API key for authentication"
         },
         "dimensions": {
           "type": "number",
-          "enum": [768, 1536, 3072]
+          "enum": [768, 1536, 3072],
+          "description": "Dimensionality of the embedding vectors (capped to 1536 for Postgres)"
         },
         "targetChunkSize": {
-          "type": "number"
+          "type": "number",
+          "description": "Preferred token count per chunk; adjacent chunks below this are merged"
         },
         "maxChunkSize": {
-          "type": "number"
-        },
-        "embeddingBatchSize": {
-          "type": "number"
+          "type": "number",
+          "description": "Hard upper limit in tokens; AST nodes exceeding this are split recursively"
         },
         "tokenizer": {
           "type": "string",
-          "enum": ["simple", "gemini-embedding-001"]
+          "enum": ["simple", "gemini-embedding-001"],
+          "description": "Tokenizer for chunk splitting: 'simple' estimates via char length, 'gemini-embedding-001' calls the Google API"
         }
       },
-      "additionalProperties": false
+      "additionalProperties": false,
+      "description": "Embedding model and provider configuration"
     },
     "include": {
       "type": "array",
       "items": {
         "type": "string"
-      }
+      },
+      "description": "Glob patterns of files to index; bare names are auto-wrapped with **/"
     },
     "exclude": {
       "type": "array",
       "items": {
         "type": "string"
-      }
+      },
+      "description": "Glob patterns of files to exclude; bare names are auto-wrapped with **/"
     },
     "storage": {
       "anyOf": [
@@ -61,13 +69,16 @@
           "properties": {
             "type": {
               "type": "string",
-              "enum": ["turso"]
+              "enum": ["turso"],
+              "description": "Turso database storage backend"
             },
             "authToken": {
-              "type": "string"
+              "type": "string",
+              "description": "Authentication token for the Turso database"
             },
             "url": {
-              "type": "string"
+              "type": "string",
+              "description": "Connection URL of the Turso database"
             }
           },
           "additionalProperties": false
@@ -78,15 +89,18 @@
           "properties": {
             "type": {
               "type": "string",
-              "enum": ["postgres"]
+              "enum": ["postgres"],
+              "description": "PostgreSQL database storage backend"
             },
             "connectionString": {
-              "type": "string"
+              "type": "string",
+              "description": "PostgreSQL connection string (e.g. postgres://user:pass@host:port/db)"
             }
           },
           "additionalProperties": false
         }
-      ]
+      ],
+      "description": "Database backend for storing chunks and embeddings"
     }
   },
   "additionalProperties": false

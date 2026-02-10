@@ -25,6 +25,8 @@ grepai search "database config" --topK 50
 
 Create a `.grepairc.json` or `grepai-config.json` in your project root. Supports `${ENV_VAR}` substitution.
 
+### Minimal Example (Turso)
+
 ```json
 {
   "$schema": "https://raw.githubusercontent.com/bismuth1991/grepai-ts/refs/heads/main/packages/core/src/grepai-config-schema.json",
@@ -36,15 +38,56 @@ Create a `.grepairc.json` or `grepai-config.json` in your project root. Supports
   "embedding": {
     "provider": "google",
     "model": "gemini-embedding-001",
-    "apiKey": "${GEMINI_API_KEY}",
-    "dimensions": 3072
+    "apiKey": "${GEMINI_API_KEY}"
   },
   "include": ["src/**/*.ts"],
   "exclude": ["node_modules", "dist", "**/*.test.ts"]
 }
 ```
 
+### Postgres Example
+
+```json
+{
+  "storage": {
+    "type": "postgres",
+    "connectionString": "postgres://user:pass@localhost:5432/grepai"
+  },
+  "embedding": {
+    "provider": "google",
+    "model": "gemini-embedding-001",
+    "apiKey": "${GEMINI_API_KEY}",
+    "dimensions": 1536
+  }
+}
+```
+
+### Advanced Configuration
+
+Full list of options:
+
+```json
+{
+  "embedding": {
+    "provider": "google",
+    "model": "gemini-embedding-001",
+    "apiKey": "${GEMINI_API_KEY}",
+    "dimensions": 3072,           // 768, 1536, or 3072
+    "targetChunkSize": 256,       // Preferred tokens per chunk
+    "maxChunkSize": 1024,         // Max tokens per chunk
+    "tokenizer": "gemini-embedding-001" // or "simple"
+  }
+}
+```
+
 Read `https://github.com/bismuth1991/grepai-ts/blob/main/packages/core/src/domain/config.ts` for full configuration details.
+
+## How it works
+
+1.  **AST Parsing**: GrepAI parses your code (TypeScript/TSX) into an Abstract Syntax Tree.
+2.  **Smart Chunking**: It splits code into meaningful chunks, preserving scope context (class names, function signatures) even for deep nested code.
+3.  **Embedding**: Chunks are embedded using Google's Gemini models.
+4.  **Vector Search**: Queries are embedded and compared against code chunks using cosine similarity.
 
 ## Links
 

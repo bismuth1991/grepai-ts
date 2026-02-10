@@ -1,3 +1,4 @@
+import { BunContext } from '@effect/platform-bun'
 import { describe, it, expect } from '@effect/vitest'
 import * as Effect from 'effect/Effect'
 import * as Layer from 'effect/Layer'
@@ -22,7 +23,6 @@ const SmallChunkConfig = Layer.succeed(Config, {
     targetChunkSize: 50,
     maxChunkSize: 100,
     dimensions: 3072,
-    embeddingBatchSize: 100,
     tokenizer: 'simple',
   },
   include: [],
@@ -43,7 +43,6 @@ const LargeChunkConfig = Layer.succeed(Config, {
     targetChunkSize: 500,
     maxChunkSize: 1000,
     dimensions: 3072,
-    embeddingBatchSize: 100,
     tokenizer: 'simple',
   },
   include: [],
@@ -60,6 +59,7 @@ const TestLive = ChunkerAst.pipe(
   Layer.provide(ContextHeaderBuilder.Default),
   Layer.provide(TokenCounterTest),
   Layer.provide(SmallChunkConfig),
+  Layer.provideMerge(BunContext.layer),
 )
 
 const TestLiveLargeChunks = ChunkerAst.pipe(
@@ -67,6 +67,7 @@ const TestLiveLargeChunks = ChunkerAst.pipe(
   Layer.provide(ContextHeaderBuilder.Default),
   Layer.provide(TokenCounterTest),
   Layer.provide(LargeChunkConfig),
+  Layer.provideMerge(BunContext.layer),
 )
 
 const TinyChunkConfig = Layer.succeed(Config, {
@@ -78,7 +79,6 @@ const TinyChunkConfig = Layer.succeed(Config, {
     targetChunkSize: 15,
     maxChunkSize: 30,
     dimensions: 3072,
-    embeddingBatchSize: 100,
     tokenizer: 'simple',
   },
   include: [],
@@ -95,6 +95,7 @@ const TestLiveTinyChunks = ChunkerAst.pipe(
   Layer.provide(ContextHeaderBuilder.Default),
   Layer.provide(TokenCounterTest),
   Layer.provide(TinyChunkConfig),
+  Layer.provideMerge(BunContext.layer),
 )
 
 function extractContextHeader(content: string) {
