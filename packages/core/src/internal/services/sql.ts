@@ -59,7 +59,11 @@ const Migrations = (config: GrepAiConfig) =>
               ON documents (hash);
           `,
       })
-    }),
+    }).pipe(
+      Effect.catchTags({
+        SqlError: Effect.logError,
+      }),
+    ),
     '0002_create_chunks_table': Effect.gen(function* () {
       const db = (yield* SqlClient.SqlClient).withoutTransforms()
 
@@ -99,7 +103,11 @@ const Migrations = (config: GrepAiConfig) =>
               ON chunks (file_path);
           `,
       })
-    }),
+    }).pipe(
+      Effect.catchTags({
+        SqlError: Effect.logError,
+      }),
+    ),
     '0003_create_chunk_embeddings_table': Effect.gen(function* () {
       const db = (yield* SqlClient.SqlClient).withoutTransforms()
 
@@ -170,7 +178,11 @@ const Migrations = (config: GrepAiConfig) =>
               );
           `,
       })
-    }),
+    }).pipe(
+      Effect.catchTags({
+        SqlError: Effect.logError,
+      }),
+    ),
   })
 
 export const LibsqlLive = Layer.unwrapEffect(
