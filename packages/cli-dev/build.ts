@@ -6,38 +6,48 @@ const build = Effect.gen(function* () {
   const fs = yield* FileSystem.FileSystem
   const path = yield* Path.Path
 
-  const isDarwinArm64 =
-    process.platform === 'darwin' && process.arch === 'arm64'
-
   yield* Effect.tryPromise({
     try: () =>
       Bun.build({
         entrypoints: ['./src/index.ts'],
-        format: 'cjs',
+        target: 'bun',
+        format: 'esm',
         sourcemap: true,
-        bytecode: true,
-        compile: {
-          outfile: './dist/grepai',
-        },
-        minify: {
-          syntax: true,
-          whitespace: true,
-        },
+        outdir: './dist',
+        external: [
+          'web-tree-sitter',
+          'tree-sitter-typescript',
+          '@libsql/darwin-arm64',
+          '@libsql/darwin-x64',
+          '@libsql/linux-arm64-gnu',
+          '@libsql/linux-arm64-musl',
+          '@libsql/linux-x64-gnu',
+          '@libsql/linux-x64-musl',
+          '@libsql/win32-x64-msvc',
+        ],
       }),
     catch: (error) => {
       console.log(error)
     },
   })
 
-  if (isDarwinArm64) {
-    yield* fs.copyFile(
-      path.resolve(import.meta.dirname, './dist/grepai'),
-      path.resolve(
-        import.meta.dirname,
-        '../../releases/cli-darwin-arm64/bin/grepai',
-      ),
-    )
-  }
+  const indexFilePath = path.resolve(import.meta.dirname, './dist/index.js')
+
+  yield* fs.readFileString(indexFilePath).pipe(
+    Effect.flatMap((content) =>
+      fs.writeFileString(indexFilePath, '#!/usr/bin/env bun\n' + content),
+    ),
+    Effect.andThen(fs.chmod(indexFilePath, 0o755)),
+  )
+
+  yield* fs.copyFile(
+    indexFilePath,
+    path.resolve(import.meta.dirname, '../../releases/cli/index.js'),
+  )
+  yield* fs.copyFile(
+    path.resolve(import.meta.dirname, './dist/index.js.map'),
+    path.resolve(import.meta.dirname, '../../releases/cli/index.js.map'),
+  )
 })
 
 build.pipe(Effect.provide(BunContext.layer), BunRuntime.runMain)

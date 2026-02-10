@@ -1,6 +1,6 @@
 {
   "name": "@grepai/cli",
-  "version": "0.4.2",
+  "version": "0.5.0",
   "description": "CLI for semantic code search. It uses vector embeddings to understand code meaning, enabling natural language queries that find relevant code—even when naming conventions vary.",
   "homepage": "https://github.com/bismuth1991/grepai-ts#readme",
   "bugs": {
@@ -13,23 +13,30 @@
     "url": "git+https://github.com/bismuth1991/grepai-ts.git"
   },
   "bin": {
-    "grepai": "./bin/grepai"
+    "grepai": "./index.js"
   },
   "files": [
-    "bin/",
-    "install.js"
+    "index.js",
+    "index.js.map"
   ],
   "publishConfig": {
     "access": "public"
   },
   "scripts": {
-    "postinstall": "node install.js",
+    "clean": "git clean -xdf node_modules index.js index.js.map",
     "publish:npm": "bun publish"
   },
+  "dependencies": {
+    "tree-sitter-typescript": "catalog:tree-sitter",
+    "web-tree-sitter": "catalog:tree-sitter"
+  },
   "optionalDependencies": {
-    "@grepai/cli-darwin-arm64": "0.4.2",
-    "@grepai/cli-linux-arm64-musl": "0.4.2",
-    "@grepai/cli-linux-x64": "0.4.2",
-    "@grepai/cli-linux-x64-musl": "0.4.2"
+    "@libsql/darwin-arm64": "catalog:libsql",
+    "@libsql/darwin-x64": "catalog:libsql",
+    "@libsql/linux-arm64-gnu": "catalog:libsql",
+    "@libsql/linux-arm64-musl": "catalog:libsql",
+    "@libsql/linux-x64-gnu": "catalog:libsql",
+    "@libsql/linux-x64-musl": "catalog:libsql",
+    "@libsql/win32-x64-msvc": "catalog:libsql"
   }
 }

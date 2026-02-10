@@ -4,8 +4,8 @@
 
 # Build outputs
 dist
-*.tgz
-**/bin/grepai
+releases/cli/index.js
+releases/cli/index.js.map
 
 # Dependency directories
 node_modules/
@@ -23,7 +23,11 @@ node_modules/
 
 # IDE settings
 .zed
+.vscode
 
 # Opencode
 .opencode
 .sisyphus
+
+# Misc.
+*.tgz

@@ -4,8 +4,8 @@ export const Document = Schema.Struct({
   id: Schema.Number,
   filePath: Schema.String,
   hash: Schema.String,
-  createdAt: Schema.Date,
-  updatedAt: Schema.Date,
+  createdAt: Schema.Union(Schema.Date, Schema.DateFromSelf),
+  updatedAt: Schema.Union(Schema.Date, Schema.DateFromSelf),
 })
 export type Document = typeof Document.Type
 export type DocumentInsertInput = Omit<

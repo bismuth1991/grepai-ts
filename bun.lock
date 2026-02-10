@@ -19,20 +19,17 @@
     },
     "packages/cli-dev": {
       "name": "@grepai/cli-dev",
-      "version": "0.4.2",
-      "bin": {
-        "grepai": "grepai",
-      },
+      "version": "0.4.3",
       "dependencies": {
         "@clack/prompts": "1.0.0",
         "@effect/cli": "catalog:effect",
         "@effect/platform": "catalog:effect",
         "@effect/platform-bun": "catalog:effect",
-        "@grepai/core": "workspace:0.3.0",
+        "@grepai/core": "workspace:",
         "effect": "catalog:effect",
       },
       "devDependencies": {
-        "@grepai/tsconfig": "workspace:1.0.0",
+        "@grepai/tsconfig": "workspace:",
         "typescript": "catalog:",
       },
     },
@@ -47,8 +44,8 @@
         "@effect/sql-pg": "catalog:effect",
         "ai": "catalog:ai",
         "effect": "catalog:effect",
-        "tree-sitter": "0.25.0",
-        "tree-sitter-typescript": "0.23.2",
+        "tree-sitter-typescript": "catalog:tree-sitter",
+        "web-tree-sitter": "catalog:tree-sitter",
       },
       "devDependencies": {
         "@grepai/tsconfig": "workspace:*",
@@ -57,32 +54,23 @@
     },
     "releases/cli": {
       "name": "@grepai/cli",
-      "version": "0.4.2",
+      "version": "0.4.15",
       "bin": {
-        "grepai": "./bin/grepai",
+        "grepai": "./index.js",
+      },
+      "dependencies": {
+        "tree-sitter-typescript": "catalog:tree-sitter",
+        "web-tree-sitter": "catalog:tree-sitter",
       },
       "optionalDependencies": {
-        "@grepai/cli-darwin-arm64": "0.4.2",
-        "@grepai/cli-linux-arm64-musl": "0.4.2",
-        "@grepai/cli-linux-x64": "0.4.2",
-        "@grepai/cli-linux-x64-musl": "0.4.2",
+        "@libsql/darwin-arm64": "catalog:libsql",
+        "@libsql/darwin-x64": "catalog:libsql",
+        "@libsql/linux-arm64-gnu": "catalog:libsql",
+        "@libsql/linux-arm64-musl": "catalog:libsql",
+        "@libsql/linux-x64-gnu": "catalog:libsql",
+        "@libsql/linux-x64-musl": "catalog:libsql",
+        "@libsql/win32-x64-msvc": "catalog:libsql",
       },
-    },
-    "releases/cli-darwin-arm64": {
-      "name": "@grepai/cli-darwin-arm64",
-      "version": "0.4.2",
-    },
-    "releases/cli-linux-arm64-musl": {
-      "name": "@grepai/cli-linux-arm64-musl",
-      "version": "0.4.2",
-    },
-    "releases/cli-linux-x64": {
-      "name": "@grepai/cli-linux-x64",
-      "version": "0.4.2",
-    },
-    "releases/cli-linux-x64-musl": {
-      "name": "@grepai/cli-linux-x64-musl",
-      "version": "0.4.2",
     },
     "tooling/scripts": {
       "name": "@grepai/scripts",
@@ -127,6 +115,19 @@
       "@effect/sql-pg": "0.50.1",
       "@effect/vitest": "0.27.0",
       "effect": "3.19.15",
+    },
+    "libsql": {
+      "@libsql/darwin-arm64": "0.4.7",
+      "@libsql/darwin-x64": "0.4.7",
+      "@libsql/linux-arm64-gnu": "0.4.7",
+      "@libsql/linux-arm64-musl": "0.4.7",
+      "@libsql/linux-x64-gnu": "0.4.7",
+      "@libsql/linux-x64-musl": "0.4.7",
+      "@libsql/win32-x64-msvc": "0.4.7",
+    },
+    "tree-sitter": {
+      "tree-sitter-typescript": "0.23.2",
+      "web-tree-sitter": "0.26.5",
     },
   },
   "packages": {
@@ -232,15 +233,7 @@
 
     "@grepai/cli": ["@grepai/cli@workspace:releases/cli"],
 
-    "@grepai/cli-darwin-arm64": ["@grepai/cli-darwin-arm64@workspace:releases/cli-darwin-arm64"],
-
     "@grepai/cli-dev": ["@grepai/cli-dev@workspace:packages/cli-dev"],
-
-    "@grepai/cli-linux-arm64-musl": ["@grepai/cli-linux-arm64-musl@workspace:releases/cli-linux-arm64-musl"],
-
-    "@grepai/cli-linux-x64": ["@grepai/cli-linux-x64@workspace:releases/cli-linux-x64"],
-
-    "@grepai/cli-linux-x64-musl": ["@grepai/cli-linux-x64-musl@workspace:releases/cli-linux-x64-musl"],
 
     "@grepai/core": ["@grepai/core@workspace:packages/core"],
 
@@ -673,6 +666,8 @@
     "vitest": ["vitest@3.2.4", "", { "dependencies": { "@types/chai": "^5.2.2", "@vitest/expect": "3.2.4", "@vitest/mocker": "3.2.4", "@vitest/pretty-format": "^3.2.4", "@vitest/runner": "3.2.4", "@vitest/snapshot": "3.2.4", "@vitest/spy": "3.2.4", "@vitest/utils": "3.2.4", "chai": "^5.2.0", "debug": "^4.4.1", "expect-type": "^1.2.1", "magic-string": "^0.30.17", "pathe": "^2.0.3", "picomatch": "^4.0.2", "std-env": "^3.9.0", "tinybench": "^2.9.0", "tinyexec": "^0.3.2", "tinyglobby": "^0.2.14", "tinypool": "^1.1.1", "tinyrainbow": "^2.0.0", "vite": "^5.0.0 || ^6.0.0 || ^7.0.0-0", "vite-node": "3.2.4", "why-is-node-running": "^2.3.0" }, "peerDependencies": { "@edge-runtime/vm": "*", "@types/debug": "^4.1.12", "@types/node": "^18.0.0 || ^20.0.0 || >=22.0.0", "@vitest/browser": "3.2.4", "@vitest/ui": "3.2.4", "happy-dom": "*", "jsdom": "*" }, "optionalPeers": ["@edge-runtime/vm", "@types/debug", "@types/node", "@vitest/browser", "@vitest/ui", "happy-dom", "jsdom"], "bin": { "vitest": "vitest.mjs" } }, "sha512-LUCP5ev3GURDysTWiP47wRRUpLKMOfPh+yKTx3kVIEiu5KOMeqzpnYNsKyOoVrULivR8tLcks4+lga33Whn90A=="],
 
     "web-streams-polyfill": ["web-streams-polyfill@3.3.3", "", {}, "sha512-d2JWLCivmZYTSIoge9MsgFCZrt571BikcWGYkjC1khllbTeDlGqZ2D8vD8E/lJa8WGWbb7Plm8/XJYV7IJHZZw=="],
+
+    "web-tree-sitter": ["web-tree-sitter@0.26.5", "", {}, "sha512-u9sl+q21VSKX2T8dhpQw8bMGGqNfwaIyuoYE3kdOQGVDrOqrmcS9GmaQoCS602iaFnuokn3WCHW374c7GAnuaQ=="],
 
     "which": ["which@4.0.0", "", { "dependencies": { "isexe": "^3.1.1" }, "bin": { "node-which": "bin/which.js" } }, "sha512-GlaYyEb07DPxYCKhKzplCWBJtvxZcZMrL+4UkrTSJHHPyZU4mYYTv3qaOe77H7EODLSSopAUFAc6W8U4yqvscg=="],
 

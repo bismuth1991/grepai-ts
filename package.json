@@ -26,14 +26,26 @@
         "@effect/sql-pg": "0.50.1",
         "@effect/vitest": "0.27.0",
         "effect": "3.19.15"
+      },
+      "libsql": {
+        "@libsql/darwin-arm64": "0.4.7",
+        "@libsql/darwin-x64": "0.4.7",
+        "@libsql/linux-arm64-gnu": "0.4.7",
+        "@libsql/linux-arm64-musl": "0.4.7",
+        "@libsql/linux-x64-gnu": "0.4.7",
+        "@libsql/linux-x64-musl": "0.4.7",
+        "@libsql/win32-x64-msvc": "0.4.7"
+      },
+      "tree-sitter": {
+        "tree-sitter-typescript": "0.23.2",
+        "web-tree-sitter": "0.26.5"
       }
     }
   },
   "type": "module",
   "scripts": {
-    "build": "bun run version:sync && bun run build:linux && turbo run build",
+    "build": "bun run version:sync && turbo run build",
     "build:local": "turbo run build --",
-    "build:linux": "(cd packages/cli-dev && ./build-linux.sh)",
     "clean": "git clean -xdf .turbo node_modules",
     "clean:workspaces": "turbo run clean && bun clean",
     "git": "bun --bun run --env-file=.env.development ./tooling/scripts/src git",

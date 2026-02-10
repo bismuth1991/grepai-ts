@@ -1,20 +1,22 @@
-diff --git a/node_modules/libsql/.bun-tag-8672db3ec580bbb6 b/.bun-tag-8672db3ec580bbb6
-new file mode 100644
-index 0000000000000000000000000000000000000000..e69de29bb2d1d6434b8b29ae775ad8c2e48c5391
 diff --git a/index.js b/index.js
-index 4e8423491ab51a9eb9fee22182e4ea0fcc3d3d3b..a89e10295bc7ff2869bd97728427e5b70e6b0ca7 100644
+index 4e8423491ab51a9eb9fee22182e4ea0fcc3d3d3b..fc0bd347331fcbdd1128f2b5b6e3d2fb3e2ef5c5 100644
 --- a/index.js
 +++ b/index.js
-@@ -19,7 +19,7 @@ function requireNative() {
-       break;
-     }
-   }
--  return require(`@libsql/${target}`);
-+  return require(`../@libsql/${target}/index.node`);
- }
+@@ -1,12 +1,9 @@
+ "use strict";
  
- const {
-@@ -114,7 +114,7 @@ class Database {
+-const { load, currentTarget } = require("@neon-rs/load");
++const { currentTarget } = require("@neon-rs/load");
+ const { familySync, GLIBC } = require("detect-libc");
+ 
+ function requireNative() {
+-  if (process.env.LIBSQL_JS_DEV) {
+-    return load(__dirname)
+-  }
+   let target = currentTarget();
+   // Workaround for Bun, which reports a musl target, but really wants glibc...
+   if (familySync() == GLIBC) {
+@@ -114,7 +111,7 @@ class Database {
    prepare(sql) {
      try {
        const stmt = databasePrepareSync.call(this.db, sql);
@@ -23,7 +25,7 @@ index 4e8423491ab51a9eb9fee22182e4ea0fcc3d3d3b..a89e10295bc7ff2869bd97728427e5b7
      } catch (err) {
        throw convertError(err);
      }
-@@ -296,7 +296,7 @@ class Statement {
+@@ -296,7 +293,7 @@ class Statement {
          return statementRun.call(this.stmt, bindParameters[0]);
        } else {
          return statementRun.call(this.stmt, bindParameters.flat());

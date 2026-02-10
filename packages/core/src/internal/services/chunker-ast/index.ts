@@ -163,6 +163,10 @@ export const ChunkerAst = Layer.effect(
         function* ({ filePath, content, language }) {
           const tree = yield* astParser.parse({ content, language })
 
+          if (!tree) {
+            return []
+          }
+
           return yield* split(tree.rootNode, language, []).pipe(
             Effect.map((splitChunks) =>
               reMerge(splitChunks, content, language),

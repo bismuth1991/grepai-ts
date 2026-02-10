@@ -19,13 +19,8 @@ const program = Effect.gen(function* () {
   const PACKAGE_JSON_PATHS = [
     'packages/cli-dev/package.json',
     'releases/cli/package.json',
-    'releases/cli-darwin-arm64/package.json',
-    'releases/cli-linux-x64/package.json',
-    'releases/cli-linux-x64-musl/package.json',
-    'releases/cli-linux-arm64-musl/package.json',
   ]
 
-  const CLI_PACKAGE = 'releases/cli/package.json'
   const CLI_INDEX_FILE = 'packages/cli-dev/src/index.ts'
 
   const getCurrentVersion = Effect.fnUntraced(function* () {
@@ -53,13 +48,6 @@ const program = Effect.gen(function* () {
         ),
       ),
       Effect.map((content) => {
-        // Update optionalDependencies
-        if (filePath === CLI_PACKAGE) {
-          return String.replace(
-            /(^\s*"@grepai\/cli-[^"]*"\s*:\s*")[^"]*(")/gm,
-            `$1${newVersion}$2`,
-          )(content)
-        }
         // Update cli version
         if (filePath === CLI_INDEX_FILE) {
           return String.replace(
@@ -69,9 +57,7 @@ const program = Effect.gen(function* () {
         }
         return content
       }),
-      Effect.andThen((newPackageJson) =>
-        fs.writeFileString(fullPath, newPackageJson),
-      ),
+      Effect.andThen((synced) => fs.writeFileString(fullPath, synced)),
     )
   })
 
