@@ -22,7 +22,7 @@ export const EmbedderGemini = Layer.effect(
 
     const getDimensions = () =>
       config.storage.type === 'postgres'
-        ? Math.min(1576, config.embedding.dimensions)
+        ? Math.min(1536, config.embedding.dimensions)
         : config.embedding.dimensions
 
     const embed = Effect.fnUntraced(

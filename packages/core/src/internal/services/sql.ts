@@ -107,8 +107,8 @@ const Migrations = (config: GrepAiConfig) =>
 
       const pgVecDimension = yield* config.embedding.dimensions === 3072
         ? Effect.logWarning(
-            'pgvector only supports dimension <=2000, falling back to 1576',
-          ).pipe(Effect.zipRight(Effect.succeed('1576')))
+            'pgvector only supports dimension <=2000, falling back to 1536',
+          ).pipe(Effect.zipRight(Effect.succeed('1536')))
         : Effect.succeed(config.embedding.dimensions.toString())
 
       yield* db.onDialectOrElse({
