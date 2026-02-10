@@ -108,3 +108,13 @@ export class IndexerCallbackError extends Schema.TaggedError<IndexerCallbackErro
     cause: Schema.Defect,
   },
 ) {}
+
+export class TursoStorageExpected extends Schema.TaggedError<TursoStorageExpected>()(
+  'TursoStorageExpected',
+  {},
+) {}
+
+export class PgStorageExpected extends Schema.TaggedError<PgStorageExpected>()(
+  'PgStorageExpected',
+  {},
+) {}

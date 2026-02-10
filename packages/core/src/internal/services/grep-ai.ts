@@ -14,8 +14,7 @@ import { DocumentStorageSql } from './document-storage-sql'
 import { EmbedderGemini } from './embedder-gemini'
 import { FileIndexer } from './file-indexer'
 import { Indexer } from './indexer'
-import { LibsqlLive } from './sql'
-import { PostgresLive } from './sql-pg'
+import { LibsqlLive, PgLive } from './sql'
 import { TokenCounterGemini } from './token-counter-gemini'
 import { TokenCounterSimple } from './token-counter-simple'
 import { VercelAi } from './vercel-ai'
@@ -35,7 +34,7 @@ const GrepAiLive = Layer.unwrapEffect(
     )
     const StorageLive = Match.value(config.storage.type).pipe(
       Match.when('turso', () => LibsqlLive),
-      Match.when('postgres', () => PostgresLive),
+      Match.when('postgres', () => PgLive),
       Match.exhaustive,
     )
     const DocumentStorageLive = Match.value(config.storage.type).pipe(
