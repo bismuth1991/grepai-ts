@@ -14,9 +14,10 @@ const build = Effect.gen(function* () {
         format: 'esm',
         sourcemap: true,
         outdir: './dist',
+        naming: {
+          asset: '[name].[ext]',
+        },
         external: [
-          'web-tree-sitter',
-          'tree-sitter-typescript',
           '@libsql/darwin-arm64',
           '@libsql/darwin-x64',
           '@libsql/linux-arm64-gnu',
@@ -40,13 +41,20 @@ const build = Effect.gen(function* () {
     Effect.andThen(fs.chmod(indexFilePath, 0o755)),
   )
 
-  yield* fs.copyFile(
-    indexFilePath,
-    path.resolve(import.meta.dirname, '../../releases/cli/index.js'),
+  yield* fs.copy(
+    path.resolve(import.meta.dirname, './dist/'),
+    path.resolve(import.meta.dirname, '../../releases/cli'),
   )
+
   yield* fs.copyFile(
-    path.resolve(import.meta.dirname, './dist/index.js.map'),
-    path.resolve(import.meta.dirname, '../../releases/cli/index.js.map'),
+    path.resolve(
+      import.meta.dirname,
+      '../core/node_modules/web-tree-sitter/web-tree-sitter.wasm',
+    ),
+    path.resolve(
+      import.meta.dirname,
+      '../../releases/cli/web-tree-sitter.wasm',
+    ),
   )
 })
 

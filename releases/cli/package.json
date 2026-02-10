@@ -1,6 +1,6 @@
 {
   "name": "@grepai/cli",
-  "version": "0.5.0",
+  "version": "0.5.12",
   "description": "CLI for semantic code search. It uses vector embeddings to understand code meaning, enabling natural language queries that find relevant code—even when naming conventions vary.",
   "homepage": "https://github.com/bismuth1991/grepai-ts#readme",
   "bugs": {
@@ -17,18 +17,15 @@
   },
   "files": [
     "index.js",
-    "index.js.map"
+    "index.js.map",
+    "*.wasm"
   ],
   "publishConfig": {
     "access": "public"
   },
   "scripts": {
-    "clean": "git clean -xdf node_modules index.js index.js.map",
+    "clean": "git clean -xdf node_modules index.js index.js.map *.wasm",
     "publish:npm": "bun publish"
-  },
-  "dependencies": {
-    "tree-sitter-typescript": "catalog:tree-sitter",
-    "web-tree-sitter": "catalog:tree-sitter"
   },
   "optionalDependencies": {
     "@libsql/darwin-arm64": "catalog:libsql",

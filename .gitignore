@@ -6,6 +6,7 @@
 dist
 releases/cli/index.js
 releases/cli/index.js.map
+*.wasm
 
 # Dependency directories
 node_modules/

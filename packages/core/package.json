@@ -27,6 +27,7 @@
   },
   "devDependencies": {
     "@grepai/tsconfig": "workspace:*",
+    "tree-sitter-cli": "catalog:tree-sitter",
     "typescript": "catalog:"
   }
 }

@@ -19,7 +19,7 @@
     },
     "packages/cli-dev": {
       "name": "@grepai/cli-dev",
-      "version": "0.4.3",
+      "version": "0.5.12",
       "dependencies": {
         "@clack/prompts": "1.0.0",
         "@effect/cli": "catalog:effect",
@@ -49,18 +49,15 @@
       },
       "devDependencies": {
         "@grepai/tsconfig": "workspace:*",
+        "tree-sitter-cli": "catalog:tree-sitter",
         "typescript": "catalog:",
       },
     },
     "releases/cli": {
       "name": "@grepai/cli",
-      "version": "0.4.15",
+      "version": "0.5.12",
       "bin": {
         "grepai": "./index.js",
-      },
-      "dependencies": {
-        "tree-sitter-typescript": "catalog:tree-sitter",
-        "web-tree-sitter": "catalog:tree-sitter",
       },
       "optionalDependencies": {
         "@libsql/darwin-arm64": "catalog:libsql",
@@ -94,6 +91,7 @@
   },
   "patchedDependencies": {
     "libsql@0.4.7": "patches/libsql@0.4.7.patch",
+    "web-tree-sitter@0.26.5": "patches/web-tree-sitter@0.26.5.patch",
   },
   "catalog": {
     "@dotenvx/dotenvx": "1.52.0",
@@ -126,6 +124,7 @@
       "@libsql/win32-x64-msvc": "0.4.7",
     },
     "tree-sitter": {
+      "tree-sitter-cli": "0.26.5",
       "tree-sitter-typescript": "0.23.2",
       "web-tree-sitter": "0.26.5",
     },
@@ -634,6 +633,8 @@
     "toml": ["toml@3.0.0", "", {}, "sha512-y/mWCZinnvxjTKYhJ+pYxwD0mRLVvOtdS2Awbgxln6iEnt4rk0yBxeSBHkGJcPucRiG0e55mwWp+g/05rsrd6w=="],
 
     "tree-sitter": ["tree-sitter@0.25.0", "", { "dependencies": { "node-addon-api": "^8.3.0", "node-gyp-build": "^4.8.4" } }, "sha512-PGZZzFW63eElZJDe/b/R/LbsjDDYJa5UEjLZJB59RQsMX+fo0j54fqBPn1MGKav/QNa0JR0zBiVaikYDWCj5KQ=="],
+
+    "tree-sitter-cli": ["tree-sitter-cli@0.26.5", "", { "bin": { "tree-sitter": "cli.js" } }, "sha512-joGY67M2XUVM+ZEs7vTYmSbiDgxtwbuMf1OdKk8q1Dd6wTlbhgtU/mr3j0krBgQs2Zwom6N7vxZaqoM85b79Mw=="],
 
     "tree-sitter-javascript": ["tree-sitter-javascript@0.23.1", "", { "dependencies": { "node-addon-api": "^8.2.2", "node-gyp-build": "^4.8.2" }, "peerDependencies": { "tree-sitter": "^0.21.1" }, "optionalPeers": ["tree-sitter"] }, "sha512-/bnhbrTD9frUYHQTiYnPcxyHORIw157ERBa6dqzaKxvR/x3PC4Yzd+D1pZIMS6zNg2v3a8BZ0oK7jHqsQo9fWA=="],
 

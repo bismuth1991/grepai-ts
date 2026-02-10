@@ -1,0 +1,25 @@
+diff --git a/web-tree-sitter.js b/web-tree-sitter.js
+index 449545cbe28eabba64252ea5097a7d8f0a686ba8..ce26ee5a102b69e958e289c02dc33e7a4a23f0ed 100644
+--- a/web-tree-sitter.js
++++ b/web-tree-sitter.js
+@@ -3214,11 +3214,6 @@ var Parser = class {
+     } else if (language.constructor === Language) {
+       address = language[0];
+       const version = C._ts_language_abi_version(address);
+-      if (version < MIN_COMPATIBLE_VERSION || LANGUAGE_VERSION < version) {
+-        throw new Error(
+-          `Incompatible language version ${version}. Compatibility range ${MIN_COMPATIBLE_VERSION} through ${LANGUAGE_VERSION}.`
+-        );
+-      }
+       this.language = language;
+     } else {
+       throw new Error("Argument must be a Language");
+@@ -3298,7 +3293,7 @@ var Parser = class {
+   /**
+    * Instruct the parser to start the next parse from the beginning.
+    *
+-   * If the parser previously failed because of a callback, 
++   * If the parser previously failed because of a callback,
+    * then by default, it will resume where it left off on the
+    * next call to {@link Parser#parse} or other parsing functions.
+    * If you don't want to resume, and instead intend to use this parser to

@@ -8,6 +8,7 @@ export class AstParser extends Effect.Service<AstParser>()(
   '@grepai/core/internal/services/chunker-ast/ast-parser/AstParser',
   {
     sync: () => {
+      let initialzed = false
       const languageCache: Map<SupportedLanguage, Language> = new Map()
 
       const parse = Effect.fnUntraced(function* (input: {
@@ -18,7 +19,11 @@ export class AstParser extends Effect.Service<AstParser>()(
 
         return yield* Effect.tryPromise({
           try: async () => {
-            await Parser.init()
+            if (!initialzed) {
+              await Parser.init()
+              initialzed = true
+            }
+
             const parser = new Parser()
 
             parser.reset()
@@ -53,7 +58,6 @@ export class AstParser extends Effect.Service<AstParser>()(
 export type { Node as SyntaxNode } from 'web-tree-sitter'
 
 const languageMap = {
-  typescript:
-    require.resolve('tree-sitter-typescript/tree-sitter-typescript.wasm'),
-  tsx: require.resolve('tree-sitter-typescript/tree-sitter-tsx.wasm'),
+  typescript: require.resolve('./tree-sitter-typescript.wasm'),
+  tsx: require.resolve('./tree-sitter-tsx.wasm'),
 } satisfies Record<SupportedLanguage, string>
