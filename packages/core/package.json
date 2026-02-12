@@ -20,7 +20,9 @@
     "@effect/sql": "catalog:effect",
     "@effect/sql-libsql": "catalog:effect",
     "@effect/sql-pg": "catalog:effect",
+    "@lancedb/lancedb": "catalog:lancedb",
     "ai": "catalog:ai",
+    "apache-arrow": "catalog:lancedb",
     "effect": "catalog:effect",
     "tree-sitter-typescript": "catalog:tree-sitter",
     "web-tree-sitter": "catalog:tree-sitter"

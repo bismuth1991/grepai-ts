@@ -1,8 +1,7 @@
 {
   "$schema": "packages/core/src/grepai-config-schema.json",
   "storage": {
-    "type": "postgres",
-    "connectionString": "${PG_URL}"
+    "type": "lancedb"
   },
   "embedding": {
     "provider": "google",
@@ -10,7 +9,8 @@
     "apiKey": "${GEMINI_API_KEY}",
     "dimensions": 3072,
     "maxChunkSize": 1024,
-    "targetChunkSize": 512
+    "targetChunkSize": 512,
+    "tokenizer": "gemini-embedding-001"
   },
   "include": ["**/*.ts"],
   "exclude": ["node_modules", ".opencode", ".turbo", ".cache", ".zed"]

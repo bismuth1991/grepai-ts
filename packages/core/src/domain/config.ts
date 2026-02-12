@@ -36,7 +36,14 @@ const StoragePostgres = Schema.Struct({
     }),
   ),
 })
-const Storage = Schema.Union(StorageTurso, StoragePostgres)
+const StorageLanceDb = Schema.Struct({
+  type: Schema.Literal('lancedb').pipe(
+    Schema.annotations({
+      description: 'Local LanceDB storage backend',
+    }),
+  ),
+})
+const Storage = Schema.Union(StorageTurso, StoragePostgres, StorageLanceDb)
 
 const EmbeddingGoogle = Schema.Struct({
   provider: Schema.Literal('google').pipe(

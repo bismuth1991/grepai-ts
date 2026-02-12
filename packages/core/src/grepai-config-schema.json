@@ -4,8 +4,7 @@
   "required": ["embedding", "storage"],
   "properties": {
     "$schema": {
-      "type": "string",
-      "description": "JSON Schema URL for editor validation and autocompletion"
+      "type": "string"
     },
     "embedding": {
       "type": "object",
@@ -52,14 +51,14 @@
       "items": {
         "type": "string"
       },
-      "description": "Glob patterns of files to index; bare names are auto-wrapped with **/"
+      "description": "Glob patterns of files to index"
     },
     "exclude": {
       "type": "array",
       "items": {
         "type": "string"
       },
-      "description": "Glob patterns of files to exclude; bare names are auto-wrapped with **/"
+      "description": "Glob patterns of files to exclude"
     },
     "storage": {
       "anyOf": [
@@ -95,6 +94,18 @@
             "connectionString": {
               "type": "string",
               "description": "PostgreSQL connection string (e.g. postgres://user:pass@host:port/db)"
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": ["type"],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": ["lancedb"],
+              "description": "Local LanceDB storage backend"
             }
           },
           "additionalProperties": false

@@ -2,6 +2,7 @@ import { SqlClient } from '@effect/sql'
 import { pipe } from 'effect'
 import * as Array from 'effect/Array'
 import * as Effect from 'effect/Effect'
+import * as Option from 'effect/Option'
 
 import { IndexerError, SupportedLanguage } from '../../domain'
 import { ChunkStorage } from '../../domain/chunk-storage'
@@ -13,7 +14,7 @@ export class FileIndexer extends Effect.Service<FileIndexer>()(
   '@grepai/core/internal/services/file-indexer/FileIndexer',
   {
     effect: Effect.gen(function* () {
-      const db = yield* SqlClient.SqlClient
+      const db = yield* Effect.serviceOption(SqlClient.SqlClient)
       const chunker = yield* Chunker
       const embedder = yield* Embedder
       const chunkStorage = yield* ChunkStorage
@@ -24,12 +25,18 @@ export class FileIndexer extends Effect.Service<FileIndexer>()(
           yield* pipe(
             chunkStorage.removeByFilePath(filePath),
             Effect.zipRight(documentStorage.removeByFilePath(filePath)),
-            db.withTransaction,
           )
         },
-        Effect.catchTags({
-          SqlError: (cause) => new IndexerError({ cause }),
-        }),
+        (effect) =>
+          Option.match(db, {
+            onNone: () => effect,
+            onSome: (db) =>
+              db.withTransaction(effect).pipe(
+                Effect.catchTags({
+                  SqlError: (cause) => new IndexerError({ cause }),
+                }),
+              ),
+          }),
       )
 
       const index = Effect.fnUntraced(
@@ -66,12 +73,18 @@ export class FileIndexer extends Effect.Service<FileIndexer>()(
             documentStorage.insert({ filePath, hash }),
             Effect.zipRight(chunkStorage.insertMany(chunks)),
             Effect.zipRight(chunkStorage.insertManyEmbeddings(embeddings)),
-            db.withTransaction,
           )
         },
-        Effect.catchTags({
-          SqlError: (cause) => new IndexerError({ cause }),
-        }),
+        (effect) =>
+          Option.match(db, {
+            onNone: () => effect,
+            onSome: (db) =>
+              db.withTransaction(effect).pipe(
+                Effect.catchTags({
+                  SqlError: (cause) => new IndexerError({ cause }),
+                }),
+              ),
+          }),
       )
 
       return {

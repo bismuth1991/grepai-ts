@@ -40,6 +40,10 @@
         "tree-sitter-typescript": "0.23.2",
         "tree-sitter-cli": "0.26.5",
         "web-tree-sitter": "0.26.5"
+      },
+      "lancedb": {
+        "@lancedb/lancedb": "0.26.2",
+        "apache-arrow": "18.1.0"
       }
     }
   },

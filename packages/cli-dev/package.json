@@ -1,6 +1,6 @@
 {
   "name": "@grepai/cli-dev",
-  "version": "0.6.6",
+  "version": "0.6.7",
   "scripts": {
     "build": "bun --bun build.ts",
     "clean": "git clean -xdf .cache .turbo node_modules dist",

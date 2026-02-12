@@ -17,6 +17,7 @@ const build = Effect.gen(function* () {
         sourcemap: true,
         outdir: './dist',
         external: [
+          '@lancedb/lancedb',
           '@libsql/darwin-arm64',
           '@libsql/darwin-x64',
           '@libsql/linux-arm64-gnu',

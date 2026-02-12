@@ -62,6 +62,22 @@ Create a `.grepairc.json` or `grepai-config.json` in your project root. Supports
 }
 ```
 
+### Local LanceDB Example
+
+```json
+{
+  "storage": {
+    "type": "lancedb"
+  },
+  "embedding": {
+    "provider": "google",
+    "model": "gemini-embedding-001",
+    "apiKey": "${GEMINI_API_KEY}",
+    "dimensions": 1536
+  }
+}
+```
+
 ### Advanced Configuration
 
 Full list of options:
@@ -72,9 +88,9 @@ Full list of options:
     "provider": "google",
     "model": "gemini-embedding-001",
     "apiKey": "${GEMINI_API_KEY}",
-    "dimensions": 3072,           // 768, 1536, or 3072
-    "targetChunkSize": 256,       // Preferred tokens per chunk
-    "maxChunkSize": 1024,         // Max tokens per chunk
+    "dimensions": 3072, // 768, 1536, or 3072
+    "targetChunkSize": 256, // Preferred tokens per chunk
+    "maxChunkSize": 1024, // Max tokens per chunk
     "tokenizer": "gemini-embedding-001" // or "simple"
   }
 }

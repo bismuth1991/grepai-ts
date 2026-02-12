@@ -118,3 +118,10 @@ export class PgStorageExpected extends Schema.TaggedError<PgStorageExpected>()(
   'PgStorageExpected',
   {},
 ) {}
+
+export class LanceDbError extends Schema.TaggedError<LanceDbError>()(
+  'LanceDbError',
+  {
+    cause: Schema.Defect,
+  },
+) {}

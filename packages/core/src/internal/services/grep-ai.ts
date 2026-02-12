@@ -6,15 +6,18 @@ import * as Match from 'effect/Match'
 import { ChunkStorage } from '../../domain/chunk-storage'
 import { Config } from '../../domain/config'
 
+import { ChunkStorageLanceDb } from './chunk-storage-lancedb'
 import { ChunkStorageSql } from './chunk-storage-sql'
 import { ChunkerAst } from './chunker-ast'
 import { CodebaseScannerFs } from './codebase-scanner-fs'
 import { ConfigJson } from './config-json'
+import { DocumentStorageLanceDb } from './document-storage-lancedb'
 import { DocumentStorageSql } from './document-storage-sql'
 import { EmbedderGemini } from './embedder-gemini'
 import { EmbeddingNormalizer } from './embedding-normalizer'
 import { FileIndexer } from './file-indexer'
 import { Indexer } from './indexer'
+import { LanceDbLive } from './lancedb'
 import { LibsqlLive, PgLive } from './sql'
 import { TokenCounterGemini } from './token-counter-gemini'
 import { TokenCounterSimple } from './token-counter-simple'
@@ -24,6 +27,17 @@ const GrepAiLive = Layer.unwrapEffect(
   Effect.gen(function* () {
     const config = yield* Config
 
+    const StorageSqlLiveLazy = () =>
+      Match.value(config.storage.type).pipe(
+        Match.when('turso', () => LibsqlLive),
+        Match.when('postgres', () => PgLive),
+        Match.orElseAbsurd,
+      )
+    const StorageLanceDbLiveLazy = () =>
+      Match.value(config.storage.type).pipe(
+        Match.when('lancedb', () => LanceDbLive),
+        Match.orElseAbsurd,
+      )
     const EmbedderLive = Match.value(config.embedding.provider).pipe(
       Match.when('google', () => EmbedderGemini),
       Match.exhaustive,
@@ -33,24 +47,43 @@ const GrepAiLive = Layer.unwrapEffect(
       Match.when('gemini-embedding-001', () => TokenCounterGemini),
       Match.exhaustive,
     )
-    const StorageLive = Match.value(config.storage.type).pipe(
-      Match.when('turso', () => LibsqlLive),
-      Match.when('postgres', () => PgLive),
-      Match.exhaustive,
-    )
     const DocumentStorageLive = Match.value(config.storage.type).pipe(
-      Match.when('turso', () => DocumentStorageSql),
-      Match.when('postgres', () => DocumentStorageSql),
+      Match.when('turso', () =>
+        DocumentStorageSql.pipe(Layer.provide(StorageSqlLiveLazy())),
+      ),
+      Match.when('postgres', () =>
+        DocumentStorageSql.pipe(Layer.provide(StorageSqlLiveLazy())),
+      ),
+      Match.when('lancedb', () =>
+        DocumentStorageLanceDb.pipe(Layer.provide(StorageLanceDbLiveLazy())),
+      ),
       Match.exhaustive,
     )
     const ChunkStorageLive = Match.value(config.storage.type).pipe(
-      Match.when('turso', () => ChunkStorageSql),
-      Match.when('postgres', () => ChunkStorageSql),
+      Match.when('turso', () =>
+        ChunkStorageSql.pipe(Layer.provide(StorageSqlLiveLazy())),
+      ),
+      Match.when('postgres', () =>
+        ChunkStorageSql.pipe(Layer.provide(StorageSqlLiveLazy())),
+      ),
+      Match.when('lancedb', () =>
+        ChunkStorageLanceDb.pipe(Layer.provide(StorageLanceDbLiveLazy())),
+      ),
+      Match.exhaustive,
+    )
+    const FileIndexerLive = Match.value(config.storage.type).pipe(
+      Match.when('turso', () =>
+        FileIndexer.Default.pipe(Layer.provide(StorageSqlLiveLazy())),
+      ),
+      Match.when('postgres', () =>
+        FileIndexer.Default.pipe(Layer.provide(StorageSqlLiveLazy())),
+      ),
+      Match.when('lancedb', () => FileIndexer.Default),
       Match.exhaustive,
     )
 
     return Indexer.Default.pipe(
-      Layer.provide(FileIndexer.Default),
+      Layer.provide(FileIndexerLive),
       Layer.provideMerge(ChunkStorageLive),
       Layer.provide(CodebaseScannerFs),
       Layer.provide(ChunkerAst),
@@ -64,7 +97,6 @@ const GrepAiLive = Layer.unwrapEffect(
         ),
       ),
       Layer.provide(DocumentStorageLive),
-      Layer.provideMerge(StorageLive),
     )
   }),
 ).pipe(Layer.provideMerge(ConfigJson))

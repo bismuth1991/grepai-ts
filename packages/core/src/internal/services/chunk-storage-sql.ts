@@ -210,7 +210,6 @@ export const ChunkStorageSql = Layer.effect(
           db.withTransaction,
         )
       },
-
       Effect.catchTags({
         SqlError: (cause) => new ChunkStorageError({ cause }),
       }),
