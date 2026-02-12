@@ -19,8 +19,6 @@ import { ChunkInsertInput } from '../../domain/chunk'
 import { Config } from '../../domain/config'
 import { DocumentInsertInput } from '../../domain/document'
 
-export type { VectorQuery } from '@lancedb/lancedb'
-
 const CHUNK_TABLE = 'chunks'
 const FLUSH_INSERT_QUEUE_THRESHOLD = 100
 

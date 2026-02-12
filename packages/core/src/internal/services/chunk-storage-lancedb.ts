@@ -12,7 +12,7 @@ import { ChunkStorage } from '../../domain/chunk-storage'
 import { Embedder } from '../../domain/embedder'
 import { EmbeddingA } from '../../domain/embedding'
 
-import { LanceDb, VectorQuery } from './lancedb'
+import { LanceDb } from './lancedb'
 
 export const ChunkStorageLanceDb = Layer.effect(
   ChunkStorage,
@@ -30,7 +30,8 @@ export const ChunkStorageLanceDb = Layer.effect(
 
         return yield* db
           .useTable((t) =>
-            (t.search(Array.fromIterable(queryEmbedding)) as VectorQuery)
+            t
+              .vectorSearch(Array.fromIterable(queryEmbedding))
               .distanceType('cosine')
               .limit(topK)
               .select(['filePath', 'startLine', 'endLine', '_distance'])
