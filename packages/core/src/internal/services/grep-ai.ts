@@ -14,6 +14,7 @@ import { ConfigJson } from './config-json'
 import { DocumentStorageLanceDb } from './document-storage-lancedb'
 import { DocumentStorageSql } from './document-storage-sql'
 import { EmbedderGemini } from './embedder-gemini'
+import { EmbedderOpenai } from './embedder-openai'
 import { EmbeddingNormalizer } from './embedding-normalizer'
 import { FileIndexer } from './file-indexer'
 import { Indexer } from './indexer'
@@ -40,6 +41,7 @@ const GrepAiLive = Layer.unwrapEffect(
       )
     const EmbedderLive = Match.value(config.embedding.provider).pipe(
       Match.when('google', () => EmbedderGemini),
+      Match.when('openai', () => EmbedderOpenai),
       Match.exhaustive,
     )
     const TokenCounterLive = Match.value(config.embedding.tokenizer).pipe(

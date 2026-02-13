@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "@ai-sdk/google": "catalog:ai",
+    "@ai-sdk/openai": "catalog:ai",
     "@effect/platform": "catalog:effect",
     "@effect/platform-bun": "catalog:effect",
     "@effect/sql": "catalog:effect",

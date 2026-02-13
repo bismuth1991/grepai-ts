@@ -7,43 +7,117 @@
       "type": "string"
     },
     "embedding": {
-      "type": "object",
-      "required": ["provider", "model", "apiKey", "dimensions"],
-      "properties": {
-        "provider": {
-          "type": "string",
-          "enum": ["google"],
-          "description": "Google as the embedding provider"
+      "anyOf": [
+        {
+          "type": "object",
+          "required": ["provider", "model", "apiKey"],
+          "properties": {
+            "targetChunkSize": {
+              "type": "number",
+              "description": "Preferred token count per chunk; adjacent chunks below this are merged"
+            },
+            "maxChunkSize": {
+              "type": "number",
+              "description": "Hard upper limit in tokens; AST nodes exceeding this are split recursively"
+            },
+            "provider": {
+              "type": "string",
+              "enum": ["google"]
+            },
+            "model": {
+              "type": "string",
+              "enum": ["gemini-embedding-001"]
+            },
+            "apiKey": {
+              "type": "string"
+            },
+            "dimensions": {
+              "type": "number",
+              "enum": [768, 1536, 3072],
+              "description": "Dimensionality of the embedding vectors (default 3072, capped to 1536 for Postgres)"
+            },
+            "tokenizer": {
+              "type": "string",
+              "enum": ["simple", "gemini-embedding-001"]
+            }
+          },
+          "additionalProperties": false
         },
-        "model": {
-          "type": "string",
-          "enum": ["gemini-embedding-001"],
-          "description": "Google embedding model to use"
+        {
+          "type": "object",
+          "required": ["provider", "model", "apiKey"],
+          "properties": {
+            "targetChunkSize": {
+              "type": "number",
+              "description": "Preferred token count per chunk; adjacent chunks below this are merged"
+            },
+            "maxChunkSize": {
+              "type": "number",
+              "description": "Hard upper limit in tokens; AST nodes exceeding this are split recursively"
+            },
+            "provider": {
+              "type": "string",
+              "enum": ["openai"]
+            },
+            "model": {
+              "type": "string",
+              "enum": ["text-embedding-3-small"]
+            },
+            "apiKey": {
+              "type": "string"
+            },
+            "dimensions": {
+              "type": "integer",
+              "description": "Dimensionality of the embedding vectors (max 1536)",
+              "title": "between(1, 1536)",
+              "minimum": 1,
+              "maximum": 1536
+            },
+            "tokenizer": {
+              "type": "string",
+              "enum": ["simple"]
+            }
+          },
+          "additionalProperties": false
         },
-        "apiKey": {
-          "type": "string",
-          "description": "Google API key for authentication"
-        },
-        "dimensions": {
-          "type": "number",
-          "enum": [768, 1536, 3072],
-          "description": "Dimensionality of the embedding vectors (capped to 1536 for Postgres)"
-        },
-        "targetChunkSize": {
-          "type": "number",
-          "description": "Preferred token count per chunk; adjacent chunks below this are merged"
-        },
-        "maxChunkSize": {
-          "type": "number",
-          "description": "Hard upper limit in tokens; AST nodes exceeding this are split recursively"
-        },
-        "tokenizer": {
-          "type": "string",
-          "enum": ["simple", "gemini-embedding-001"],
-          "description": "Tokenizer for chunk splitting: 'simple' estimates via char length, 'gemini-embedding-001' calls the Google API"
+        {
+          "type": "object",
+          "required": ["provider", "model", "apiKey"],
+          "properties": {
+            "targetChunkSize": {
+              "type": "number",
+              "description": "Preferred token count per chunk; adjacent chunks below this are merged"
+            },
+            "maxChunkSize": {
+              "type": "number",
+              "description": "Hard upper limit in tokens; AST nodes exceeding this are split recursively"
+            },
+            "provider": {
+              "type": "string",
+              "enum": ["openai"]
+            },
+            "model": {
+              "type": "string",
+              "enum": ["text-embedding-3-large"]
+            },
+            "apiKey": {
+              "type": "string"
+            },
+            "dimensions": {
+              "type": "integer",
+              "description": "Dimensionality of the embedding vectors (max 3072)",
+              "title": "between(1, 3072)",
+              "minimum": 1,
+              "maximum": 3072
+            },
+            "tokenizer": {
+              "type": "string",
+              "enum": ["simple"]
+            }
+          },
+          "additionalProperties": false
         }
-      },
-      "additionalProperties": false,
+      ],
       "description": "Embedding model and provider configuration"
     },
     "include": {

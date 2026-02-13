@@ -45,28 +45,7 @@ const StorageLanceDb = Schema.Struct({
 })
 const Storage = Schema.Union(StorageTurso, StoragePostgres, StorageLanceDb)
 
-const EmbeddingGoogle = Schema.Struct({
-  provider: Schema.Literal('google').pipe(
-    Schema.annotations({
-      description: 'Google as the embedding provider',
-    }),
-  ),
-  model: Schema.Literal('gemini-embedding-001').pipe(
-    Schema.annotations({
-      description: 'Google embedding model to use',
-    }),
-  ),
-  apiKey: Schema.String.pipe(
-    Schema.annotations({
-      description: 'Google API key for authentication',
-    }),
-  ),
-  dimensions: Schema.Literal(768, 1536, 3072).pipe(
-    Schema.annotations({
-      description:
-        'Dimensionality of the embedding vectors (capped to 1536 for Postgres)',
-    }),
-  ),
+const EmbeddingBase = Schema.Struct({
   targetChunkSize: Schema.Number.pipe(
     Schema.annotations({
       description:
@@ -83,16 +62,69 @@ const EmbeddingGoogle = Schema.Struct({
     Schema.optional,
     Schema.withDecodingDefault(() => 1024),
   ),
-  tokenizer: Schema.Literal('simple', 'gemini-embedding-001').pipe(
+})
+const EmbeddingGeminiEmbedding001 = Schema.Struct({
+  ...EmbeddingBase.fields,
+  provider: Schema.Literal('google'),
+  model: Schema.Literal('gemini-embedding-001'),
+  apiKey: Schema.String,
+  dimensions: Schema.Literal(768, 1536, 3072).pipe(
     Schema.annotations({
       description:
-        "Tokenizer for chunk splitting: 'simple' estimates via char length, 'gemini-embedding-001' calls the Google API",
+        'Dimensionality of the embedding vectors (default 3072, capped to 1536 for Postgres)',
     }),
     Schema.optional,
-    Schema.withDecodingDefault(() => 'gemini-embedding-001' as const),
+    Schema.withDecodingDefault(() => 3072 as const),
+  ),
+  tokenizer: Schema.Literal('simple', 'gemini-embedding-001').pipe(
+    Schema.optional,
+    Schema.withDecodingDefault(() => 'simple' as const),
   ),
 })
-const Embedding = Schema.Union(EmbeddingGoogle)
+const EmbeddingTextEmbedding3Small = Schema.Struct({
+  ...EmbeddingBase.fields,
+  provider: Schema.Literal('openai'),
+  model: Schema.Literal('text-embedding-3-small'),
+  apiKey: Schema.String,
+  dimensions: Schema.Number.pipe(
+    Schema.int(),
+    Schema.between(1, 1536),
+    Schema.annotations({
+      description: 'Dimensionality of the embedding vectors (max 1536)',
+    }),
+    Schema.optional,
+    Schema.withDecodingDefault(() => 1536 as const),
+  ),
+  tokenizer: Schema.Literal('simple').pipe(
+    Schema.optional,
+    Schema.withDecodingDefault(() => 'simple' as const),
+  ),
+})
+const EmbeddingTextEmbedding3Large = Schema.Struct({
+  ...EmbeddingBase.fields,
+  provider: Schema.Literal('openai'),
+  model: Schema.Literal('text-embedding-3-large'),
+  apiKey: Schema.String,
+  dimensions: Schema.Number.pipe(
+    Schema.int(),
+    Schema.between(1, 3072),
+    Schema.annotations({
+      description: 'Dimensionality of the embedding vectors (max 3072)',
+    }),
+    Schema.optional,
+    Schema.withDecodingDefault(() => 3072 as const),
+  ),
+  tokenizer: Schema.Literal('simple').pipe(
+    Schema.optional,
+    Schema.withDecodingDefault(() => 'simple' as const),
+  ),
+})
+
+const Embedding = Schema.Union(
+  EmbeddingGeminiEmbedding001,
+  EmbeddingTextEmbedding3Small,
+  EmbeddingTextEmbedding3Large,
+)
 
 export const GrepAiConfig = Schema.Struct({
   $schema: Schema.String.pipe(Schema.optional),
