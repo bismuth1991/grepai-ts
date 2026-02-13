@@ -78,7 +78,7 @@ const EmbeddingGeminiEmbedding001 = Schema.Struct({
   ),
   tokenizer: Schema.Literal('simple', 'gemini-embedding-001').pipe(
     Schema.optional,
-    Schema.withDecodingDefault(() => 'simple' as const),
+    Schema.withDecodingDefault(() => 'gemini-embedding-001' as const),
   ),
 })
 const EmbeddingTextEmbedding3Small = Schema.Struct({
@@ -95,9 +95,9 @@ const EmbeddingTextEmbedding3Small = Schema.Struct({
     Schema.optional,
     Schema.withDecodingDefault(() => 1536 as const),
   ),
-  tokenizer: Schema.Literal('simple').pipe(
+  tokenizer: Schema.Literal('simple', 'tiktoken').pipe(
     Schema.optional,
-    Schema.withDecodingDefault(() => 'simple' as const),
+    Schema.withDecodingDefault(() => 'tiktoken' as const),
   ),
 })
 const EmbeddingTextEmbedding3Large = Schema.Struct({
@@ -114,9 +114,9 @@ const EmbeddingTextEmbedding3Large = Schema.Struct({
     Schema.optional,
     Schema.withDecodingDefault(() => 3072 as const),
   ),
-  tokenizer: Schema.Literal('simple').pipe(
+  tokenizer: Schema.Literal('simple', 'tiktoken').pipe(
     Schema.optional,
-    Schema.withDecodingDefault(() => 'simple' as const),
+    Schema.withDecodingDefault(() => 'tiktoken' as const),
   ),
 })
 

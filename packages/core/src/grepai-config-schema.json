@@ -75,7 +75,7 @@
             },
             "tokenizer": {
               "type": "string",
-              "enum": ["simple"]
+              "enum": ["simple", "tiktoken"]
             }
           },
           "additionalProperties": false
@@ -112,7 +112,7 @@
             },
             "tokenizer": {
               "type": "string",
-              "enum": ["simple"]
+              "enum": ["simple", "tiktoken"]
             }
           },
           "additionalProperties": false

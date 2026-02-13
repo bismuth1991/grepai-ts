@@ -22,6 +22,7 @@ import { LanceDbLive } from './lancedb'
 import { LibsqlLive, PgLive } from './sql'
 import { TokenCounterGemini } from './token-counter-gemini'
 import { TokenCounterSimple } from './token-counter-simple'
+import { TokenCounterTiktoken } from './token-counter-tiktoken'
 import { VercelAi } from './vercel-ai'
 
 const GrepAiLive = Layer.unwrapEffect(
@@ -47,6 +48,7 @@ const GrepAiLive = Layer.unwrapEffect(
     const TokenCounterLive = Match.value(config.embedding.tokenizer).pipe(
       Match.when('simple', () => TokenCounterSimple),
       Match.when('gemini-embedding-001', () => TokenCounterGemini),
+      Match.when('tiktoken', () => TokenCounterTiktoken),
       Match.exhaustive,
     )
     const DocumentStorageLive = Match.value(config.storage.type).pipe(
