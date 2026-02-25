@@ -1,3 +1,4 @@
+import { Glob } from 'bun'
 import * as Array from 'effect/Array'
 import * as Effect from 'effect/Effect'
 import * as Layer from 'effect/Layer'
@@ -79,18 +80,7 @@ export const DocumentStorageLanceDb = Layer.effect(
     const glob = Effect.fnUntraced(
       function* (input: { pattern: string }) {
         const { pattern } = input
-
-        const globToRegex = (p: string) =>
-          new RegExp(
-            '^' +
-              p
-                .replace(/[.+^${}()|[\]\\]/g, '\\$&')
-                .replaceAll('*', '.*')
-                .replaceAll('?', '.') +
-              '$',
-          )
-
-        const regex = globToRegex(pattern)
+        const matcher = new Glob(pattern)
 
         return yield* db
           .useTable((t) => t.query().select(['filePath']).toArray())
@@ -104,11 +94,10 @@ export const DocumentStorageLanceDb = Layer.effect(
                 ),
               ),
             ),
+            Effect.map(Array.dedupe),
             Effect.map(
               Array.filterMap(({ filePath }) =>
-                regex.test(filePath)
-                  ? Option.some(filePath as string)
-                  : Option.none(),
+                matcher.match(filePath) ? Option.some(filePath) : Option.none(),
               ),
             ),
           )

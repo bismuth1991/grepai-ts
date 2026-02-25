@@ -1,9 +1,11 @@
 import type { DocumentInsertInput } from '../../domain/document'
 
 import { SqlClient } from '@effect/sql'
+import { Glob } from 'bun'
 import * as Array from 'effect/Array'
 import * as Effect from 'effect/Effect'
 import * as Layer from 'effect/Layer'
+import * as Option from 'effect/Option'
 import * as Schema from 'effect/Schema'
 
 import { Document } from '../../domain/document'
@@ -78,24 +80,15 @@ export const DocumentStorageSql = Layer.effect(
     const glob = Effect.fnUntraced(
       function* (input: { pattern: string }) {
         const { pattern } = input
+        const matcher = new Glob(pattern)
 
         return yield* db
           .onDialectOrElse({
-            pg: () => db`
-              SELECT
-                d.file_path
-              FROM
-                documents d
-              WHERE
-                d.file_path LIKE ${pattern.replaceAll('*', '%').replaceAll('?', '_')}
-            `,
             orElse: () => db`
               SELECT
                 d.file_path
               FROM
                 documents d
-              WHERE
-                d.file_path GLOB ${pattern}
             `,
           })
           .pipe(
@@ -104,7 +97,11 @@ export const DocumentStorageSql = Layer.effect(
                 Schema.Array(Schema.Struct({ filePath: Schema.String })),
               ),
             ),
-            Effect.map(Array.map(({ filePath }) => filePath)),
+            Effect.map(
+              Array.filterMap(({ filePath }) =>
+                matcher.match(filePath) ? Option.some(filePath) : Option.none(),
+              ),
+            ),
           )
       },
       Effect.catchTags({
