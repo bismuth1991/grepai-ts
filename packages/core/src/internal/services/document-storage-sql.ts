@@ -8,6 +8,7 @@ import * as Layer from 'effect/Layer'
 import * as Option from 'effect/Option'
 import * as Schema from 'effect/Schema'
 
+import { Config } from '../../domain/config'
 import { Document } from '../../domain/document'
 import { DocumentStorage } from '../../domain/document-storage'
 import {
@@ -20,6 +21,7 @@ export const DocumentStorageSql = Layer.effect(
   DocumentStorage,
   Effect.gen(function* () {
     const db = yield* SqlClient.SqlClient
+    const config = yield* Config
 
     const getByFilePath = Effect.fnUntraced(
       function* (filePath: string) {
@@ -100,6 +102,11 @@ export const DocumentStorageSql = Layer.effect(
             Effect.map(
               Array.filterMap(({ filePath }) =>
                 matcher.match(filePath) ? Option.some(filePath) : Option.none(),
+              ),
+            ),
+            Effect.map(
+              Array.map((filePath) =>
+                config.experimental__agentFs ? `/${filePath}` : filePath,
               ),
             ),
           )

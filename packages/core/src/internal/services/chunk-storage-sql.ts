@@ -12,6 +12,7 @@ import {
   GrepResult,
 } from '../../domain/chunk'
 import { ChunkStorage } from '../../domain/chunk-storage'
+import { Config } from '../../domain/config'
 import { Embedder } from '../../domain/embedder'
 import { ChunkStorageError, SchemaValidationFailed } from '../../domain/errors'
 
@@ -20,6 +21,22 @@ export const ChunkStorageSql = Layer.effect(
   Effect.gen(function* () {
     const db = yield* SqlClient.SqlClient
     const embedder = yield* Embedder
+    const config = yield* Config
+
+    function withNormalizedFilePath<
+      T extends {
+        filePath: string
+        [x: string]: unknown
+      },
+    >(input: T) {
+      if (config.experimental__agentFs) {
+        return {
+          ...input,
+          filePath: `/${input.filePath}`,
+        }
+      }
+      return input
+    }
 
     const search = Effect.fnUntraced(
       function* (input: { query: string; topK?: number }) {
@@ -62,6 +79,7 @@ export const ChunkStorageSql = Layer.effect(
             Effect.flatMap(
               Schema.decodeUnknown(Schema.Array(ChunkSearchResult)),
             ),
+            Effect.map(Array.map(withNormalizedFilePath)),
           )
       },
       Effect.catchTags({
@@ -101,7 +119,10 @@ export const ChunkStorageSql = Layer.effect(
               LIMIT ${limit}
             `,
           })
-          .pipe(Effect.flatMap(Schema.decodeUnknown(Schema.Array(GrepResult))))
+          .pipe(
+            Effect.flatMap(Schema.decodeUnknown(Schema.Array(GrepResult))),
+            Effect.map(Array.map(withNormalizedFilePath)),
+          )
       },
       Effect.catchTags({
         ParseError: (cause) => new SchemaValidationFailed({ cause }),

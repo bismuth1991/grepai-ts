@@ -10,6 +10,7 @@ import {
   DocumentStorageError,
   SchemaValidationFailed,
 } from '../../domain'
+import { Config } from '../../domain/config'
 import { Document } from '../../domain/document'
 import { DocumentStorage } from '../../domain/document-storage'
 
@@ -19,6 +20,7 @@ export const DocumentStorageLanceDb = Layer.effect(
   DocumentStorage,
   Effect.gen(function* () {
     const db = yield* LanceDb
+    const config = yield* Config
 
     const getByFilePath = Effect.fnUntraced(
       function* (filePath: string) {
@@ -94,10 +96,15 @@ export const DocumentStorageLanceDb = Layer.effect(
                 ),
               ),
             ),
-            Effect.map(Array.dedupe),
             Effect.map(
               Array.filterMap(({ filePath }) =>
                 matcher.match(filePath) ? Option.some(filePath) : Option.none(),
+              ),
+            ),
+            Effect.map(Array.dedupe),
+            Effect.map(
+              Array.map((filePath) =>
+                config.experimental__agentFs ? `/${filePath}` : filePath,
               ),
             ),
           )
