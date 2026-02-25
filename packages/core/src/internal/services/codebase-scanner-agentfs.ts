@@ -13,6 +13,7 @@ import { CodebaseScanner } from '../../domain/codebase-scanner'
 import { Config } from '../../domain/config'
 import { DocumentStorage } from '../../domain/document-storage'
 import { CodebaseScannerError } from '../../domain/errors'
+
 import { AgentFs } from './agentfs'
 
 export const CodebaseScannerAgentFs = Layer.scoped(
@@ -146,7 +147,9 @@ export const CodebaseScannerAgentFs = Layer.scoped(
 
             const stats = yield* agentFs
               .use((a) => a.fs.stat(fullPath))
-              .pipe(Effect.mapError((cause) => new CodebaseScannerError({ cause })))
+              .pipe(
+                Effect.mapError((cause) => new CodebaseScannerError({ cause })),
+              )
             if (stats.isDirectory()) {
               const subFiles = yield* readDirRecursiveAgentFs(fullPath)
               results.push(...subFiles)
@@ -159,51 +162,49 @@ export const CodebaseScannerAgentFs = Layer.scoped(
         return results
       })
 
-    const scanAgentFs = Effect.fnUntraced(function* () {
-      if (syncMode === 'push') {
-        const results = yield* scanFs()
-        const { new: newFiles, modified, deleted } = results
+    const scanAgentFs = Effect.fnUntraced(
+      function* () {
+        if (syncMode === 'push') {
+          const results = yield* scanFs()
+          const { new: newFiles, modified, deleted } = results
 
-        yield* Effect.forEach(
-          [...newFiles, ...modified],
-          ({ filePath, content }) =>
-            agentFs
-              .use((a) => a.fs.writeFile(filePath, content))
-              .pipe(Effect.mapError((cause) => new CodebaseScannerError({ cause }))),
-        )
-        yield* Effect.forEach(deleted, ({ filePath }) =>
-          agentFs
-            .use((a) => a.fs.deleteFile(filePath))
-            .pipe(Effect.mapError((cause) => new CodebaseScannerError({ cause }))),
-        )
-        yield* agentFs
-          .dbPush()
-          .pipe(Effect.mapError((cause) => new CodebaseScannerError({ cause })))
+          yield* Effect.forEach(
+            [...newFiles, ...modified],
+            ({ filePath, content }) =>
+              agentFs.use((a) => a.fs.writeFile(filePath, content)),
+          )
+          yield* Effect.forEach(deleted, ({ filePath }) =>
+            agentFs.use((a) => a.fs.deleteFile(filePath)),
+          )
+          yield* agentFs.dbPush()
 
-        return results
-      }
+          return results
+        }
 
-      const files = yield* readDirRecursiveAgentFs().pipe(
-        Effect.map(Array.filterMap(withLanguageOption)),
-        Effect.flatMap(
-          Effect.forEach(({ filePath, language }) =>
-            agentFs
-              .use((a) => a.fs.readFile(filePath, { encoding: 'utf-8' }))
-              .pipe(Effect.mapError((cause) => new CodebaseScannerError({ cause })))
-              .pipe(
-              Effect.map((content) => ({
-                filePath,
-                language,
-                hash: Hash.string(content).toString(),
-                content,
-              })),
+        const files = yield* readDirRecursiveAgentFs().pipe(
+          Effect.map(Array.filterMap(withLanguageOption)),
+          Effect.flatMap(
+            Effect.forEach(({ filePath, language }) =>
+              agentFs
+                .use((a) => a.fs.readFile(filePath, { encoding: 'utf-8' }))
+                .pipe(
+                  Effect.map((content) => ({
+                    filePath,
+                    language,
+                    hash: Hash.string(content).toString(),
+                    content,
+                  })),
+                ),
             ),
           ),
-        ),
-      )
+        )
 
-      return yield* toScanResults(files)
-    })
+        return yield* toScanResults(files)
+      },
+      Effect.catchTags({
+        AgentFsError: (cause) => new CodebaseScannerError({ cause }),
+      }),
+    )
 
     return CodebaseScanner.of({
       scan: scanAgentFs,

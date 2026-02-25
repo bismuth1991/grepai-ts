@@ -63,18 +63,13 @@ export const ChunkStorageLanceDb = Layer.effect(
               .limit(limit)
               .toArray(),
           )
-          .pipe(
-            Effect.flatMap(
-              Schema.decodeUnknown(Schema.Array(GrepResult)),
-            ),
-          )
+          .pipe(Effect.flatMap(Schema.decodeUnknown(Schema.Array(GrepResult))))
       },
       Effect.catchTags({
         ParseError: (cause) => new SchemaValidationFailed({ cause }),
         LanceDbError: (cause) => new ChunkStorageError({ cause }),
       }),
     )
-
 
     const getAllWithoutEmbedding = Effect.fnUntraced(function* () {
       return yield* Effect.succeed([])

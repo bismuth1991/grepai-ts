@@ -101,18 +101,13 @@ export const ChunkStorageSql = Layer.effect(
               LIMIT ${limit}
             `,
           })
-          .pipe(
-            Effect.flatMap(
-              Schema.decodeUnknown(Schema.Array(GrepResult)),
-            ),
-          )
+          .pipe(Effect.flatMap(Schema.decodeUnknown(Schema.Array(GrepResult))))
       },
       Effect.catchTags({
         ParseError: (cause) => new SchemaValidationFailed({ cause }),
         SqlError: (cause) => new ChunkStorageError({ cause }),
       }),
     )
-
 
     const getAllWithoutEmbedding = Effect.fnUntraced(
       function* () {
