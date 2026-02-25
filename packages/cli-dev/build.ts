@@ -51,6 +51,8 @@ const build = Effect.gen(function* () {
       '../core/node_modules/web-tree-sitter/web-tree-sitter.wasm',
       '../core/src/internal/services/chunker-ast/tree-sitter-tsx.wasm',
       '../core/src/internal/services/chunker-ast/tree-sitter-typescript.wasm',
+      '../core/src/internal/services/chunker-ast/tree-sitter-javascript.wasm',
+      '../core/src/internal/services/chunker-ast/tree-sitter-json.wasm',
     ],
     (wasmModule) =>
       fs.copyFile(

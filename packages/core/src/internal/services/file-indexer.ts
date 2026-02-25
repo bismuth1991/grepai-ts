@@ -4,7 +4,7 @@ import * as Array from 'effect/Array'
 import * as Effect from 'effect/Effect'
 import * as Option from 'effect/Option'
 
-import { IndexerError, SupportedLanguage } from '../../domain'
+import { IndexerError, SupportedLanguage, VercelAiError } from '../../domain'
 import { ChunkStorage } from '../../domain/chunk-storage'
 import { Chunker } from '../../domain/chunker'
 import { DocumentStorage } from '../../domain/document-storage'
@@ -67,6 +67,16 @@ export class FileIndexer extends Effect.Service<FileIndexer>()(
                   embedding,
                 })),
               ),
+              Effect.catchTags({
+                VercelAiError: (cause) => {
+                  if (cause.message.includes('at most 100 requests')) {
+                    return new VercelAiError({
+                      cause: new Error(cause.message + ' ' + input.filePath),
+                    })
+                  }
+                  return cause
+                },
+              }),
             )
 
           yield* pipe(
