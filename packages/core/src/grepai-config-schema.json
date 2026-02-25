@@ -186,6 +186,23 @@
         }
       ],
       "description": "Database backend for storing chunks and embeddings"
+    },
+    "experimental__agentFs": {
+      "type": "object",
+      "required": ["url", "authToken"],
+      "properties": {
+        "syncMode": {
+          "type": "string",
+          "enum": ["push", "pull"]
+        },
+        "url": {
+          "type": "string"
+        },
+        "authToken": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
     }
   },
   "additionalProperties": false

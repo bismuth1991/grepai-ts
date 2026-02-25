@@ -152,6 +152,14 @@ export const GrepAiConfig = Schema.Struct({
       description: 'Database backend for storing chunks and embeddings',
     }),
   ),
+  experimental__agentFs: Schema.Struct({
+    syncMode: Schema.Literal('push', 'pull').pipe(
+      Schema.optional,
+      Schema.withDecodingDefault(() => 'pull'),
+    ),
+    url: Schema.String,
+    authToken: Schema.String,
+  }).pipe(Schema.optional),
 })
 export type GrepAiConfig = typeof GrepAiConfig.Type & {
   cwd: string

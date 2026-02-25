@@ -9,6 +9,7 @@ import { Config } from '../../domain/config'
 import { ChunkStorageLanceDb } from './chunk-storage-lancedb'
 import { ChunkStorageSql } from './chunk-storage-sql'
 import { ChunkerAst } from './chunker-ast'
+import { CodebaseScannerAgentFs } from './codebase-scanner-agentfs'
 import { CodebaseScannerFs } from './codebase-scanner-fs'
 import { ConfigJson } from './config-json'
 import { DocumentStorageLanceDb } from './document-storage-lancedb'
@@ -86,10 +87,18 @@ const GrepAiLive = Layer.unwrapEffect(
       Match.exhaustive,
     )
 
+    const CodebaseScannerLive = Match.value(config.experimental__agentFs).pipe(
+      Match.when(
+        (val) => !!val,
+        () => CodebaseScannerAgentFs,
+      ),
+      Match.orElse(() => CodebaseScannerFs),
+    )
+
     return Indexer.Default.pipe(
       Layer.provide(FileIndexerLive),
       Layer.provideMerge(ChunkStorageLive),
-      Layer.provide(CodebaseScannerFs),
+      Layer.provide(CodebaseScannerLive),
       Layer.provide(ChunkerAst),
       Layer.provide(
         TokenCounterLive.pipe(Layer.provide(FetchHttpClient.layer)),

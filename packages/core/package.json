@@ -22,6 +22,8 @@
     "@effect/sql-libsql": "catalog:effect",
     "@effect/sql-pg": "catalog:effect",
     "@lancedb/lancedb": "catalog:lancedb",
+    "@tursodatabase/sync": "catalog:libsql",
+    "agentfs-sdk": "catalog:libsql",
     "ai": "catalog:ai",
     "apache-arrow": "catalog:lancedb",
     "effect": "catalog:effect",

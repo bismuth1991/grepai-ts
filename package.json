@@ -35,7 +35,9 @@
         "@libsql/linux-arm64-musl": "0.4.7",
         "@libsql/linux-x64-gnu": "0.4.7",
         "@libsql/linux-x64-musl": "0.4.7",
-        "@libsql/win32-x64-msvc": "0.4.7"
+        "@libsql/win32-x64-msvc": "0.4.7",
+        "@tursodatabase/sync": "0.4.4",
+        "agentfs-sdk": "0.6.2"
       },
       "tree-sitter": {
         "tree-sitter-typescript": "0.23.2",
