@@ -25,6 +25,7 @@ const build = Effect.gen(function* () {
           '@libsql/linux-x64-gnu',
           '@libsql/linux-x64-musl',
           '@libsql/win32-x64-msvc',
+          '@tursodatabase/database',
         ],
       }),
     catch: (error) => {

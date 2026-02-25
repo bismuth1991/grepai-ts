@@ -171,7 +171,7 @@ export const CodebaseScannerAgentFs = Layer.scoped(
           Effect.gen(function* () {
             const normalizedPath = path === '/' ? '' : path.replace(/\/$/, '')
             const normalizedEntry = entry.replace(/^\//, '')
-            const fullPath = normalizedPath + normalizedEntry
+            const fullPath = normalizedPath + '/' + normalizedEntry
 
             const stats = yield* useAgentFs((a) => a.fs.stat(fullPath))
             if (stats.isDirectory()) {

@@ -1,6 +1,6 @@
 {
   "name": "@grepai/cli",
-  "version": "0.6.9",
+  "version": "0.7.2",
   "description": "CLI for semantic code search. It uses vector embeddings to understand code meaning, enabling natural language queries that find relevant code—even when naming conventions vary.",
   "homepage": "https://github.com/bismuth1991/grepai-ts#readme",
   "bugs": {
@@ -28,7 +28,8 @@
     "publish:npm": "bun publish"
   },
   "dependencies": {
-    "@lancedb/lancedb": "catalog:lancedb"
+    "@lancedb/lancedb": "catalog:lancedb",
+    "@tursodatabase/database": "catalog:libsql"
   },
   "optionalDependencies": {
     "@libsql/darwin-arm64": "catalog:libsql",
