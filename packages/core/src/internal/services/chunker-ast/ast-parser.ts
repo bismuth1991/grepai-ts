@@ -66,4 +66,5 @@ export type { Node as SyntaxNode } from 'web-tree-sitter'
 const languageMap = {
   typescript: './tree-sitter-typescript.wasm',
   tsx: './tree-sitter-tsx.wasm',
+  json: './tree-sitter-json.wasm',
 } satisfies Record<SupportedLanguage, string>

@@ -19,7 +19,7 @@
     },
     "packages/cli-dev": {
       "name": "@grepai/cli-dev",
-      "version": "0.7.0",
+      "version": "0.7.4",
       "dependencies": {
         "@clack/prompts": "1.0.0",
         "@effect/cli": "catalog:effect",
@@ -50,6 +50,7 @@
         "apache-arrow": "catalog:lancedb",
         "effect": "catalog:effect",
         "js-tiktoken": "1.0.21",
+        "tree-sitter-json": "catalog:tree-sitter",
         "tree-sitter-typescript": "catalog:tree-sitter",
         "web-tree-sitter": "catalog:tree-sitter",
       },
@@ -61,7 +62,7 @@
     },
     "releases/cli": {
       "name": "@grepai/cli",
-      "version": "0.7.0",
+      "version": "0.7.4",
       "bin": {
         "grepai": "./index.js",
       },
@@ -143,6 +144,7 @@
     },
     "tree-sitter": {
       "tree-sitter-cli": "0.26.5",
+      "tree-sitter-json": "0.24.8",
       "tree-sitter-typescript": "0.23.2",
       "web-tree-sitter": "0.26.5",
     },
@@ -747,6 +749,8 @@
     "tree-sitter-cli": ["tree-sitter-cli@0.26.5", "", { "bin": { "tree-sitter": "cli.js" } }, "sha512-joGY67M2XUVM+ZEs7vTYmSbiDgxtwbuMf1OdKk8q1Dd6wTlbhgtU/mr3j0krBgQs2Zwom6N7vxZaqoM85b79Mw=="],
 
     "tree-sitter-javascript": ["tree-sitter-javascript@0.23.1", "", { "dependencies": { "node-addon-api": "^8.2.2", "node-gyp-build": "^4.8.2" }, "peerDependencies": { "tree-sitter": "^0.21.1" }, "optionalPeers": ["tree-sitter"] }, "sha512-/bnhbrTD9frUYHQTiYnPcxyHORIw157ERBa6dqzaKxvR/x3PC4Yzd+D1pZIMS6zNg2v3a8BZ0oK7jHqsQo9fWA=="],
+
+    "tree-sitter-json": ["tree-sitter-json@0.24.8", "", { "dependencies": { "node-addon-api": "^8.2.2", "node-gyp-build": "^4.8.2" }, "peerDependencies": { "tree-sitter": "^0.21.1" }, "optionalPeers": ["tree-sitter"] }, "sha512-Tc9ZZYwHyWZ3Tt1VEw7Pa2scu1YO7/d2BCBbKTx5hXwig3UfdQjsOPkPyLpDJOn/m1UBEWYAtSdGAwCSyagBqQ=="],
 
     "tree-sitter-typescript": ["tree-sitter-typescript@0.23.2", "", { "dependencies": { "node-addon-api": "^8.2.2", "node-gyp-build": "^4.8.2", "tree-sitter-javascript": "^0.23.1" }, "peerDependencies": { "tree-sitter": "^0.21.0" }, "optionalPeers": ["tree-sitter"] }, "sha512-e04JUUKxTT53/x3Uq1zIL45DoYKVfHH4CZqwgZhPg5qYROl5nQjV+85ruFzFGZxu+QeFVbRTPDRnqL9UbU4VeA=="],
 

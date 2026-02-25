@@ -40,6 +40,24 @@ const program = Effect.gen(function* () {
     Command.stderr('inherit'),
     Command.exitCode,
   )
+
+  yield* Command.make(
+    'bunx',
+    'tree-sitter',
+    'build',
+    '--wasm',
+    '--output',
+    path.resolve(
+      import.meta.dirname,
+      '../services/chunker-ast/tree-sitter-json.wasm',
+    ),
+    'node_modules/tree-sitter-json',
+  ).pipe(
+    Command.workingDirectory('./packages/core'),
+    Command.stdout('inherit'),
+    Command.stderr('inherit'),
+    Command.exitCode,
+  )
 })
 
 program.pipe(Effect.provide(BunContext.layer), BunRuntime.runMain)

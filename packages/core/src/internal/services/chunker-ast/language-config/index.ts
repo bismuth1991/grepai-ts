@@ -2,6 +2,7 @@ import type { SyntaxNode } from '../ast-parser'
 
 import { SupportedLanguage } from '../../../../domain'
 
+import { json } from './json'
 import { tsx } from './tsx'
 import { typescript } from './typescript'
 
@@ -16,4 +17,5 @@ export type ChunkerLanguageConfig = {
 export const languageConfig = {
   typescript,
   tsx,
+  json,
 } satisfies Record<SupportedLanguage, ChunkerLanguageConfig>

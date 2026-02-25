@@ -43,6 +43,10 @@ export const CodebaseScannerAgentFs = Layer.scoped(
           filePath,
           language: 'tsx' as const,
         })),
+        Match.when('json', () => ({
+          filePath,
+          language: 'json' as const,
+        })),
         Match.option,
       )
     }

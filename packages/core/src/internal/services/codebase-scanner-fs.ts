@@ -48,6 +48,10 @@ export const CodebaseScannerFs = Layer.effect(
                   filePath,
                   language: 'tsx' as const,
                 })),
+                Match.when('json', () => ({
+                  filePath,
+                  language: 'json' as const,
+                })),
                 Match.option,
               ),
             ),
