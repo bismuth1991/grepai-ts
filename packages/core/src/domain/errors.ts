@@ -125,3 +125,17 @@ export class LanceDbError extends Schema.TaggedError<LanceDbError>()(
     cause: Schema.Defect,
   },
 ) {}
+
+export class AgentFsError extends Schema.TaggedError<AgentFsError>()(
+  'AgentFsError',
+  {
+    cause: Schema.Defect,
+  },
+) {}
+
+export class FileReaderError extends Schema.TaggedError<FileReaderError>()(
+  'FileReaderError',
+  {
+    cause: Schema.Defect,
+  },
+) {}

@@ -4,9 +4,11 @@ import * as Layer from 'effect/Layer'
 import * as Match from 'effect/Match'
 
 import { ChunkStorage } from '../../domain/chunk-storage'
-import { DocumentStorage } from '../../domain/document-storage'
 import { Config } from '../../domain/config'
+import { DocumentStorage } from '../../domain/document-storage'
+import { FileReader } from '../../domain/file-reader'
 
+import { AgentFs } from './agentfs'
 import { ChunkStorageLanceDb } from './chunk-storage-lancedb'
 import { ChunkStorageSql } from './chunk-storage-sql'
 import { ChunkerAst } from './chunker-ast'
@@ -19,6 +21,8 @@ import { EmbedderGemini } from './embedder-gemini'
 import { EmbedderOpenai } from './embedder-openai'
 import { EmbeddingNormalizer } from './embedding-normalizer'
 import { FileIndexer } from './file-indexer'
+import { FileReaderAgentFs } from './file-reader-agentfs'
+import { FileReaderFs } from './file-reader-fs'
 import { Indexer } from './indexer'
 import { LanceDbLive } from './lancedb'
 import { LibsqlLive, PgLive } from './sql'
@@ -91,14 +95,22 @@ const GrepAiLive = Layer.unwrapEffect(
     const CodebaseScannerLive = Match.value(config.experimental__agentFs).pipe(
       Match.when(
         (val) => !!val,
-        () => CodebaseScannerAgentFs,
+        () => CodebaseScannerAgentFs.pipe(Layer.provide(AgentFs.Default)),
       ),
       Match.orElse(() => CodebaseScannerFs),
+    )
+    const FileReaderLive = Match.value(config.experimental__agentFs).pipe(
+      Match.when(
+        (val) => !!val,
+        () => FileReaderAgentFs.pipe(Layer.provide(AgentFs.Default)),
+      ),
+      Match.orElse(() => FileReaderFs),
     )
 
     return Indexer.Default.pipe(
       Layer.provide(FileIndexerLive),
       Layer.provideMerge(ChunkStorageLive),
+      Layer.provideMerge(FileReaderLive),
       Layer.provide(CodebaseScannerLive),
       Layer.provide(ChunkerAst),
       Layer.provide(
@@ -124,12 +136,14 @@ export class GrepAi extends Effect.Service<GrepAi>()(
       const indexer = yield* Indexer
       const chunkStorage = yield* ChunkStorage
       const documentStorage = yield* DocumentStorage
+      const fileReader = yield* FileReader
 
       return {
         search: chunkStorage.search,
         glob: documentStorage.glob,
         grep: chunkStorage.grep,
         index: indexer.index,
+        read: fileReader.read,
         config,
       } as const
     }),

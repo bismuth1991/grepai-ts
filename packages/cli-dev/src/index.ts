@@ -149,12 +149,39 @@ const program = Effect.gen(function* () {
     ),
   )
 
+  const readCommand = Command.make('read', {
+    filePath: Args.text({ name: 'filePath' }).pipe(
+      Args.withDescription('Path to the file to read'),
+    ),
+    offset: Options.integer('offset').pipe(
+      Options.withDefault(1),
+      Options.withDescription('Starting line number (1-indexed)'),
+    ),
+    limit: Options.integer('limit').pipe(
+      Options.withDefault(2000),
+      Options.withDescription('Maximum number of lines to read'),
+    ),
+  }).pipe(
+    Command.withDescription('Read a file with line numbers'),
+    Command.withHandler(
+      Effect.fnUntraced(function* ({ filePath, offset, limit }) {
+        const content = yield* grepAi.read({
+          filePath,
+          offset,
+          limit,
+        })
+        yield* Console.log(content)
+      }),
+    ),
+  )
+
   const command = Command.make('grepai').pipe(
     Command.withSubcommands([
       indexCommand,
       searchCommand,
       globCommand,
       grepCommand,
+      readCommand,
     ]),
   )
 
