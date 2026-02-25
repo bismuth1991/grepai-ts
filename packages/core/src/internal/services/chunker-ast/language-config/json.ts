@@ -3,13 +3,13 @@ import type { SyntaxNode } from '../ast-parser'
 import { ChunkerLanguageConfig } from '.'
 
 export const json: ChunkerLanguageConfig = {
-  isClosingSyntax: (text: string) => /^[\s\]}]+$/.test(text),
+  isClosingSyntax: (text: string) => /^[\s\]},]+$/.test(text),
 
   extractNodeName,
 
   wantedNodes: new Set(['pair']),
 
-  scopeNodes: new Set(['object', 'array', 'pair']),
+  scopeNodes: new Set(['pair']),
 
   importNodes: new Set([]),
 }

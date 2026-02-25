@@ -234,6 +234,35 @@ describe('ChunkerAst JSON Support', () => {
       }).pipe(Effect.provide(TestLive)),
     )
 
+    it.effect('does not duplicate adjacent scope segments for nested keys', () =>
+      Effect.gen(function* () {
+        const chunker = yield* Chunker
+        const result = yield* chunker.chunk({
+          filePath: '/test/no-dup-scope.json',
+          content: `{
+  "a": {
+    "b": {
+      "c": {
+        "d": true
+      },
+      "e": 1
+    },
+    "f": 2
+  }
+}`,
+          language: 'json',
+        })
+
+        expect(result.length).toBeGreaterThan(0)
+        for (const chunk of result) {
+          const header = extractContextHeader(chunk.content)
+          expect(/\ba\s*->\s*a\b/.test(header)).toBe(false)
+          expect(/\bb\s*->\s*b\b/.test(header)).toBe(false)
+          expect(/\bc\s*->\s*c\b/.test(header)).toBe(false)
+        }
+      }).pipe(Effect.provide(TestLiveTinyChunks)),
+    )
+
     it.effect('generates deterministic ids', () =>
       Effect.gen(function* () {
         const chunker = yield* Chunker
@@ -482,6 +511,42 @@ describe('ChunkerAst JSON Support', () => {
           return /^[\s)\]}>]+$/.test(body)
         })
         expect(hasClosingOnlyChunk).toBe(false)
+      }).pipe(Effect.provide(TestLiveTinyChunks)),
+    )
+
+    it.effect('does not start split chunks with commas', () =>
+      Effect.gen(function* () {
+        const chunker = yield* Chunker
+        const result = yield* chunker.chunk({
+          filePath: '/test/comma-split.json',
+          content: `{
+  "a": {
+    "nested": {
+      "deep": true
+    }
+  },
+  "b": {
+    "nested": {
+      "deep": true
+    }
+  },
+  "c": {
+    "nested": {
+      "deep": true
+    }
+  }
+}`,
+          language: 'json',
+        })
+
+        expect(result.length).toBeGreaterThan(1)
+        const hasCommaPrefixedBody = result.some((chunk, index) => {
+          if (index === 0) return false
+          const body = (chunk.content.split('---\n')[1] ?? '').trimStart()
+          return body.startsWith(',')
+        })
+
+        expect(hasCommaPrefixedBody).toBe(false)
       }).pipe(Effect.provide(TestLiveTinyChunks)),
     )
   })
