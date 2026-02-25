@@ -52,6 +52,18 @@ export const CodebaseScannerFs = Layer.effect(
                   filePath,
                   language: 'json' as const,
                 })),
+                Match.when('js', () => ({
+                  filePath,
+                  language: 'javascript' as const,
+                })),
+                Match.when('mjs', () => ({
+                  filePath,
+                  language: 'javascript' as const,
+                })),
+                Match.when('cjs', () => ({
+                  filePath,
+                  language: 'javascript' as const,
+                })),
                 Match.option,
               ),
             ),

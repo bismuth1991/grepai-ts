@@ -29,6 +29,7 @@
     "effect": "catalog:effect",
     "js-tiktoken": "1.0.21",
     "tree-sitter-json": "catalog:tree-sitter",
+    "tree-sitter-javascript": "catalog:tree-sitter",
     "tree-sitter-typescript": "catalog:tree-sitter",
     "web-tree-sitter": "catalog:tree-sitter"
   },

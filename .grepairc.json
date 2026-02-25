@@ -12,7 +12,7 @@
     "targetChunkSize": 512,
     "tokenizer": "gemini-embedding-001"
   },
-  "include": ["**/*.ts"],
+  "include": ["**/*.ts", "**/*.json"],
   "exclude": ["node_modules", ".opencode", ".turbo", ".cache", ".zed"],
   "experimental__agentFs": {
     "syncMode": "push",
