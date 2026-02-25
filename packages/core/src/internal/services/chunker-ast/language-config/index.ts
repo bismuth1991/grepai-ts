@@ -2,8 +2,8 @@ import type { SyntaxNode } from '../ast-parser'
 
 import { SupportedLanguage } from '../../../../domain'
 
-import { json } from './json'
 import { javascript } from './javascript'
+import { json } from './json'
 import { tsx } from './tsx'
 import { typescript } from './typescript'
 

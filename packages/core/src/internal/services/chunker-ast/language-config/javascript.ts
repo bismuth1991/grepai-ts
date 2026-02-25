@@ -57,10 +57,7 @@ export const javascript: ChunkerLanguageConfig = {
     'variable_declaration',
   ]),
 
-  importNodes: new Set([
-    'import_statement',
-    'export_statement',
-  ]),
+  importNodes: new Set(['import_statement', 'export_statement']),
 }
 
 function extractNodeName(node: SyntaxNode): string {
@@ -90,8 +87,7 @@ function extractNodeName(node: SyntaxNode): string {
   // For nodes with identifier children (method_definition, etc.)
   const identifierChild = node.namedChildren.find(
     (child) =>
-      child.type === 'identifier' ||
-      child.type === 'property_identifier',
+      child.type === 'identifier' || child.type === 'property_identifier',
   )
   if (identifierChild) {
     return identifierChild.text

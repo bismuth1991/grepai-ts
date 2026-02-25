@@ -547,9 +547,9 @@ function execute() {
         expect(result.length).toBeGreaterThan(0)
 
         const combinedContent = result.map((chunk) => chunk.content).join('\n')
-        expect(combinedContent.includes("import { dep } from './dep.mjs'")).toBe(
-          true,
-        )
+        expect(
+          combinedContent.includes("import { dep } from './dep.mjs'"),
+        ).toBe(true)
         expect(combinedContent.includes('function execute()')).toBe(true)
       }).pipe(Effect.provide(TestLiveTinyChunks)),
     )

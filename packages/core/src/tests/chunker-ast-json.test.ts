@@ -234,12 +234,14 @@ describe('ChunkerAst JSON Support', () => {
       }).pipe(Effect.provide(TestLive)),
     )
 
-    it.effect('does not duplicate adjacent scope segments for nested keys', () =>
-      Effect.gen(function* () {
-        const chunker = yield* Chunker
-        const result = yield* chunker.chunk({
-          filePath: '/test/no-dup-scope.json',
-          content: `{
+    it.effect(
+      'does not duplicate adjacent scope segments for nested keys',
+      () =>
+        Effect.gen(function* () {
+          const chunker = yield* Chunker
+          const result = yield* chunker.chunk({
+            filePath: '/test/no-dup-scope.json',
+            content: `{
   "a": {
     "b": {
       "c": {
@@ -250,17 +252,17 @@ describe('ChunkerAst JSON Support', () => {
     "f": 2
   }
 }`,
-          language: 'json',
-        })
+            language: 'json',
+          })
 
-        expect(result.length).toBeGreaterThan(0)
-        for (const chunk of result) {
-          const header = extractContextHeader(chunk.content)
-          expect(/\ba\s*->\s*a\b/.test(header)).toBe(false)
-          expect(/\bb\s*->\s*b\b/.test(header)).toBe(false)
-          expect(/\bc\s*->\s*c\b/.test(header)).toBe(false)
-        }
-      }).pipe(Effect.provide(TestLiveTinyChunks)),
+          expect(result.length).toBeGreaterThan(0)
+          for (const chunk of result) {
+            const header = extractContextHeader(chunk.content)
+            expect(/\ba\s*->\s*a\b/.test(header)).toBe(false)
+            expect(/\bb\s*->\s*b\b/.test(header)).toBe(false)
+            expect(/\bc\s*->\s*c\b/.test(header)).toBe(false)
+          }
+        }).pipe(Effect.provide(TestLiveTinyChunks)),
     )
 
     it.effect('generates deterministic ids', () =>
@@ -370,7 +372,9 @@ describe('ChunkerAst JSON Support', () => {
         })
 
         for (let i = 1; i < result.length; i++) {
-          expect(result[i]!.startLine).toBeGreaterThanOrEqual(result[i - 1]!.startLine)
+          expect(result[i]!.startLine).toBeGreaterThanOrEqual(
+            result[i - 1]!.startLine,
+          )
         }
       }).pipe(Effect.provide(TestLiveTinyChunks)),
     )
@@ -476,8 +480,9 @@ describe('ChunkerAst JSON Support', () => {
     it.effect('handles large arrays of objects', () =>
       Effect.gen(function* () {
         const chunker = yield* Chunker
-        const entries = Array.from({ length: 20 }, (_, i) =>
-          `{"id":${i},"name":"user-${i}"}`,
+        const entries = Array.from(
+          { length: 20 },
+          (_, i) => `{"id":${i},"name":"user-${i}"}`,
         ).join(',')
 
         const result = yield* chunker.chunk({
