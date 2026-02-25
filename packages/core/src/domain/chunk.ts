@@ -15,6 +15,14 @@ export const ChunkSearchResult = Schema.Struct({
 })
 export type ChunkSearchResult = typeof ChunkSearchResult.Type
 
+export const GrepResult = Schema.Struct({
+  filePath: Schema.String,
+  startLine: Schema.Number,
+  endLine: Schema.Number,
+  content: Schema.String,
+})
+export type GrepResult = typeof GrepResult.Type
+
 export const ChunkInsertInput = Schema.Struct({
   id: Schema.String,
   filePath: Schema.String,

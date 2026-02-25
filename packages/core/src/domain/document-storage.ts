@@ -34,5 +34,13 @@ export class DocumentStorage extends Context.Tag(
       SchemaValidationFailed | DocumentStorageError,
       never
     >
+
+    glob: (input: {
+      pattern: string
+    }) => Effect.Effect<
+      ReadonlyArray<string>,
+      DocumentStorageError | SchemaValidationFailed,
+      never
+    >
   }
 >() {}

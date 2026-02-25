@@ -9,6 +9,7 @@ import {
   ChunkEmbeddingInsertInput,
   ChunkInsertInput,
   ChunkSearchResult,
+  GrepResult,
 } from '../../domain/chunk'
 import { ChunkStorage } from '../../domain/chunk-storage'
 import { Embedder } from '../../domain/embedder'
@@ -68,6 +69,50 @@ export const ChunkStorageSql = Layer.effect(
         SqlError: (cause) => new ChunkStorageError({ cause }),
       }),
     )
+
+    const grep = Effect.fnUntraced(
+      function* (input: { pattern: string; limit?: number }) {
+        const { pattern, limit = 100 } = input
+
+        return yield* db
+          .onDialectOrElse({
+            pg: () => db`
+              SELECT
+                c.file_path
+                , c.start_line
+                , c.end_line
+                , c.content
+              FROM
+                chunks c
+              WHERE
+                POSITION(${pattern} IN c.content) > 0
+              LIMIT ${limit}
+            `,
+            orElse: () => db`
+              SELECT
+                c.file_path
+                , c.start_line
+                , c.end_line
+                , c.content
+              FROM
+                chunks c
+              WHERE
+                INSTR(c.content, ${pattern}) > 0
+              LIMIT ${limit}
+            `,
+          })
+          .pipe(
+            Effect.flatMap(
+              Schema.decodeUnknown(Schema.Array(GrepResult)),
+            ),
+          )
+      },
+      Effect.catchTags({
+        ParseError: (cause) => new SchemaValidationFailed({ cause }),
+        SqlError: (cause) => new ChunkStorageError({ cause }),
+      }),
+    )
+
 
     const getAllWithoutEmbedding = Effect.fnUntraced(
       function* () {
@@ -217,6 +262,7 @@ export const ChunkStorageSql = Layer.effect(
 
     return ChunkStorage.of({
       search,
+      grep,
       getAllWithoutEmbedding,
       insertMany,
       insertManyEmbeddings,

@@ -4,6 +4,7 @@ import * as Layer from 'effect/Layer'
 import * as Match from 'effect/Match'
 
 import { ChunkStorage } from '../../domain/chunk-storage'
+import { DocumentStorage } from '../../domain/document-storage'
 import { Config } from '../../domain/config'
 
 import { ChunkStorageLanceDb } from './chunk-storage-lancedb'
@@ -109,7 +110,7 @@ const GrepAiLive = Layer.unwrapEffect(
           Layer.provide(VercelAi.Default),
         ),
       ),
-      Layer.provide(DocumentStorageLive),
+      Layer.provideMerge(DocumentStorageLive),
     )
   }),
 ).pipe(Layer.provideMerge(ConfigJson))
@@ -122,9 +123,12 @@ export class GrepAi extends Effect.Service<GrepAi>()(
       const config = yield* Config
       const indexer = yield* Indexer
       const chunkStorage = yield* ChunkStorage
+      const documentStorage = yield* DocumentStorage
 
       return {
         search: chunkStorage.search,
+        glob: documentStorage.glob,
+        grep: chunkStorage.grep,
         index: indexer.index,
         config,
       } as const

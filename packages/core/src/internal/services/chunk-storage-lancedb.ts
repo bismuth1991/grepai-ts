@@ -7,6 +7,7 @@ import { ChunkStorageError, SchemaValidationFailed } from '../../domain'
 import {
   ChunkEmbeddingInsertInput,
   ChunkSearchResult,
+  GrepResult,
 } from '../../domain/chunk'
 import { ChunkStorage } from '../../domain/chunk-storage'
 import { Embedder } from '../../domain/embedder'
@@ -49,6 +50,32 @@ export const ChunkStorageLanceDb = Layer.effect(
       }),
     )
 
+    const grep = Effect.fnUntraced(
+      function* (input: { pattern: string; limit?: number }) {
+        const { pattern, limit = 100 } = input
+
+        return yield* db
+          .useTable((t) =>
+            t
+              .query()
+              .where(`content LIKE '%${pattern}%'`)
+              .select(['filePath', 'startLine', 'endLine', 'content'])
+              .limit(limit)
+              .toArray(),
+          )
+          .pipe(
+            Effect.flatMap(
+              Schema.decodeUnknown(Schema.Array(GrepResult)),
+            ),
+          )
+      },
+      Effect.catchTags({
+        ParseError: (cause) => new SchemaValidationFailed({ cause }),
+        LanceDbError: (cause) => new ChunkStorageError({ cause }),
+      }),
+    )
+
+
     const getAllWithoutEmbedding = Effect.fnUntraced(function* () {
       return yield* Effect.succeed([])
     })
@@ -78,6 +105,7 @@ export const ChunkStorageLanceDb = Layer.effect(
 
     return ChunkStorage.of({
       search,
+      grep,
       getAllWithoutEmbedding,
       insertMany,
       insertManyEmbeddings,

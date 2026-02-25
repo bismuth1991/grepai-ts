@@ -1,6 +1,7 @@
 import * as Array from 'effect/Array'
 import * as Effect from 'effect/Effect'
 import * as Layer from 'effect/Layer'
+import * as Option from 'effect/Option'
 import * as Schema from 'effect/Schema'
 
 import {
@@ -75,6 +76,49 @@ export const DocumentStorageLanceDb = Layer.effect(
       }),
     )
 
+    const glob = Effect.fnUntraced(
+      function* (input: { pattern: string }) {
+        const { pattern } = input
+
+        const globToRegex = (p: string) =>
+          new RegExp(
+            '^' +
+              p
+                .replace(/[.+^${}()|[\]\\]/g, '\\$&')
+                .replaceAll('*', '.*')
+                .replaceAll('?', '.') +
+              '$',
+          )
+
+        const regex = globToRegex(pattern)
+
+        return yield* db
+          .useTable((t) => t.query().select(['filePath']).toArray())
+          .pipe(
+            Effect.flatMap(
+              Schema.decodeUnknown(
+                Schema.Array(
+                  Schema.Struct({
+                    filePath: Schema.String,
+                  }),
+                ),
+              ),
+            ),
+            Effect.map(
+              Array.filterMap(({ filePath }) =>
+                regex.test(filePath)
+                  ? Option.some(filePath as string)
+                  : Option.none(),
+              ),
+            ),
+          )
+      },
+      Effect.catchTags({
+        ParseError: (cause) => new SchemaValidationFailed({ cause }),
+        LanceDbError: (cause) => new DocumentStorageError({ cause }),
+      }),
+    )
+
     const insert = db.insertDocument
 
     const removeByFilePath = Effect.fnUntraced(
@@ -89,6 +133,7 @@ export const DocumentStorageLanceDb = Layer.effect(
     return DocumentStorage.of({
       getByFilePath,
       getAll,
+      glob,
       insert,
       removeByFilePath,
     })

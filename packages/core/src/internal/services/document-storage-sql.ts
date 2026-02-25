@@ -75,6 +75,44 @@ export const DocumentStorageSql = Layer.effect(
       }),
     )
 
+    const glob = Effect.fnUntraced(
+      function* (input: { pattern: string }) {
+        const { pattern } = input
+
+        return yield* db
+          .onDialectOrElse({
+            pg: () => db`
+              SELECT
+                d.file_path
+              FROM
+                documents d
+              WHERE
+                d.file_path LIKE ${pattern.replaceAll('*', '%').replaceAll('?', '_')}
+            `,
+            orElse: () => db`
+              SELECT
+                d.file_path
+              FROM
+                documents d
+              WHERE
+                d.file_path GLOB ${pattern}
+            `,
+          })
+          .pipe(
+            Effect.flatMap(
+              Schema.decodeUnknown(
+                Schema.Array(Schema.Struct({ filePath: Schema.String })),
+              ),
+            ),
+            Effect.map(Array.map(({ filePath }) => filePath)),
+          )
+      },
+      Effect.catchTags({
+        ParseError: (cause) => new SchemaValidationFailed({ cause }),
+        SqlError: (cause) => new DocumentStorageError({ cause }),
+      }),
+    )
+
     const insert = Effect.fnUntraced(
       function* (document: DocumentInsertInput) {
         const now = new Date().toISOString()
@@ -121,6 +159,7 @@ export const DocumentStorageSql = Layer.effect(
     return DocumentStorage.of({
       getAll,
       getByFilePath,
+      glob,
       insert,
       removeByFilePath,
     })

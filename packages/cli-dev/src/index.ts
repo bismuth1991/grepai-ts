@@ -12,6 +12,35 @@ const program = Effect.gen(function* () {
   const grepAi = yield* GrepAi
   const clack = yield* Clack
 
+  type Ranges = ReadonlyArray<{
+    filePath: string
+    startLine: number
+    endLine: number
+  }>
+
+  function mergeRanges(ranges: Ranges): string {
+    return [...ranges]
+      .sort((a, b) => a.startLine - b.startLine)
+      .reduce<[number, number][]>((acc, { startLine, endLine }) => {
+        const prev = acc.at(-1)
+        if (prev && startLine <= prev[1]) {
+          prev[1] = Math.max(prev[1], endLine)
+        } else {
+          acc.push([startLine, endLine])
+        }
+        return acc
+      }, [])
+      .map(([s, e]) => `${s}-${e}`)
+      .join(', ')
+  }
+
+  function compactFileRanges(ranges: Ranges): string {
+    const grouped = Map.groupBy(ranges, (r) => r.filePath)
+    return [...grouped.entries()]
+      .map(([file, rs]) => `${file}: ${mergeRanges(rs!)}`)
+      .join('\n')
+  }
+
   const indexCommand = Command.make('index').pipe(
     Command.withDescription('Index codebase for semantic search'),
     Command.withHandler(
@@ -63,6 +92,7 @@ const program = Effect.gen(function* () {
       }),
     ),
   )
+
   const searchCommand = Command.make('search', {
     query: Args.text({ name: 'query' }).pipe(
       Args.withDescription('Natural language query'),
@@ -77,37 +107,55 @@ const program = Effect.gen(function* () {
     Command.withHandler(
       Effect.fnUntraced(function* (input) {
         const files = yield* grepAi.search(input)
-
-        function mergeRanges(ranges: typeof files): string {
-          return [...ranges]
-            .sort((a, b) => a.startLine - b.startLine)
-            .reduce<[number, number][]>((acc, { startLine, endLine }) => {
-              const prev = acc.at(-1)
-              if (prev && startLine <= prev[1]) {
-                prev[1] = Math.max(prev[1], endLine)
-              } else {
-                acc.push([startLine, endLine])
-              }
-              return acc
-            }, [])
-            .map(([s, e]) => `${s}-${e}`)
-            .join(', ')
-        }
-        function compactFileRanges(ranges: typeof files): string {
-          const grouped = Map.groupBy(ranges, (r) => r.filePath)
-
-          return [...grouped.entries()]
-            .map(([file, rs]) => `${file}: ${mergeRanges(rs!)}`)
-            .join('\n')
-        }
-
         yield* Console.log(compactFileRanges(files))
+      }),
+    ),
+  )
+  const globCommand = Command.make('glob', {
+    pattern: Args.text({ name: 'pattern' }).pipe(
+      Args.withDescription('Glob pattern to match files (e.g. "src/**/*.ts")'),
+    ),
+  }).pipe(
+    Command.withDescription('List indexed files matching a glob pattern'),
+    Command.withHandler(
+      Effect.fnUntraced(function* ({ pattern }) {
+        const files = yield* grepAi.glob({ pattern })
+        yield* Console.log(files.join('\n'))
+      }),
+    ),
+  )
+
+  const grepCommand = Command.make('grep', {
+    pattern: Args.text({ name: 'pattern' }).pipe(
+      Args.withDescription('Text pattern to search in indexed chunks'),
+    ),
+    limit: Options.integer('limit').pipe(
+      Options.withAlias('l'),
+      Options.withDefault(100),
+      Options.withDescription(
+        'Maximum number of results to return, default 100',
+      ),
+    ),
+  }).pipe(
+    Command.withDescription('Search indexed code chunks for a text pattern'),
+    Command.withHandler(
+      Effect.fnUntraced(function* ({ pattern, limit }) {
+        const results = yield* grepAi.grep({
+          pattern,
+          limit,
+        })
+        yield* Console.log(compactFileRanges(results))
       }),
     ),
   )
 
   const command = Command.make('grepai').pipe(
-    Command.withSubcommands([indexCommand, searchCommand]),
+    Command.withSubcommands([
+      indexCommand,
+      searchCommand,
+      globCommand,
+      grepCommand,
+    ]),
   )
 
   const cli = Command.run(command, {

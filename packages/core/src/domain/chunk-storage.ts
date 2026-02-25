@@ -2,6 +2,7 @@ import type {
   ChunkEmbeddingInsertInput,
   ChunkInsertInput,
   ChunkSearchResult,
+  GrepResult,
 } from './chunk'
 
 import * as Context from 'effect/Context'
@@ -24,6 +25,15 @@ export class ChunkStorage extends Context.Tag(
     }) => Effect.Effect<
       ReadonlyArray<ChunkSearchResult>,
       ChunkStorageError | SchemaValidationFailed | VercelAiError,
+      never
+    >
+
+    grep: (input: {
+      pattern: string
+      limit?: number
+    }) => Effect.Effect<
+      ReadonlyArray<GrepResult>,
+      ChunkStorageError | SchemaValidationFailed,
       never
     >
 
