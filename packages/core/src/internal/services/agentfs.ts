@@ -25,29 +25,28 @@ export class AgentFs extends Effect.Service<AgentFs>()(
 
       yield* fs.makeDirectory(baseAgentFsLocalPath, { recursive: true })
 
-      const db = yield* Effect.tryPromise({
-        try: async () => {
-          const db = await connect({
-            path: path.join(baseAgentFsLocalPath, 'local.db'),
-            url,
-            authToken,
-            clientName: 'grepai',
-          })
-          if (syncMode === 'pull') {
-            await db.pull().catch((e) => {
-              if (
-                e instanceof Error &&
-                e.message.includes('File is locked by another process')
-              ) {
-                return
-              }
-              throw e
-            })
-          }
-          return db
-        },
-        catch: (cause) => new AgentFsError({ cause }),
-      })
+      const db = yield* Effect.firstSuccessOf([
+        Effect.tryPromise({
+          try: () =>
+            connect({
+              path: path.join(baseAgentFsLocalPath, 'local.db'),
+              url,
+              authToken,
+              clientName: 'grepai',
+            }),
+          catch: (cause) => new AgentFsError({ cause }),
+        }),
+        Effect.tryPromise({
+          try: () =>
+            connect({
+              path: ':memory:',
+              url,
+              authToken,
+              clientName: 'grepai',
+            }),
+          catch: (cause) => new AgentFsError({ cause }),
+        }),
+      ])
 
       const agentFs = yield* Effect.tryPromise({
         try: () => AgentFS.openWith(db),
@@ -64,13 +63,27 @@ export class AgentFs extends Effect.Service<AgentFs>()(
 
       const dbPull = () =>
         Effect.tryPromise({
-          try: () => db.pull(),
+          try: async () => {
+            if (syncMode === 'pull') {
+              return db.pull()
+            }
+            throw new Error(
+              '`experimental__agentFs.syncMode` is not set to "pull"',
+            )
+          },
           catch: (cause) => new AgentFsError({ cause }),
         })
 
       const dbPush = () =>
         Effect.tryPromise({
-          try: () => db.push(),
+          try: async () => {
+            if (syncMode === 'push') {
+              return db.push()
+            }
+            throw new Error(
+              '`experimental__agentFs.syncMode` is not set to "push"',
+            )
+          },
           catch: (cause) => new AgentFsError({ cause }),
         })
 
