@@ -12,10 +12,8 @@
     "targetChunkSize": 512,
     "tokenizer": "simple"
   },
-  "include": ["./.opensource/effect/packages/**/*.ts"],
-  "exclude": ["node_modules"],
   "experimental__agentFs": {
-    "syncMode": "push",
+    "syncMode": "pull",
     "url": "${AGENT_FS_EFFECT_URL}",
     "authToken": "${AGENT_FS_EFFECT_AUTH_TOKEN}"
   }

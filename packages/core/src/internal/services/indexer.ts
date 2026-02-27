@@ -73,7 +73,7 @@ export class Indexer extends Effect.Service<Indexer>()(
             concurrency: Match.value(config.storage.type).pipe(
               Match.when('turso', () => 1),
               Match.when('postgres', () => 100),
-              Match.when('lancedb', () => 10),
+              Match.when('lancedb', () => 50),
               Match.exhaustive,
             ),
           },
@@ -93,7 +93,7 @@ export class Indexer extends Effect.Service<Indexer>()(
             concurrency: Match.value(config.storage.type).pipe(
               Match.when('turso', () => 1),
               Match.when('postgres', () => 100),
-              Match.when('lancedb', () => 10),
+              Match.when('lancedb', () => 50),
               Match.exhaustive,
             ),
           },

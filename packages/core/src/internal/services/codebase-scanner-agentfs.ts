@@ -5,6 +5,7 @@ import * as Hash from 'effect/Hash'
 import * as Layer from 'effect/Layer'
 import * as Match from 'effect/Match'
 import * as Record from 'effect/Record'
+import * as Schedule from 'effect/Schedule'
 import { globSync } from 'fast-glob'
 
 import { SupportedLanguage } from '../../domain'
@@ -188,7 +189,18 @@ export const CodebaseScannerAgentFs = Layer.scoped(
           yield* Effect.forEach(
             [...newFiles, ...modified],
             ({ filePath, content }) =>
-              agentFs.use((a) => a.fs.writeFile(filePath, content)),
+              agentFs
+                .use((a) => a.fs.writeFile(filePath, content))
+                .pipe(
+                  Effect.retry({
+                    times: 10,
+                    schedule: Schedule.exponential('50 millis'),
+                    while: (cause) =>
+                      cause.message.includes(
+                        'UNIQUE constraint failed: fs_dentry',
+                      ),
+                  }),
+                ),
             { concurrency: 'unbounded' },
           )
           yield* Effect.forEach(

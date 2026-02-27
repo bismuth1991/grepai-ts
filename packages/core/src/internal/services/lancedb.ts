@@ -20,7 +20,7 @@ import { Config } from '../../domain/config'
 import { DocumentInsertInput } from '../../domain/document'
 
 const CHUNK_TABLE = 'chunks'
-const FLUSH_INSERT_QUEUE_THRESHOLD = 100
+const FLUSH_INSERT_QUEUE_THRESHOLD = 1000
 
 export class LanceDb extends Effect.Service<LanceDb>()(
   '@grepai/core/internal/services/lancedb',
@@ -108,10 +108,7 @@ export class LanceDb extends Effect.Service<LanceDb>()(
           }),
         )
 
-        if (
-          Record.keys(documentInsertQueue).length >=
-          FLUSH_INSERT_QUEUE_THRESHOLD
-        ) {
+        if (insertQueue.length >= FLUSH_INSERT_QUEUE_THRESHOLD) {
           yield* flushInsertQueue()
         }
       })
