@@ -27,6 +27,7 @@
     "ai": "catalog:ai",
     "apache-arrow": "catalog:lancedb",
     "effect": "catalog:effect",
+    "fast-glob": "3.3.3",
     "js-tiktoken": "1.0.21",
     "tree-sitter-javascript": "catalog:tree-sitter",
     "tree-sitter-json": "catalog:tree-sitter",

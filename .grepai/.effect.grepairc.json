@@ -1,0 +1,22 @@
+{
+  "$schema": "../packages/core/src/grepai-config-schema.json",
+  "storage": {
+    "type": "lancedb"
+  },
+  "embedding": {
+    "provider": "google",
+    "model": "gemini-embedding-001",
+    "apiKey": "${GEMINI_API_KEY}",
+    "dimensions": 3072,
+    "maxChunkSize": 1024,
+    "targetChunkSize": 512,
+    "tokenizer": "simple"
+  },
+  "include": ["./.opensource/effect/packages/**/*.ts"],
+  "exclude": ["node_modules"],
+  "experimental__agentFs": {
+    "syncMode": "push",
+    "url": "${AGENT_FS_EFFECT_URL}",
+    "authToken": "${AGENT_FS_EFFECT_AUTH_TOKEN}"
+  }
+}

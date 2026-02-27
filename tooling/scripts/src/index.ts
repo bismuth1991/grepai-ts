@@ -1,11 +1,11 @@
 import { Command } from '@effect/cli'
 import { BunContext, BunRuntime } from '@effect/platform-bun'
-import { VercelAi } from '@grepai/core'
 import * as Effect from 'effect/Effect'
 import * as Layer from 'effect/Layer'
 
 import { git } from './internal/git'
 import { Git } from './internal/services/git'
+import { VercelAi } from './internal/services/vercel-ai'
 
 const program = Effect.gen(function* () {
   const gitCommand = yield* git

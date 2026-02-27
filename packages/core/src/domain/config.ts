@@ -163,4 +163,5 @@ export const GrepAiConfig = Schema.Struct({
 })
 export type GrepAiConfig = typeof GrepAiConfig.Type & {
   cwd: string
+  project: string
 }

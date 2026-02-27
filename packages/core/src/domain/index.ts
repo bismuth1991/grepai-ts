@@ -9,3 +9,5 @@ const SupportedLanguage = Schema.Literal(
 export type SupportedLanguage = typeof SupportedLanguage.Type
 
 export * from './errors'
+
+export { GrepAiConfig, Config } from './config'

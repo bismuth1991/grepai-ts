@@ -10,11 +10,12 @@
     "typecheck": "tsc --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
+    "@ai-sdk/google": "catalog:ai",
     "@dotenvx/dotenvx": "catalog:",
     "@effect/cli": "catalog:effect",
     "@effect/platform": "catalog:effect",
     "@effect/platform-bun": "catalog:effect",
-    "@grepai/core": "workspace:*",
+    "ai": "catalog:ai",
     "effect": "catalog:effect"
   },
   "devDependencies": {

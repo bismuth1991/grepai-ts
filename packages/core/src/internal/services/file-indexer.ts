@@ -58,26 +58,30 @@ export class FileIndexer extends Effect.Service<FileIndexer>()(
             return
           }
 
-          const embeddings = yield* embedder
-            .embedMany(Array.map(chunks, ({ content }) => content))
-            .pipe(
-              Effect.map(
-                Array.map((embedding, index) => ({
-                  chunkId: chunks[index]!.id,
-                  embedding,
-                })),
+          const chunkBatches = Array.chunksOf(chunks, 100)
+
+          const embeddings = yield* Effect.forEach(chunkBatches, (chunks) =>
+            embedder
+              .embedMany(Array.map(chunks, ({ content }) => content))
+              .pipe(
+                Effect.map(
+                  Array.map((embedding, index) => ({
+                    chunkId: chunks[index]!.id,
+                    embedding,
+                  })),
+                ),
+                Effect.catchTags({
+                  VercelAiError: (cause) => {
+                    if (cause.message.includes('at most 100 requests')) {
+                      return new VercelAiError({
+                        cause: new Error(cause.message + ' ' + input.filePath),
+                      })
+                    }
+                    return cause
+                  },
+                }),
               ),
-              Effect.catchTags({
-                VercelAiError: (cause) => {
-                  if (cause.message.includes('at most 100 requests')) {
-                    return new VercelAiError({
-                      cause: new Error(cause.message + ' ' + input.filePath),
-                    })
-                  }
-                  return cause
-                },
-              }),
-            )
+          ).pipe(Effect.map(Array.flatten))
 
           yield* pipe(
             documentStorage.insert({ filePath, hash }),

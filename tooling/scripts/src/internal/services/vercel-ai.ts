@@ -1,22 +1,22 @@
 import { createGoogleGenerativeAI } from '@ai-sdk/google'
-import { createOpenAI } from '@ai-sdk/openai'
 import { embed, embedMany, generateText } from 'ai'
+import * as Config from 'effect/Config'
 import * as Effect from 'effect/Effect'
+import * as Schema from 'effect/Schema'
 
-import { Config } from '../../domain/config'
-import { VercelAiError } from '../../domain/errors'
+class VercelAiError extends Schema.TaggedError<VercelAiError>()(
+  'VercelAiError',
+  { cause: Schema.Defect },
+) {}
 
 export class VercelAi extends Effect.Service<VercelAi>()(
   '@grepai/core/internal/services/vercel-ai/VercelAi',
   {
     effect: Effect.gen(function* () {
-      const config = yield* Config
+      const geminiApiKey = yield* Config.string('GEMINI_API_KEY')
 
       const google = createGoogleGenerativeAI({
-        apiKey: config.embedding.apiKey,
-      })
-      const openai = createOpenAI({
-        apiKey: config.embedding.apiKey,
+        apiKey: geminiApiKey,
       })
 
       const ai = {
@@ -24,7 +24,6 @@ export class VercelAi extends Effect.Service<VercelAi>()(
         embedMany,
         generateText,
         google,
-        openai,
       }
 
       const use = <T>(f: (ai: Ai) => Promise<T>) =>
@@ -43,5 +42,4 @@ type Ai = {
   embedMany: typeof embedMany
   generateText: typeof generateText
   google: ReturnType<typeof createGoogleGenerativeAI>
-  openai: ReturnType<typeof createOpenAI>
 }

@@ -1,5 +1,3 @@
-import { globSync } from 'node:fs'
-
 import { FileSystem } from '@effect/platform'
 import * as Array from 'effect/Array'
 import * as Effect from 'effect/Effect'
@@ -7,6 +5,7 @@ import * as Hash from 'effect/Hash'
 import * as Layer from 'effect/Layer'
 import * as Match from 'effect/Match'
 import * as Record from 'effect/Record'
+import { globSync } from 'fast-glob'
 
 import { CodebaseScanner } from '../../domain/codebase-scanner'
 import { Config } from '../../domain/config'
@@ -24,9 +23,9 @@ export const CodebaseScannerFs = Layer.effect(
       function* () {
         const files = yield* Effect.try({
           try: () =>
-            globSync(config.include, {
+            globSync(Array.fromIterable(config.include), {
               cwd: config.cwd,
-              exclude: config.exclude.map((pattern) => {
+              ignore: config.exclude.map((pattern) => {
                 const hasPathSep =
                   pattern.includes('/') || pattern.includes('\\')
                 if (!hasPathSep) {
@@ -69,15 +68,17 @@ export const CodebaseScannerFs = Layer.effect(
             ),
           ),
           Effect.flatMap(
-            Effect.forEach(({ filePath, language }) =>
-              fs.readFileString(filePath).pipe(
-                Effect.map((content) => ({
-                  filePath,
-                  language,
-                  hash: Hash.string(content).toString(),
-                  content,
-                })),
-              ),
+            Effect.forEach(
+              ({ filePath, language }) =>
+                fs.readFileString(filePath).pipe(
+                  Effect.map((content) => ({
+                    filePath,
+                    language,
+                    hash: Hash.string(content).toString(),
+                    content,
+                  })),
+                ),
+              { concurrency: 'unbounded' },
             ),
           ),
         )

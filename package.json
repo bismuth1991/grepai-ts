@@ -64,7 +64,7 @@
     "lint": "turbo lint --continue",
     "lint:fix": "turbo run lint --continue -- --fix",
     "format": "turbo run format",
-    "postinstall": "bun --bun ./packages/core/src/internal/scripts/build-tree-sitter-wasm.ts",
+    "postinstall": "bun --bun ./packages/core/src/internal/scripts/postinstall",
     "publish:npm": "turbo run publish:npm",
     "test": "bun --bun run ./node_modules/.bin/vitest -u run",
     "typecheck": "turbo run typecheck",

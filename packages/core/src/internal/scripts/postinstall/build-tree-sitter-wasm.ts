@@ -1,8 +1,7 @@
 import { Command, Path } from '@effect/platform'
-import { BunContext, BunRuntime } from '@effect/platform-bun'
 import * as Effect from 'effect/Effect'
 
-const program = Effect.gen(function* () {
+export const buildTreeSitterWasm = Effect.fnUntraced(function* () {
   const path = yield* Path.Path
 
   yield* Command.make(
@@ -13,7 +12,7 @@ const program = Effect.gen(function* () {
     '--output',
     path.resolve(
       import.meta.dirname,
-      '../services/chunker-ast/tree-sitter-typescript.wasm',
+      '../../services/chunker-ast/tree-sitter-typescript.wasm',
     ),
     'node_modules/tree-sitter-typescript/typescript',
   ).pipe(
@@ -31,7 +30,7 @@ const program = Effect.gen(function* () {
     '--output',
     path.resolve(
       import.meta.dirname,
-      '../services/chunker-ast/tree-sitter-tsx.wasm',
+      '../../services/chunker-ast/tree-sitter-tsx.wasm',
     ),
     'node_modules/tree-sitter-typescript/tsx',
   ).pipe(
@@ -49,7 +48,7 @@ const program = Effect.gen(function* () {
     '--output',
     path.resolve(
       import.meta.dirname,
-      '../services/chunker-ast/tree-sitter-json.wasm',
+      '../../services/chunker-ast/tree-sitter-json.wasm',
     ),
     'node_modules/tree-sitter-json',
   ).pipe(
@@ -67,7 +66,7 @@ const program = Effect.gen(function* () {
     '--output',
     path.resolve(
       import.meta.dirname,
-      '../services/chunker-ast/tree-sitter-javascript.wasm',
+      '../../services/chunker-ast/tree-sitter-javascript.wasm',
     ),
     'node_modules/tree-sitter-javascript',
   ).pipe(
@@ -77,5 +76,3 @@ const program = Effect.gen(function* () {
     Command.exitCode,
   )
 })
-
-program.pipe(Effect.provide(BunContext.layer), BunRuntime.runMain)

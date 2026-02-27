@@ -21,7 +21,10 @@ export class AgentFs extends Effect.Service<AgentFs>()(
       }
 
       const { authToken, url, syncMode } = config.experimental__agentFs
-      const baseAgentFsLocalPath = path.resolve(config.cwd, './.grepai/agentfs')
+      const baseAgentFsLocalPath = path.resolve(
+        config.cwd,
+        `./.grepai/${config.project}/agentfs`,
+      )
 
       yield* fs.makeDirectory(baseAgentFsLocalPath, { recursive: true })
 
@@ -63,14 +66,7 @@ export class AgentFs extends Effect.Service<AgentFs>()(
 
       const dbPull = () =>
         Effect.tryPromise({
-          try: async () => {
-            if (syncMode === 'pull') {
-              return db.pull()
-            }
-            throw new Error(
-              '`experimental__agentFs.syncMode` is not set to "pull"',
-            )
-          },
+          try: () => db.pull(),
           catch: (cause) => new AgentFsError({ cause }),
         })
 

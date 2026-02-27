@@ -14,7 +14,6 @@ import { ChunkStorageSql } from './chunk-storage-sql'
 import { ChunkerAst } from './chunker-ast'
 import { CodebaseScannerAgentFs } from './codebase-scanner-agentfs'
 import { CodebaseScannerFs } from './codebase-scanner-fs'
-import { ConfigJson } from './config-json'
 import { DocumentStorageLanceDb } from './document-storage-lancedb'
 import { DocumentStorageSql } from './document-storage-sql'
 import { EmbedderGemini } from './embedder-gemini'
@@ -125,7 +124,7 @@ const GrepAiLive = Layer.unwrapEffect(
       Layer.provideMerge(DocumentStorageLive),
     )
   }),
-).pipe(Layer.provideMerge(ConfigJson))
+)
 
 export class GrepAi extends Effect.Service<GrepAi>()(
   '@grepai/core/internal/services/grep-ai/GrepAi',

@@ -1,5 +1,5 @@
 {
-  "$schema": "packages/core/src/grepai-config-schema.json",
+  "$schema": "../packages/core/src/grepai-config-schema.json",
   "storage": {
     "type": "lancedb"
   },
@@ -13,7 +13,14 @@
     "tokenizer": "gemini-embedding-001"
   },
   "include": ["**/*.ts", "**/*.json"],
-  "exclude": ["node_modules", ".opencode", ".turbo", ".cache", ".zed"],
+  "exclude": [
+    "node_modules",
+    ".opensource",
+    ".opencode",
+    ".turbo",
+    ".cache",
+    ".zed"
+  ],
   "experimental__agentFs": {
     "syncMode": "push",
     "url": "${AGENT_FS_URL}",

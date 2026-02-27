@@ -1,5 +1,3 @@
-import { globSync } from 'node:fs'
-
 import { FileSystem } from '@effect/platform'
 import * as Array from 'effect/Array'
 import * as Effect from 'effect/Effect'
@@ -7,6 +5,7 @@ import * as Hash from 'effect/Hash'
 import * as Layer from 'effect/Layer'
 import * as Match from 'effect/Match'
 import * as Record from 'effect/Record'
+import { globSync } from 'fast-glob'
 
 import { SupportedLanguage } from '../../domain'
 import { CodebaseScanner } from '../../domain/codebase-scanner'
@@ -22,9 +21,7 @@ export const CodebaseScannerAgentFs = Layer.scoped(
     const fs = yield* FileSystem.FileSystem
     const config = yield* Config
     const documentStorage = yield* DocumentStorage
-    const agentFs = yield* AgentFs.pipe(
-      Effect.mapError((cause) => new CodebaseScannerError({ cause })),
-    )
+    const agentFs = yield* AgentFs
 
     if (!config.experimental__agentFs) {
       return yield* new CodebaseScannerError({
@@ -110,30 +107,34 @@ export const CodebaseScannerAgentFs = Layer.scoped(
       function* () {
         const files = yield* Effect.try({
           try: () =>
-            globSync(config.include, {
+            globSync(Array.fromIterable(config.include), {
               cwd: config.cwd,
-              exclude: config.exclude.map((pattern) => {
-                const hasPathSep =
-                  pattern.includes('/') || pattern.includes('\\')
-                if (!hasPathSep) {
-                  return `**/${pattern}`
-                }
-                return pattern
-              }),
+              ignore: Array.fromIterable(
+                config.exclude.map((pattern) => {
+                  const hasPathSep =
+                    pattern.includes('/') || pattern.includes('\\')
+                  if (!hasPathSep) {
+                    return `**/${pattern}`
+                  }
+                  return pattern
+                }),
+              ),
             }),
           catch: (cause) => new CodebaseScannerError({ cause }),
         }).pipe(
           Effect.map(Array.filterMap(withLanguageOption)),
           Effect.flatMap(
-            Effect.forEach(({ filePath, language }) =>
-              fs.readFileString(filePath).pipe(
-                Effect.map((content) => ({
-                  filePath,
-                  language,
-                  hash: Hash.string(content).toString(),
-                  content,
-                })),
-              ),
+            Effect.forEach(
+              ({ filePath, language }) =>
+                fs.readFileString(filePath).pipe(
+                  Effect.map((content) => ({
+                    filePath,
+                    language,
+                    hash: Hash.string(content).toString(),
+                    content,
+                  })),
+                ),
+              { concurrency: 'unbounded' },
             ),
           ),
         )
@@ -188,9 +189,12 @@ export const CodebaseScannerAgentFs = Layer.scoped(
             [...newFiles, ...modified],
             ({ filePath, content }) =>
               agentFs.use((a) => a.fs.writeFile(filePath, content)),
+            { concurrency: 'unbounded' },
           )
-          yield* Effect.forEach(deleted, ({ filePath }) =>
-            agentFs.use((a) => a.fs.deleteFile(filePath)),
+          yield* Effect.forEach(
+            deleted,
+            ({ filePath }) => agentFs.use((a) => a.fs.deleteFile(filePath)),
+            { concurrency: 'unbounded' },
           )
           yield* agentFs.dbPush()
 
@@ -200,17 +204,19 @@ export const CodebaseScannerAgentFs = Layer.scoped(
         const files = yield* readDirRecursiveAgentFs().pipe(
           Effect.map(Array.filterMap(withLanguageOption)),
           Effect.flatMap(
-            Effect.forEach(({ filePath, language }) =>
-              agentFs
-                .use((a) => a.fs.readFile(filePath, { encoding: 'utf-8' }))
-                .pipe(
-                  Effect.map((content) => ({
-                    filePath,
-                    language,
-                    hash: Hash.string(content).toString(),
-                    content,
-                  })),
-                ),
+            Effect.forEach(
+              ({ filePath, language }) =>
+                agentFs
+                  .use((a) => a.fs.readFile(filePath, { encoding: 'utf-8' }))
+                  .pipe(
+                    Effect.map((content) => ({
+                      filePath,
+                      language,
+                      hash: Hash.string(content).toString(),
+                      content,
+                    })),
+                  ),
+              { concurrency: 'unbounded' },
             ),
           ),
         )
