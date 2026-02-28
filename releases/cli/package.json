@@ -29,7 +29,7 @@
   },
   "dependencies": {
     "@lancedb/lancedb": "catalog:lancedb",
-    "@tursodatabase/database": "catalog:libsql"
+    "@tursodatabase/sync": "catalog:libsql"
   },
   "optionalDependencies": {
     "@libsql/darwin-arm64": "catalog:libsql",

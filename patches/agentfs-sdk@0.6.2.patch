@@ -1,0 +1,10 @@
+diff --git a/dist/index_node.js b/dist/index_node.js
+index 1a11a955f23079e6fdfd70152cc1d6eaf8add62e..48fa764b5c6e626286974625940426e55f42b374 100644
+--- a/dist/index_node.js
++++ b/dist/index_node.js
+@@ -1,4 +1,4 @@
+-import { Database } from "@tursodatabase/database";
++import { Database } from "@tursodatabase/sync";
+ import { existsSync, mkdirSync } from "fs";
+ import { AgentFSCore } from "./agentfs.js";
+ import { KvStore } from "./kvstore.js";

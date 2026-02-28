@@ -19,7 +19,7 @@
     },
     "packages/cli-dev": {
       "name": "@grepai/cli-dev",
-      "version": "0.7.8",
+      "version": "0.8.2",
       "dependencies": {
         "@clack/prompts": "1.0.0",
         "@effect/cli": "catalog:effect",
@@ -64,13 +64,13 @@
     },
     "releases/cli": {
       "name": "@grepai/cli",
-      "version": "0.7.8",
+      "version": "0.8.2",
       "bin": {
         "grepai": "./index.js",
       },
       "dependencies": {
         "@lancedb/lancedb": "catalog:lancedb",
-        "@tursodatabase/database": "catalog:libsql",
+        "@tursodatabase/sync": "catalog:libsql",
       },
       "optionalDependencies": {
         "@libsql/darwin-arm64": "catalog:libsql",
@@ -104,8 +104,9 @@
     },
   },
   "patchedDependencies": {
-    "libsql@0.4.7": "patches/libsql@0.4.7.patch",
+    "agentfs-sdk@0.6.2": "patches/agentfs-sdk@0.6.2.patch",
     "web-tree-sitter@0.26.5": "patches/web-tree-sitter@0.26.5.patch",
+    "libsql@0.4.7": "patches/libsql@0.4.7.patch",
   },
   "catalog": {
     "@dotenvx/dotenvx": "1.52.0",
@@ -141,7 +142,6 @@
       "@libsql/linux-x64-gnu": "0.4.7",
       "@libsql/linux-x64-musl": "0.4.7",
       "@libsql/win32-x64-msvc": "0.4.7",
-      "@tursodatabase/database": "0.4.4",
       "@tursodatabase/sync": "0.4.4",
       "agentfs-sdk": "0.6.2",
     },
