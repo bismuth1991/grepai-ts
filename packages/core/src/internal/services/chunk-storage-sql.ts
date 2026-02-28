@@ -32,7 +32,9 @@ export const ChunkStorageSql = Layer.effect(
       if (config.experimental__agentFs) {
         return {
           ...input,
-          filePath: `/${input.filePath}`,
+          filePath: input.filePath.startsWith('/')
+            ? input.filePath
+            : `/${input.filePath}`,
         }
       }
       return input
