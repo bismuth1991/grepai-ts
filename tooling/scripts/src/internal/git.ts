@@ -1,10 +1,10 @@
 import { Command, Prompt } from '@effect/cli'
 import { FileSystem } from '@effect/platform'
-import { VercelAi } from '@grepai/core'
 import * as Effect from 'effect/Effect'
 import * as String from 'effect/String'
 
 import { Git } from './services/git'
+import { VercelAi } from './services/vercel-ai'
 
 export const git = Effect.gen(function* () {
   const fs = yield* FileSystem.FileSystem
