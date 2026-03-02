@@ -9,7 +9,7 @@ import * as Effect from 'effect/Effect'
 import * as Layer from 'effect/Layer'
 import * as Schema from 'effect/Schema'
 
-export function layer(project?: string) {
+export function layer(project?: string, experimental__agentFsSync = false) {
   return Layer.effect(
     Config,
     Effect.gen(function* () {
@@ -32,6 +32,21 @@ export function layer(project?: string) {
           project: project ?? 'default',
           cwd,
         })),
+        Effect.map((config) => {
+          const agentFsConfig = config.experimental__agentFs
+          if (agentFsConfig) {
+            return {
+              ...config,
+              experimental__agentFs: {
+                ...agentFsConfig,
+                syncMode: experimental__agentFsSync
+                  ? agentFsConfig.syncMode
+                  : undefined,
+              },
+            }
+          }
+          return config
+        }),
         Effect.catchTags({
           ParseError: (cause) => new ConfigLoaderError({ cause }),
           BadArgument: (cause) => new ConfigLoaderError({ cause }),

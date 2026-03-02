@@ -33,7 +33,7 @@ export class AgentFs extends Effect.Service<AgentFs>()(
         try: () =>
           connect({
             path: path.join(baseAgentFsLocalPath, 'local.db'),
-            url,
+            url: () => (syncMode ? url : null),
             authToken,
             clientName: 'grepai',
           }),

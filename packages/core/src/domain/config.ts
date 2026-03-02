@@ -153,10 +153,7 @@ export const GrepAiConfig = Schema.Struct({
     }),
   ),
   experimental__agentFs: Schema.Struct({
-    syncMode: Schema.Literal('push', 'pull').pipe(
-      Schema.optional,
-      Schema.withDecodingDefault(() => 'pull'),
-    ),
+    syncMode: Schema.Literal('push', 'pull').pipe(Schema.optional),
     url: Schema.String,
     authToken: Schema.String,
   }).pipe(Schema.optional),

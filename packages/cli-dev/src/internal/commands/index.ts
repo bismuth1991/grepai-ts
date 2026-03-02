@@ -80,7 +80,7 @@ export const IndexCommand = Effect.gen(function* () {
           })
         },
         (effect, { project }) =>
-          effect.pipe(Effect.provide(CommandRuntime.layer(project))),
+          effect.pipe(Effect.provide(CommandRuntime.grepaiIndexLayer(project))),
       ),
     ),
   )
