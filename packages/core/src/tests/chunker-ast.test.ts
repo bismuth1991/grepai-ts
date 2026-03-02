@@ -16,6 +16,7 @@ const TokenCounterTest = Layer.succeed(TokenCounter, {
 
 const ConfigTest = Layer.succeed(Config, {
   cwd: '/test',
+  project: 'test',
   embedding: {
     provider: 'google',
     model: 'gemini-embedding-001',
@@ -36,6 +37,7 @@ const ConfigTest = Layer.succeed(Config, {
 
 const LargeChunkConfigTest = Layer.succeed(Config, {
   cwd: '/test',
+  project: 'test',
   embedding: {
     provider: 'google',
     model: 'gemini-embedding-001',
@@ -72,6 +74,7 @@ const TestLiveLargeChunks = ChunkerAst.pipe(
 
 const TinyChunkConfigTest = Layer.succeed(Config, {
   cwd: '/test',
+  project: 'test',
   embedding: {
     provider: 'google',
     model: 'gemini-embedding-001',
