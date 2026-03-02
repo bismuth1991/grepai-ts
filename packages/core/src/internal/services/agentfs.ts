@@ -2,6 +2,7 @@ import { FileSystem, Path } from '@effect/platform'
 import { connect } from '@tursodatabase/sync'
 import { AgentFS } from 'agentfs-sdk'
 import * as Effect from 'effect/Effect'
+import * as Schedule from 'effect/Schedule'
 
 import { Config } from '../../domain/config'
 import { AgentFsError } from '../../domain/errors'
@@ -28,28 +29,23 @@ export class AgentFs extends Effect.Service<AgentFs>()(
 
       yield* fs.makeDirectory(baseAgentFsLocalPath, { recursive: true })
 
-      const db = yield* Effect.firstSuccessOf([
-        Effect.tryPromise({
-          try: () =>
-            connect({
-              path: path.join(baseAgentFsLocalPath, 'local.db'),
-              url,
-              authToken,
-              clientName: 'grepai',
-            }),
-          catch: (cause) => new AgentFsError({ cause }),
+      const db = yield* Effect.tryPromise({
+        try: () =>
+          connect({
+            path: path.join(baseAgentFsLocalPath, 'local.db'),
+            url,
+            authToken,
+            clientName: 'grepai',
+          }),
+        catch: (cause) => new AgentFsError({ cause }),
+      }).pipe(
+        Effect.retry({
+          while: (error) =>
+            error.message.includes('File is locked by another process'),
+          times: 10,
+          schedule: Schedule.exponential('50 millis'),
         }),
-        Effect.tryPromise({
-          try: () =>
-            connect({
-              path: ':memory:',
-              url,
-              authToken,
-              clientName: 'grepai',
-            }),
-          catch: (cause) => new AgentFsError({ cause }),
-        }),
-      ])
+      )
 
       const agentFs = yield* Effect.tryPromise({
         try: () => AgentFS.openWith(db),
