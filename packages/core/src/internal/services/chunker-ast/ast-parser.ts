@@ -68,4 +68,5 @@ const languageMap = {
   tsx: './tree-sitter-tsx.wasm',
   json: './tree-sitter-json.wasm',
   javascript: './tree-sitter-javascript.wasm',
+  prisma: './tree-sitter-prisma.wasm',
 } satisfies Record<SupportedLanguage, string>

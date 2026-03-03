@@ -57,6 +57,10 @@ export const CodebaseScannerAgentFs = Layer.scoped(
           filePath,
           language: 'javascript' as const,
         })),
+        Match.when('prisma', () => ({
+          filePath,
+          language: 'prisma' as const,
+        })),
         Match.option,
       )
     }

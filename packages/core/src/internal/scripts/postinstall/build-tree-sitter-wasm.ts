@@ -75,4 +75,22 @@ export const buildTreeSitterWasm = Effect.fnUntraced(function* () {
     Command.stderr('inherit'),
     Command.exitCode,
   )
+
+  yield* Command.make(
+    'bunx',
+    'tree-sitter',
+    'build',
+    '--wasm',
+    '--output',
+    path.resolve(
+      import.meta.dirname,
+      '../../services/chunker-ast/tree-sitter-prisma.wasm',
+    ),
+    'node_modules/tree-sitter-prisma',
+  ).pipe(
+    Command.workingDirectory('./packages/core'),
+    Command.stdout('inherit'),
+    Command.stderr('inherit'),
+    Command.exitCode,
+  )
 })

@@ -5,6 +5,7 @@ import { SupportedLanguage } from '../../../../domain'
 import { javascript } from './javascript'
 import { json } from './json'
 import { tsx } from './tsx'
+import { prisma } from './prisma'
 import { typescript } from './typescript'
 
 export type ChunkerLanguageConfig = {
@@ -20,4 +21,5 @@ export const languageConfig = {
   tsx,
   json,
   javascript,
+  prisma,
 } satisfies Record<SupportedLanguage, ChunkerLanguageConfig>

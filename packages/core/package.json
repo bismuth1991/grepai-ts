@@ -32,7 +32,8 @@
     "tree-sitter-javascript": "catalog:tree-sitter",
     "tree-sitter-json": "catalog:tree-sitter",
     "tree-sitter-typescript": "catalog:tree-sitter",
-    "web-tree-sitter": "catalog:tree-sitter"
+    "web-tree-sitter": "catalog:tree-sitter",
+    "tree-sitter-prisma": "catalog:tree-sitter"
   },
   "devDependencies": {
     "@grepai/tsconfig": "workspace:*",
