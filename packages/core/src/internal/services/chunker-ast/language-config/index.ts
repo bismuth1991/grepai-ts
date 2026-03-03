@@ -4,8 +4,8 @@ import { SupportedLanguage } from '../../../../domain'
 
 import { javascript } from './javascript'
 import { json } from './json'
-import { tsx } from './tsx'
 import { prisma } from './prisma'
+import { tsx } from './tsx'
 import { typescript } from './typescript'
 
 export type ChunkerLanguageConfig = {
