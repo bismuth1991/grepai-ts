@@ -53,6 +53,7 @@ const build = Effect.gen(function* () {
       '../core/src/internal/services/chunker-ast/tree-sitter-typescript.wasm',
       '../core/src/internal/services/chunker-ast/tree-sitter-javascript.wasm',
       '../core/src/internal/services/chunker-ast/tree-sitter-json.wasm',
+      '../core/src/internal/services/chunker-ast/tree-sitter-prisma.wasm',
     ],
     (wasmModule) =>
       fs.copyFile(
