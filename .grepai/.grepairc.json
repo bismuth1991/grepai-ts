@@ -20,10 +20,5 @@
     ".turbo",
     ".cache",
     ".zed"
-  ],
-  "experimental__agentFs": {
-    "syncMode": "push",
-    "url": "${AGENT_FS_URL}",
-    "authToken": "${AGENT_FS_AUTH_TOKEN}"
-  }
+  ]
 }

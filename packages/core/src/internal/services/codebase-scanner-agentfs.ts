@@ -161,24 +161,29 @@ export const CodebaseScannerAgentFs = Layer.scoped(
         const entries = yield* agentFs
           .use((a) => a.fs.readdir(path))
           .pipe(Effect.mapError((cause) => new CodebaseScannerError({ cause })))
-        yield* Effect.forEach(entries, (entry) =>
-          Effect.gen(function* () {
-            const normalizedPath = path === '/' ? '' : path.replace(/\/$/, '')
-            const normalizedEntry = entry.replace(/^\//, '')
-            const fullPath = normalizedPath + '/' + normalizedEntry
+        yield* Effect.forEach(
+          entries,
+          (entry) =>
+            Effect.gen(function* () {
+              const normalizedPath = path === '/' ? '' : path.replace(/\/$/, '')
+              const normalizedEntry = entry.replace(/^\//, '')
+              const fullPath = normalizedPath + '/' + normalizedEntry
 
-            const stats = yield* agentFs
-              .use((a) => a.fs.stat(fullPath))
-              .pipe(
-                Effect.mapError((cause) => new CodebaseScannerError({ cause })),
-              )
-            if (stats.isDirectory()) {
-              const subFiles = yield* readDirRecursiveAgentFs(fullPath)
-              results.push(...subFiles)
-            } else {
-              results.push(fullPath)
-            }
-          }),
+              const stats = yield* agentFs
+                .use((a) => a.fs.stat(fullPath))
+                .pipe(
+                  Effect.mapError(
+                    (cause) => new CodebaseScannerError({ cause }),
+                  ),
+                )
+              if (stats.isDirectory()) {
+                const subFiles = yield* readDirRecursiveAgentFs(fullPath)
+                results.push(...subFiles)
+              } else {
+                results.push(fullPath)
+              }
+            }),
+          { concurrency: 'unbounded' },
         )
 
         return results
