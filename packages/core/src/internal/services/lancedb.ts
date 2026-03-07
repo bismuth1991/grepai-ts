@@ -115,10 +115,13 @@ export class LanceDb extends Effect.Service<LanceDb>()(
 
       const flushInsertQueue = Effect.fnUntraced(function* () {
         if (Array.isNonEmptyArray(insertQueue)) {
-          yield* useTable(CHUNK_TABLE)((t) => t.add(insertQueue))
+          const clonedQueue = Array.fromIterable(insertQueue)
+
           documentInsertQueue = {}
           chunkInsertQueue = {}
           insertQueue = []
+
+          yield* useTable(CHUNK_TABLE)((t) => t.add(clonedQueue))
         }
       })
 
