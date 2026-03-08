@@ -42,9 +42,9 @@ export class AgentFs extends Effect.Service<AgentFs>()(
         Effect.retry({
           while: (error) =>
             error.message.includes('File is locked by another process'),
-          times: 20,
+          times: 30,
           schedule: Schedule.jitteredWith({ min: 0.5, max: 2 })(
-            Schedule.fixed('100 millis'),
+            Schedule.fixed('200 millis'),
           ),
         }),
       )
