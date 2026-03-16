@@ -15,22 +15,23 @@ export function layer(project?: string, experimental__agentFsSync = false) {
     Effect.gen(function* () {
       const fs = yield* FileSystem.FileSystem
       const path = yield* Path.Path
-      const cwd = process.cwd()
+      const baseCwd = process.cwd()
 
       return yield* Effect.firstSuccessOf([
         fs.readFileString(
-          path.resolve(cwd, `.grepai/.${project}.grepairc.json`),
+          path.resolve(baseCwd, `.grepai/.${project}.grepairc.json`),
         ),
-        fs.readFileString(path.resolve(cwd, '.grepai/.grepairc.json')),
-        fs.readFileString(path.resolve(cwd, '.grepairc.json')),
-        fs.readFileString(path.resolve(cwd, 'grepai-config.json')),
+        fs.readFileString(path.resolve(baseCwd, '.grepai/.grepairc.json')),
+        fs.readFileString(path.resolve(baseCwd, '.grepairc.json')),
+        fs.readFileString(path.resolve(baseCwd, 'grepai-config.json')),
       ]).pipe(
         Effect.flatMap(interpolateEnvVars),
         Effect.flatMap(Schema.decodeUnknown(Schema.parseJson(GrepAiConfig))),
         Effect.map((config) => ({
           ...config,
           project: project ?? 'default',
-          cwd: config.cwd ? path.resolve(cwd, config.cwd) : cwd,
+          baseCwd,
+          cwd: config.cwd ? path.resolve(baseCwd, config.cwd) : baseCwd,
         })),
         Effect.map((config) => {
           const agentFsConfig = config.experimental__agentFs

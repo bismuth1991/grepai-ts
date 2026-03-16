@@ -12,12 +12,15 @@ import { Config } from '../../domain/config'
 import { DocumentStorage } from '../../domain/document-storage'
 import { CodebaseScannerError } from '../../domain/errors'
 
+import { FilePathNormalizer } from './file-path-normalizer'
+
 export const CodebaseScannerFs = Layer.effect(
   CodebaseScanner,
   Effect.gen(function* () {
     const fs = yield* FileSystem.FileSystem
     const config = yield* Config
     const documentStorage = yield* DocumentStorage
+    const filePathNormalizer = yield* FilePathNormalizer
 
     const scan = Effect.fnUntraced(
       function* () {
@@ -71,6 +74,7 @@ export const CodebaseScannerFs = Layer.effect(
               ),
             ),
           ),
+          Effect.map(Array.map(filePathNormalizer.normalize)),
           Effect.flatMap(
             Effect.forEach(
               ({ filePath, language }) =>

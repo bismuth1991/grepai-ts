@@ -23,7 +23,7 @@ export class AgentFs extends Effect.Service<AgentFs>()(
 
       const { authToken, url, syncMode } = config.experimental__agentFs
       const baseAgentFsLocalPath = path.resolve(
-        config.cwd,
+        config.baseCwd,
         `./.grepai/${config.project}/agentfs`,
       )
 

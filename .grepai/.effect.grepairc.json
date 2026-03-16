@@ -12,9 +12,11 @@
     "targetChunkSize": 512,
     "tokenizer": "simple"
   },
-  "experimental__agentFs": {
-    "syncMode": "pull",
-    "url": "${AGENT_FS_EFFECT_URL}",
-    "authToken": "${AGENT_FS_EFFECT_AUTH_TOKEN}"
-  }
+  "cwd": "../opensource",
+  "include": ["effect/packages/**/*.ts"],
+  "exclude": [
+    "node_modules",
+    "effect/packages/platform/src/internal/httpApiScalar.ts",
+    "effect/packages/platform/src/internal/httpApiSwagger.ts"
+  ]
 }

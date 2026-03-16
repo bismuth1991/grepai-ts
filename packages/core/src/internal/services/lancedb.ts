@@ -43,7 +43,9 @@ export class LanceDb extends Effect.Service<LanceDb>()(
       > = []
 
       const db = yield* Effect.promise(() =>
-        lance.connect(path.resolve(config.cwd, `./.grepai/${config.project}`)),
+        lance.connect(
+          path.resolve(config.baseCwd, `./.grepai/${config.project}`),
+        ),
       )
 
       const use =

@@ -20,6 +20,7 @@ import { EmbedderGemini } from './embedder-gemini'
 import { EmbedderOpenai } from './embedder-openai'
 import { EmbeddingNormalizer } from './embedding-normalizer'
 import { FileIndexer } from './file-indexer'
+import { FilePathNormalizer } from './file-path-normalizer'
 import { FileReaderAgentFs } from './file-reader-agentfs'
 import { FileReaderFs } from './file-reader-fs'
 import { Indexer } from './indexer'
@@ -96,7 +97,9 @@ const GrepAiLive = Layer.unwrapEffect(
         (val) => !!val,
         () => CodebaseScannerAgentFs.pipe(Layer.provide(AgentFs.Default)),
       ),
-      Match.orElse(() => CodebaseScannerFs),
+      Match.orElse(() =>
+        CodebaseScannerFs.pipe(Layer.provide(FilePathNormalizer.Default)),
+      ),
     )
     const FileReaderLive = Match.value(config.experimental__agentFs).pipe(
       Match.when(
@@ -122,6 +125,7 @@ const GrepAiLive = Layer.unwrapEffect(
         ),
       ),
       Layer.provideMerge(DocumentStorageLive),
+      Layer.provideMerge(FilePathNormalizer.Default),
     )
   }),
 )
