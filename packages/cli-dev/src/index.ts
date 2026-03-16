@@ -25,7 +25,7 @@ const program = Effect.gen(function* () {
 
   const cli = Command.run(command, {
     name: 'GREP AI',
-    version: 'v0.9.0',
+    version: 'v0.9.1',
   })
 
   yield* cli(process.argv)

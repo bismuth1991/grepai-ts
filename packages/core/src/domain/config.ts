@@ -128,6 +128,7 @@ const Embedding = Schema.Union(
 
 export const GrepAiConfig = Schema.Struct({
   $schema: Schema.String.pipe(Schema.optional),
+  cwd: Schema.String.pipe(Schema.optional),
   embedding: Embedding.pipe(
     Schema.annotations({
       description: 'Embedding model and provider configuration',
@@ -159,6 +160,5 @@ export const GrepAiConfig = Schema.Struct({
   }).pipe(Schema.optional),
 })
 export type GrepAiConfig = typeof GrepAiConfig.Type & {
-  cwd: string
   project: string
 }

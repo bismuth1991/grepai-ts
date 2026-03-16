@@ -30,7 +30,7 @@ export function layer(project?: string, experimental__agentFsSync = false) {
         Effect.map((config) => ({
           ...config,
           project: project ?? 'default',
-          cwd,
+          cwd: config.cwd ? path.resolve(cwd, config.cwd) : cwd,
         })),
         Effect.map((config) => {
           const agentFsConfig = config.experimental__agentFs
