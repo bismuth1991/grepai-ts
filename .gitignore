@@ -4,8 +4,8 @@
 
 # Build outputs
 dist
-releases/cli/index.js
-releases/cli/index.js.map
+releases/*/index.js
+releases/*/index.js.map
 *.wasm
 *.node
 

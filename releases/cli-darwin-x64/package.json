@@ -1,0 +1,37 @@
+{
+  "name": "@grepai/cli-darwin-x64",
+  "version": "0.9.2",
+  "description": "CLI for semantic code search. It uses vector embeddings to understand code meaning, enabling natural language queries that find relevant code—even when naming conventions vary.",
+  "homepage": "https://github.com/bismuth1991/grepai-ts#readme",
+  "bugs": {
+    "url": "https://github.com/bismuth1991/grepai-ts/issues"
+  },
+  "license": "MIT",
+  "author": "bismuth1991",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bismuth1991/grepai-ts.git"
+  },
+  "bin": {
+    "grepai": "./index.js"
+  },
+  "files": [
+    "index.js",
+    "index.js.map",
+    "*.wasm"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "clean": "git clean -xdf node_modules index.js index.js.map *.wasm",
+    "publish:npm": "bun publish"
+  },
+  "dependencies": {
+    "@lancedb/lancedb": "0.15.0",
+    "@tursodatabase/sync": "catalog:libsql"
+  },
+  "optionalDependencies": {
+    "@libsql/darwin-x64": "catalog:libsql"
+  }
+}

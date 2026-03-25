@@ -6,7 +6,10 @@ const build = Effect.gen(function* () {
   const fs = yield* FileSystem.FileSystem
   const path = yield* Path.Path
 
-  const RELEASE_DIR = path.resolve(import.meta.dirname, '../../releases/cli')
+  const RELEASE_DIRS = [
+    path.resolve(import.meta.dirname, '../../releases/cli'),
+    path.resolve(import.meta.dirname, '../../releases/cli-darwin-x64'),
+  ]
 
   yield* Effect.tryPromise({
     try: () =>
@@ -42,9 +45,11 @@ const build = Effect.gen(function* () {
     Effect.andThen(fs.chmod(indexFilePath, 0o755)),
   )
 
-  yield* fs.copy(path.resolve(import.meta.dirname, './dist/'), RELEASE_DIR, {
-    overwrite: true,
-  })
+  yield* Effect.forEach(RELEASE_DIRS, (releaseDir) =>
+    fs.copy(path.resolve(import.meta.dirname, './dist/'), releaseDir, {
+      overwrite: true,
+    }),
+  )
 
   yield* Effect.forEach(
     [
@@ -56,9 +61,11 @@ const build = Effect.gen(function* () {
       '../core/src/internal/services/chunker-ast/tree-sitter-prisma.wasm',
     ],
     (wasmModule) =>
-      fs.copyFile(
-        path.resolve(import.meta.dirname, wasmModule),
-        path.join(RELEASE_DIR, wasmModule.split('/').at(-1)!),
+      Effect.forEach(RELEASE_DIRS, (releaseDir) =>
+        fs.copyFile(
+          path.resolve(import.meta.dirname, wasmModule),
+          path.join(releaseDir, wasmModule.split('/').at(-1)!),
+        ),
       ),
   )
 })

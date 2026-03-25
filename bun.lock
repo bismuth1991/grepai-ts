@@ -19,7 +19,7 @@
     },
     "packages/cli-dev": {
       "name": "@grepai/cli-dev",
-      "version": "0.8.4",
+      "version": "0.9.2",
       "dependencies": {
         "@clack/prompts": "1.0.0",
         "@effect/cli": "catalog:effect",
@@ -65,7 +65,7 @@
     },
     "releases/cli": {
       "name": "@grepai/cli",
-      "version": "0.8.4",
+      "version": "0.9.2",
       "bin": {
         "grepai": "./index.js",
       },
@@ -81,6 +81,20 @@
         "@libsql/linux-x64-gnu": "catalog:libsql",
         "@libsql/linux-x64-musl": "catalog:libsql",
         "@libsql/win32-x64-msvc": "catalog:libsql",
+      },
+    },
+    "releases/cli-darwin-x64": {
+      "name": "@grepai/cli-darwin-x64",
+      "version": "0.9.2",
+      "bin": {
+        "grepai": "./index.js",
+      },
+      "dependencies": {
+        "@lancedb/lancedb": "0.15.0",
+        "@tursodatabase/sync": "catalog:libsql",
+      },
+      "optionalDependencies": {
+        "@libsql/darwin-x64": "catalog:libsql",
       },
     },
     "tooling/scripts": {
@@ -260,6 +274,8 @@
 
     "@grepai/cli": ["@grepai/cli@workspace:releases/cli"],
 
+    "@grepai/cli-darwin-x64": ["@grepai/cli-darwin-x64@workspace:releases/cli-darwin-x64"],
+
     "@grepai/cli-dev": ["@grepai/cli-dev@workspace:packages/cli-dev"],
 
     "@grepai/core": ["@grepai/core@workspace:packages/core"],
@@ -273,6 +289,8 @@
     "@lancedb/lancedb": ["@lancedb/lancedb@0.26.2", "", { "dependencies": { "reflect-metadata": "^0.2.2" }, "optionalDependencies": { "@lancedb/lancedb-darwin-arm64": "0.26.2", "@lancedb/lancedb-linux-arm64-gnu": "0.26.2", "@lancedb/lancedb-linux-arm64-musl": "0.26.2", "@lancedb/lancedb-linux-x64-gnu": "0.26.2", "@lancedb/lancedb-linux-x64-musl": "0.26.2", "@lancedb/lancedb-win32-arm64-msvc": "0.26.2", "@lancedb/lancedb-win32-x64-msvc": "0.26.2" }, "peerDependencies": { "apache-arrow": ">=15.0.0 <=18.1.0" }, "os": [ "linux", "win32", "darwin", ], "cpu": [ "x64", "arm64", ] }, "sha512-umk4WMCTwJntLquwvUbpqE+TXREolcQVL9MHcxr8EhRjsha88+ATJ4QuS/hpyiE1CG3R/XcgrMgJAGkziPC/gA=="],
 
     "@lancedb/lancedb-darwin-arm64": ["@lancedb/lancedb-darwin-arm64@0.26.2", "", { "os": "darwin", "cpu": "arm64" }, "sha512-LAZ/v261eTlv44KoEm+AdqGnohS9IbVVVJkH9+8JTqwhe/k4j4Af8X9cD18tsaJAAtrGxxOCyIJ3wZTiBqrkCw=="],
+
+    "@lancedb/lancedb-darwin-x64": ["@lancedb/lancedb-darwin-x64@0.15.0", "", { "os": "darwin", "cpu": "x64" }, "sha512-kEgigrqKf954egDbUdIp86tjVfFmTCTcq2Hydw/WLc+LI++46aeT2MsJv0CQpkNFMfh/T2G18FsDYLKH0zTaow=="],
 
     "@lancedb/lancedb-linux-arm64-gnu": ["@lancedb/lancedb-linux-arm64-gnu@0.26.2", "", { "os": "linux", "cpu": "arm64" }, "sha512-guHKm+zvuQB22dgyn6/sYZJvD6IL9lC24cl6ZuzVX/jYgag/gNLHT86HongrcBjgdjI6+YIGmdfD6b/iAKxn3Q=="],
 
@@ -842,6 +860,8 @@
 
     "@ai-sdk/openai/@ai-sdk/provider-utils": ["@ai-sdk/provider-utils@4.0.15", "", { "dependencies": { "@ai-sdk/provider": "3.0.8", "@standard-schema/spec": "^1.1.0", "eventsource-parser": "^3.0.6" }, "peerDependencies": { "zod": "^3.25.76 || ^4.1.8" } }, "sha512-8XiKWbemmCbvNN0CLR9u3PQiet4gtEVIrX4zzLxnCj06AwsEDJwJVBbKrEI4t6qE8XRSIvU2irka0dcpziKW6w=="],
 
+    "@grepai/cli-darwin-x64/@lancedb/lancedb": ["@lancedb/lancedb@0.15.0", "", { "dependencies": { "reflect-metadata": "^0.2.2" }, "optionalDependencies": { "@lancedb/lancedb-darwin-arm64": "0.15.0", "@lancedb/lancedb-darwin-x64": "0.15.0", "@lancedb/lancedb-linux-arm64-gnu": "0.15.0", "@lancedb/lancedb-linux-arm64-musl": "0.15.0", "@lancedb/lancedb-linux-x64-gnu": "0.15.0", "@lancedb/lancedb-linux-x64-musl": "0.15.0", "@lancedb/lancedb-win32-arm64-msvc": "0.15.0", "@lancedb/lancedb-win32-x64-msvc": "0.15.0" }, "peerDependencies": { "apache-arrow": ">=15.0.0 <=18.1.0" }, "os": [ "linux", "win32", "darwin", ], "cpu": [ "x64", "arm64", ] }, "sha512-qm3GXLA17/nFGUwrOEuFNW0Qg2gvCtp+yAs6qoCM6vftIreqzp8d4Hio6eG/YojS9XqPnR2q+zIeIFy12Ywvxg=="],
+
     "@parcel/watcher/node-addon-api": ["node-addon-api@7.1.1", "", {}, "sha512-5m3bsyrjFWE1xf7nz7YXdN4udnVtXK6/Yfgn5qnahL6bCkf2yKt4k3nuTKAtT4r3IG8JNR2ncsIMdZuAzJjHQQ=="],
 
     "apache-arrow/@types/node": ["@types/node@20.19.33", "", { "dependencies": { "undici-types": "~6.21.0" } }, "sha512-Rs1bVAIdBs5gbTIKza/tgpMuG1k3U/UMJLWecIMxNdJFDMzcM5LOiLVRYh3PilWEYDIeUDv7bpiHPLPsbydGcw=="],
@@ -863,6 +883,20 @@
     "table-layout/array-back": ["array-back@6.2.2", "", {}, "sha512-gUAZ7HPyb4SJczXAMUXMGAvI976JoK3qEx9v1FTmeYuJj0IBiaKttG1ydtGKdkfqWkIkouke7nG8ufGy77+Cvw=="],
 
     "vitest/tinypool": ["tinypool@1.1.1", "", {}, "sha512-Zba82s87IFq9A9XmjiX5uZA/ARWDrB03OHlq+Vw1fSdt0I+4/Kutwy8BP4Y/y/aORMo61FQ0vIb5j44vSo5Pkg=="],
+
+    "@grepai/cli-darwin-x64/@lancedb/lancedb/@lancedb/lancedb-darwin-arm64": ["@lancedb/lancedb-darwin-arm64@0.15.0", "", { "os": "darwin", "cpu": "arm64" }, "sha512-e6eiS1dUdSx3G3JXFEn5bk6I26GR7UM2QwQ1YMrTsg7IvGDqKmXc/s5j4jpJH0mzm7rwqh+OAILPIjr7DoUCDA=="],
+
+    "@grepai/cli-darwin-x64/@lancedb/lancedb/@lancedb/lancedb-linux-arm64-gnu": ["@lancedb/lancedb-linux-arm64-gnu@0.15.0", "", { "os": "linux", "cpu": "arm64" }, "sha512-TnpbBT9kaSYQqastJ+S5jm4S5ZYBx18X8PHQ1ic3yMIdPTjCWauj+owDovOpiXK9ucjmi/FnUp8bKNxGnlqmEg=="],
+
+    "@grepai/cli-darwin-x64/@lancedb/lancedb/@lancedb/lancedb-linux-arm64-musl": ["@lancedb/lancedb-linux-arm64-musl@0.15.0", "", { "os": "linux", "cpu": "arm64" }, "sha512-fe8LnC9YKbLgEJiLQhyVj+xz1d1RgWKs+rLSYPxaD3xQBo3kMC94Esq+xfrdNkSFvPgchRTvBA9jDYJjJL8rcg=="],
+
+    "@grepai/cli-darwin-x64/@lancedb/lancedb/@lancedb/lancedb-linux-x64-gnu": ["@lancedb/lancedb-linux-x64-gnu@0.15.0", "", { "os": "linux", "cpu": "x64" }, "sha512-0lKEc3M06ax3RozBbxHuNN9qWqhJUiKDnRC3ttsbmo4VrOUBvAO3fKoaRkjZhAA8q4+EdhZnCaQZezsk60f7Ag=="],
+
+    "@grepai/cli-darwin-x64/@lancedb/lancedb/@lancedb/lancedb-linux-x64-musl": ["@lancedb/lancedb-linux-x64-musl@0.15.0", "", { "os": "linux", "cpu": "x64" }, "sha512-ls+ikV7vWyVnqVT7bMmuqfGCwVR5JzPIfJ5iZ4rkjU4iTIQRpY7u/cTe9rGKt/+psliji8x6PPZHpfdGXHmleQ=="],
+
+    "@grepai/cli-darwin-x64/@lancedb/lancedb/@lancedb/lancedb-win32-arm64-msvc": ["@lancedb/lancedb-win32-arm64-msvc@0.15.0", "", { "os": "win32", "cpu": "arm64" }, "sha512-C30A+nDaJ4jhjN76hRcp28Eq+G48SR9wO3i1zGm0ZAEcRV1t9O1fAp6g18IPT65Qyu/hXJBgBdVHtent+qg9Ng=="],
+
+    "@grepai/cli-darwin-x64/@lancedb/lancedb/@lancedb/lancedb-win32-x64-msvc": ["@lancedb/lancedb-win32-x64-msvc@0.15.0", "", { "os": "win32", "cpu": "x64" }, "sha512-amXzIAxqrHyp+c9TpIDI8ze1uCqWC6HXQIoXkoMQrBXoUUo8tJORH2yGAsa3TSgjZDDjg0HPA33dYLhOLk1m8g=="],
 
     "apache-arrow/@types/node/undici-types": ["undici-types@6.21.0", "", {}, "sha512-iwDZqg0QAGrg9Rav5H4n0M64c3mkR59cJ6wQp+7C4nI0gsmExaedaYLNO44eT4AtBBwjbTiGPMlt2Md0T9H9JQ=="],
 
