@@ -5,6 +5,7 @@ const SupportedLanguage = Schema.Literal(
   'tsx',
   'json',
   'javascript',
+  'java',
   'prisma',
 )
 export type SupportedLanguage = typeof SupportedLanguage.Type

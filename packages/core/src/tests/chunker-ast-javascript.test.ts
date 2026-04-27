@@ -16,6 +16,7 @@ const TokenCounterTest = Layer.succeed(TokenCounter, {
 
 const ConfigTest = Layer.succeed(Config, {
   cwd: '/test',
+  baseCwd: '/test',
   project: 'test',
   embedding: {
     provider: 'google',
@@ -37,6 +38,7 @@ const ConfigTest = Layer.succeed(Config, {
 
 const LargeChunkConfigTest = Layer.succeed(Config, {
   cwd: '/test',
+  baseCwd: '/test',
   project: 'test',
   embedding: {
     provider: 'google',
@@ -58,6 +60,7 @@ const LargeChunkConfigTest = Layer.succeed(Config, {
 
 const TinyChunkConfigTest = Layer.succeed(Config, {
   cwd: '/test',
+  baseCwd: '/test',
   project: 'test',
   embedding: {
     provider: 'google',

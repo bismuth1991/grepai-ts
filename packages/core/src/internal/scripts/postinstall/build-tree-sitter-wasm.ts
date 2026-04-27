@@ -30,6 +30,24 @@ export const buildTreeSitterWasm = Effect.fnUntraced(function* () {
     '--output',
     path.resolve(
       import.meta.dirname,
+      '../../services/chunker-ast/tree-sitter-java.wasm',
+    ),
+    'node_modules/tree-sitter-java',
+  ).pipe(
+    Command.workingDirectory('./packages/core'),
+    Command.stdout('inherit'),
+    Command.stderr('inherit'),
+    Command.exitCode,
+  )
+
+  yield* Command.make(
+    'bunx',
+    'tree-sitter',
+    'build',
+    '--wasm',
+    '--output',
+    path.resolve(
+      import.meta.dirname,
       '../../services/chunker-ast/tree-sitter-tsx.wasm',
     ),
     'node_modules/tree-sitter-typescript/tsx',

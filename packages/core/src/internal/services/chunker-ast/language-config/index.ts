@@ -2,6 +2,7 @@ import type { SyntaxNode } from '../ast-parser'
 
 import { SupportedLanguage } from '../../../../domain'
 
+import { java } from './java'
 import { javascript } from './javascript'
 import { json } from './json'
 import { prisma } from './prisma'
@@ -21,5 +22,6 @@ export const languageConfig = {
   tsx,
   json,
   javascript,
+  java,
   prisma,
 } satisfies Record<SupportedLanguage, ChunkerLanguageConfig>
