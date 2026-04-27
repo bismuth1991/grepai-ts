@@ -19,6 +19,7 @@ const program = Effect.gen(function* () {
   const PACKAGE_JSON_PATHS = [
     'packages/cli-dev/package.json',
     'releases/cli/package.json',
+    'releases/cli-darwin-x64/package.json',
   ]
 
   const CLI_INDEX_FILE = 'packages/cli-dev/src/index.ts'
