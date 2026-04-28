@@ -4,7 +4,7 @@
 ### Architecture
 
 <!-- lore:019dd01d-2e73-7c10-be87-d02b580e354a -->
-* **Adding tree-sitter languages**: Adding tree-sitter languages requires wiring \`SupportedLanguage\`, \`languageConfig\`, AST parser WASM map, FS/AgentFS extension mappers, package catalog/dependency, CLI release WASM copy list, and AST chunker tests. Add parser builds to the postinstall \`TREE\_SITTER\_WASM\_BUILDS\` list; WASM files are generated/ignored, not committed.
+* **Adding tree-sitter languages**: Adding tree-sitter languages requires wiring \`SupportedLanguage\`, \`languageConfig\`, AST parser WASM map, FS/AgentFS extension mappers, package catalog/dependency, postinstall \`TREE\_SITTER\_WASM\_BUILDS\`, CLI release WASM copy list, AST chunker tests, and supported-language docs such as \`releases/cli/README.md\`. WASM files are generated/ignored, not committed.
 
 ### Gotcha
 

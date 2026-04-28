@@ -100,7 +100,7 @@ Read `https://github.com/bismuth1991/grepai-ts/blob/main/packages/core/src/domai
 
 ## How it works
 
-1.  **AST Parsing**: GrepAI parses your code (TypeScript/TSX) into an Abstract Syntax Tree.
+1.  **AST Parsing**: GrepAI parses your code (TypeScript, TSX, JavaScript, Java, JSON, YAML, and Prisma) into an Abstract Syntax Tree.
 2.  **Smart Chunking**: It splits code into meaningful chunks, preserving scope context (class names, function signatures) even for deep nested code.
 3.  **Embedding**: Chunks are embedded using Google's Gemini models.
 4.  **Vector Search**: Queries are embedded and compared against code chunks using cosine similarity.
