@@ -4,12 +4,15 @@
 ### Architecture
 
 <!-- lore:019dd01d-2e73-7c10-be87-d02b580e354a -->
-* **Adding tree-sitter languages**: Adding tree-sitter languages requires wiring \`SupportedLanguage\`, \`languageConfig\`, AST parser WASM map, FS and AgentFS extension mappers, package catalog/dependency, postinstall WASM build, CLI release WASM copy list, and AST chunker tests. Parser WASM files are generated/ignored; update build/copy scripts rather than committing the generated WASM.
+* **Adding tree-sitter languages**: Adding tree-sitter languages requires wiring \`SupportedLanguage\`, \`languageConfig\`, AST parser WASM map, FS/AgentFS extension mappers, package catalog/dependency, CLI release WASM copy list, and AST chunker tests. Add parser builds to the postinstall \`TREE\_SITTER\_WASM\_BUILDS\` list; WASM files are generated/ignored, not committed.
 
 ### Gotcha
 
 <!-- lore:019dd028-41bb-7c2f-88df-3f60058ef1e5 -->
 * **NPM publish can partially succeed**: \`turbo run publish:npm\` publishes release packages in parallel, so one package can publish successfully before another fails. If retrying gets \`403 ... cannot publish over previously published versions\`, confirm with \`bun pm view \<pkg> version\` before assuming publish failed.
+
+<!-- lore:019dd187-4d38-7436-a758-e53314efb0ed -->
+* **YAML Tree-sitter WASM Package**: For YAML support, avoid unscoped \`tree-sitter-yaml@0.5.0\`: its WASM build fails with missing external scanner symbols. Use \`@tree-sitter-grammars/tree-sitter-yaml@0.7.1\` in the tree-sitter catalog and build path instead.
 
 ### Pattern
 

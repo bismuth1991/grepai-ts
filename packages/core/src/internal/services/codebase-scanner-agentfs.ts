@@ -45,6 +45,14 @@ export const CodebaseScannerAgentFs = Layer.scoped(
           filePath,
           language: 'json' as const,
         })),
+        Match.when('yaml', () => ({
+          filePath,
+          language: 'yaml' as const,
+        })),
+        Match.when('yml', () => ({
+          filePath,
+          language: 'yaml' as const,
+        })),
         Match.when('js', () => ({
           filePath,
           language: 'javascript' as const,

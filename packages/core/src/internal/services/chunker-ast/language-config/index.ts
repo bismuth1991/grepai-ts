@@ -8,6 +8,7 @@ import { json } from './json'
 import { prisma } from './prisma'
 import { tsx } from './tsx'
 import { typescript } from './typescript'
+import { yaml } from './yaml'
 
 export type ChunkerLanguageConfig = {
   isClosingSyntax: (text: string) => boolean
@@ -23,5 +24,6 @@ export const languageConfig = {
   json,
   javascript,
   java,
+  yaml,
   prisma,
 } satisfies Record<SupportedLanguage, ChunkerLanguageConfig>

@@ -22,6 +22,7 @@
     "@effect/sql-libsql": "catalog:effect",
     "@effect/sql-pg": "catalog:effect",
     "@lancedb/lancedb": "catalog:lancedb",
+    "@tree-sitter-grammars/tree-sitter-yaml": "catalog:tree-sitter",
     "@tursodatabase/sync": "catalog:libsql",
     "agentfs-sdk": "catalog:libsql",
     "ai": "catalog:ai",
