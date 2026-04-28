@@ -1,83 +1,14 @@
-import { BunContext } from '@effect/platform-bun'
 import { describe, expect, it } from '@effect/vitest'
 import * as Effect from 'effect/Effect'
-import * as Layer from 'effect/Layer'
 
 import { Chunker } from '../domain/chunker'
-import { Config } from '../domain/config'
-import { TokenCounter } from '../domain/token-counter'
-import { ChunkerAst } from '../internal/services/chunker-ast'
-import { AstParser } from '../internal/services/chunker-ast/ast-parser'
-import { ContextHeaderBuilder } from '../internal/services/chunker-ast/context-header-builder'
+import { extractContextHeader, makeChunkerAstTestLayer } from './test-harness'
 
-const TokenCounterTest = Layer.succeed(TokenCounter, {
-  count: (content: string) => Effect.succeed(Math.ceil(content.length / 4)),
+const TestLive = makeChunkerAstTestLayer()
+const TestLiveTinyChunks = makeChunkerAstTestLayer({
+  targetChunkSize: 20,
+  maxChunkSize: 40,
 })
-
-const ConfigTest = Layer.succeed(Config, {
-  cwd: '/test',
-  baseCwd: '/test',
-  project: 'test',
-  embedding: {
-    provider: 'google',
-    model: 'gemini-embedding-001',
-    apiKey: 'test-key',
-    targetChunkSize: 50,
-    maxChunkSize: 100,
-    dimensions: 3072,
-    tokenizer: 'simple',
-  },
-  include: [],
-  exclude: [],
-  storage: {
-    type: 'turso',
-    url: 'test',
-    authToken: 'test',
-  },
-})
-
-const TinyChunkConfigTest = Layer.succeed(Config, {
-  cwd: '/test',
-  baseCwd: '/test',
-  project: 'test',
-  embedding: {
-    provider: 'google',
-    model: 'gemini-embedding-001',
-    apiKey: 'test-key',
-    targetChunkSize: 20,
-    maxChunkSize: 40,
-    dimensions: 3072,
-    tokenizer: 'simple',
-  },
-  include: [],
-  exclude: [],
-  storage: {
-    type: 'turso',
-    url: 'test',
-    authToken: 'test',
-  },
-})
-
-const TestLive = ChunkerAst.pipe(
-  Layer.provide(AstParser.Default),
-  Layer.provide(ContextHeaderBuilder.Default),
-  Layer.provide(TokenCounterTest),
-  Layer.provide(ConfigTest),
-  Layer.provideMerge(BunContext.layer),
-)
-
-const TestLiveTinyChunks = ChunkerAst.pipe(
-  Layer.provide(AstParser.Default),
-  Layer.provide(ContextHeaderBuilder.Default),
-  Layer.provide(TokenCounterTest),
-  Layer.provide(TinyChunkConfigTest),
-  Layer.provideMerge(BunContext.layer),
-)
-
-function extractContextHeader(content: string) {
-  const [header = ''] = content.split('\n---\n')
-  return header
-}
 
 describe('ChunkerAst Java Support', () => {
   it.effect('chunks a class declaration', () =>
